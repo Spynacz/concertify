@@ -46,5 +46,6 @@ media/profile_pics
 fixtures/*.json
 
 #react
-client/node_modules
-client/package-lock.json
+frontend/node_modules
+frontend/package-lock.json
+frontend/dist
