@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  database:
+    container_name: PostgreSQL
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: DB_USER
+      POSTGRES_PASSWORD: DB_PASSWORD
+      POSTGRES_DB: DB_NAME
+    volumes:
+      - ./postgresql:/docker-entrypoint-initdb.d
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    env_file:
+      - .env
+
+  backend:
+    container_name: Django
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/backend
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_USER: DB_USER
+      POSTGRES_PASSWORD: DB_PASSWORD
+      POSTGRES_DB: DB_NAME
+    depends_on:
+      - database
+    env_file:
+      - .env
+
+  frontend:
+    container_name: React
+    build: ./frontend
+    ports:
+     - "3000:3000"
