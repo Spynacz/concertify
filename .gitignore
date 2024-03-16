@@ -42,8 +42,9 @@ htmlcov
 media/post_pictures
 media/profile_pics
 
-#vim
-.vimrc
-
 # fixtures
 fixtures/*.json
+
+#react
+client/node_modules
+client/package-lock.json
