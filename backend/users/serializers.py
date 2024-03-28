@@ -19,13 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True, 'min_length': 9}}
 
     def create(self, validated_data):
-        data = validated_data
-        password = data.pop('password')
-        user = ConcertifyUser.objects.create(**data)
-
-        user.set_password(password)
-        user.save()
-
+        user = ConcertifyUser.objects.create_user(**validated_data)
         return user
 
 
