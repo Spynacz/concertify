@@ -1,3 +1,31 @@
-from django.shortcuts import render
+from django.contrib.auth import login
 
-# Create your views here.
+from rest_framework import generics
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
+from knox.views import LoginView as KnoxLoginView
+
+from users import serializers
+
+
+class CreateUserViews(generics.CreateAPIView):
+    serializer_class = serializers.UserSerializer
+
+
+class LoginView(KnoxLoginView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, format=None):
+        serializer = serializers.AuthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        login(request, user)
+        return super(LoginView, self).post(request, format=None)
+
+
+class ManageUserView(generics.RetrieveUpdateAPIView):
+    serializer_class = serializers.UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
