@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: DB_NAME
     volumes:
       - ./postgresql:/docker-entrypoint-initdb.d
-      - ./postgres-data:/var/lib/postgresql/data
+      - ./postgresql/data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: always
@@ -20,7 +20,7 @@ services:
   backend:
     container_name: Django
     build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
+    command: /backend/entrypoint.sh
     volumes:
       - ./backend:/backend
     ports:
