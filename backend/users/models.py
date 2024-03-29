@@ -28,8 +28,8 @@ class PaymentInfo(models.Model):
     country = models.CharField(
         _('country'), max_length=3, blank=True, null=True
     )
-    telephone = PhoneNumberField(blank=True, null=True)
-    mobile = PhoneNumberField(blank=True, null=True)
+    telephone = PhoneNumberField(_('telephone number'), blank=True, null=True)
+    mobile = PhoneNumberField(_('mobile phone number'), blank=True, null=True)
     user = models.OneToOneField(
         ConcertifyUser, related_name='payment_info', on_delete=models.CASCADE
     )
