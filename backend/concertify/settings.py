@@ -102,6 +102,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'HOST': 'database',
         'PORT': 5432,
+        'TEST': {
+            'NAME': 'ConcertifyTestDB',
+        }
     }
 }
 
