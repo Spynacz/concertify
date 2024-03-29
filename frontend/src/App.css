@@ -1,0 +1,9 @@
+* {
+  all: unset;
+  box-sizing: border-box;
+}
+
+head {
+  display: none;
+  visibility: hidden;
+}

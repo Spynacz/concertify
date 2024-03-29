@@ -1,10 +1,16 @@
 import React from 'react';
+import {useRef} from 'react';
+import {useState} from 'react';
+import {useEffect} from 'react';
 import './App.css';
+import NavBar from './NavBar';
+import { EventList } from './Event';
 
 export default function App() {
   return (
-    <div>
-      <h1>Hello from react!</h1>
-    </div>
+    <>
+      <NavBar isGuest={true}/>
+      <EventList count={25}/>
+    </>
   );
 }
