@@ -12,3 +12,11 @@ class RoleViewSet(mixins.CreateModelMixin,
                   mixins.UpdateModelMixin,
                   viewsets.GenericViewSet):
     serializer_class = serializers.RoleSerializer
+
+
+class EventContactViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.EventContactSerializer
+
+
+class SocialMediaViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.SocialMediaSerializer
