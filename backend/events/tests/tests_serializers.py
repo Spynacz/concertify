@@ -39,4 +39,4 @@ class TestEventSerializer(TestCase):
         role = Role.objects.get(user=self.user)
 
         self.assertIsNotNone(role)
-        self.assertEqual(role.name, Role.NameChoice.OWNER)
+        self.assertEqual(int(role.name), Role.NameChoice.OWNER)
