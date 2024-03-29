@@ -39,14 +39,6 @@ class AuthSerializer(serializers.Serializer):
             username=username,
             password=password
         )
-        print(
-            username, password, user, ConcertifyUser.objects.all(),
-            authenticate(
-                request=self.context.get('request'),
-                username='admin',
-                password='admin'
-            )
-        )
 
         if not user:
             msg = _('Unable to log in with provided credentials.')
