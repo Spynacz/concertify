@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 class Event(models.Model):
     title = models.CharField(_("title"), max_length=150)
     desc = models.CharField(_("description"), max_length=300)
-    picture = models.ImageField()
+    picture = models.ImageField(blank=True, null=True)
 
 
 class Role(models.Model):
