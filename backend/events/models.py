@@ -24,7 +24,11 @@ class Role(models.Model):
     name = models.CharField(_('role name'), choices=NameChoice.choices)
 
     class Meta:
-        unique_together = [['event', 'user']]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['event', 'user'], name='unique_event_user_combination'
+            )
+        ]
 
 
 class EventContact(models.Model):
@@ -47,4 +51,8 @@ class SocialMedia(models.Model):
                               on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = [['link', 'event']]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['event', 'link'], name='unique_event_link_combination'
+            )
+        ]
