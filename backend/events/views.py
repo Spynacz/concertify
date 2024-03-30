@@ -1,10 +1,11 @@
 from rest_framework import mixins, viewsets
 
-from events import serializers
+from events import permissions, serializers
 
 
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.EventSerializer
+    permission_classes = [permissions.EventPermissions]
 
 
 class RoleViewSet(mixins.CreateModelMixin,
