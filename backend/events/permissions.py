@@ -5,7 +5,13 @@ from events.models import Role
 
 class EventPermissions(BasePermission):
     def has_permission(self, request, view):
-        if view.action in ['create', 'list', 'retrieve']:
+        if view.action in ['list', 'retrieve']:
+            return True
+
+        if not request.user.is_authenticated:
+            return False
+
+        if view.action == 'create':
             return True
 
         event = view.kwargs.get('pk')
