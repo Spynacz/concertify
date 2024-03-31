@@ -1,7 +1,7 @@
 from rest_framework import mixins, viewsets
-from rest_framework.permissions import IsAuthenticated
 
 from posts_comments import serializers
+from posts_comments.permissions import IsOwner
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -16,11 +16,11 @@ class PostVoteViewSet(mixins.CreateModelMixin,
                       mixins.DestroyModelMixin,
                       viewsets.GenericViewSet):
     serializer_class = serializers.PostVoteSerializer
-    authentication_classes = [IsAuthenticated]
+    authentication_classes = [IsOwner]
 
 
 class CommentVoteViewSet(mixins.CreateModelMixin,
                          mixins.DestroyModelMixin,
                          viewsets.GenericViewSet):
     serializer_class = serializers.CommentVoteSerializer
-    authentication_classes = [IsAuthenticated]
+    authentication_classes = [IsOwner]
