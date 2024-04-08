@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'knox',
     'corsheaders',
+    'django_extensions',
     'debug_toolbar'
 ]
 
