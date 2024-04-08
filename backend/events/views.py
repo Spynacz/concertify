@@ -1,11 +1,17 @@
+from django.utils import timezone
+
 from rest_framework import mixins, viewsets
 
 from events import permissions, serializers
+from events.models import Event
 
 
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.EventSerializer
     permission_classes = [permissions.EventPermissions]
+
+    def get_queryset(self):
+        return Event.objects.filter(end_gt=timezone.now())
 
 
 class RoleViewSet(mixins.CreateModelMixin,
