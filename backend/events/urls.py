@@ -6,9 +6,10 @@ from . import views
 app_name = 'events'
 router = DefaultRouter(trailing_slash=False)
 
-router.register('event', views.RoleViewSet, basename='event')
+router.register('event', views.EventViewSet, basename='event')
 router.register('role', views.RoleViewSet, basename='role')
-router.register('event-contact', views.RoleViewSet, basename='event-contact')
+router.register('event-contact', views.EventContactViewSet,
+                basename='event-contact')
 router.register('social-media', views.SocialMediaViewSet,
                 basename='social-media')
 
