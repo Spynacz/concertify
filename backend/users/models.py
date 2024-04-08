@@ -33,3 +33,28 @@ class PaymentInfo(models.Model):
     user = models.OneToOneField(
         ConcertifyUser, related_name='payment_info', on_delete=models.CASCADE
     )
+
+
+class Notification(models.Model):
+    title = models.CharField(_('title'), max_length=150)
+    desc = models.CharField(_('description'), max_length=300)
+    notification_type = models.CharField(
+        _('notification type'),
+        max_length=100
+    )
+    user = models.ForeignKey(ConcertifyUser, related_name='notification',
+                             on_delete=models.CASCADE)
+
+
+class EventReport(models.Model):
+    title = models.CharField(_('title'), max_length=150)
+    desc = models.CharField(_('description'), max_length=300)
+    report_type = models.CharField(
+        _('report type'),
+        max_length=100
+    )
+    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
+    event = models.ForeignKey('events.Event', related_name='report',
+                              on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(ConcertifyUser, related_name='report',
+                             on_delete=models.DO_NOTHING)
