@@ -1,20 +1,29 @@
 import './NavBar.css'
 
+function SharedNavBar() {
+  return (
+    <>
+      <li>Search</li>
+      <li>Cart</li>
+    </>
+  );
+}
+
 function UserNavBar() {
   return  (
     <ul>
+      <SharedNavBar/>
       <li>New Event</li>
-    <li>Cart</li>
-    <li>Profile</li>
-    <li>Logout</li>
+      <li>Profile</li>
+      <li>Logout</li>
     </ul>
-);
+  );
 }
 
 function GuestNavBar() {
   return  (
     <ul>
-      <li>Cart</li>
+      <SharedNavBar/>
       <li>Login</li>
       <li>Register</li>
     </ul>
