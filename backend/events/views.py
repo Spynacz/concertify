@@ -6,6 +6,13 @@ from events import permissions, serializers
 from events.models import Event
 
 
+class LocationViewSet(mixins.ListModelMixin,
+                      mixins.CreateModelMixin,
+                      viewsets.GenericViewSet):
+    serializer_class = serializers.LocationSerializer
+    permission_classes = [permissions.ReadOnlyPermission]
+
+
 class EventViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.EventSerializer
     permission_classes = [permissions.EventPermissions]
