@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from posts_comments import views
 
 
-app_name = 'events'
+app_name = 'posts_comments'
 router = DefaultRouter(trailing_slash=False)
 
 router.register('post', views.PostViewSet, basename='post')
