@@ -40,8 +40,8 @@ class PostVote(models.Model):
 
 
 class CommentVote(models.Model):
-    post = models.ForeignKey(Comment, related_name='votes',
-                             on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, related_name='votes',
+                                on_delete=models.CASCADE)
     user = models.ForeignKey(
         'users.ConcertifyUser',
         related_name='comment_votes',
