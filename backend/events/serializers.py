@@ -3,6 +3,17 @@ from rest_framework import serializers
 from events import models
 
 
+class LocationSerializer(serializers.Serializer):
+    class Meta:
+        model = models.Location
+        fields = '__all__'
+
+    def create(self, validated_data):
+        location, created = models.Location.objects\
+            .get_or_create(**validated_data)
+        return location
+
+
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Event
