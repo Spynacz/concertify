@@ -18,7 +18,7 @@ class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.EventPermissions]
 
     def get_queryset(self):
-        return Event.objects.filter(end_gt=timezone.now())
+        return Event.objects.filter(end__gt=timezone.now())
 
 
 class RoleViewSet(mixins.CreateModelMixin,
