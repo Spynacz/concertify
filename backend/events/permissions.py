@@ -3,6 +3,13 @@ from rest_framework.permissions import BasePermission
 from events.models import Role
 
 
+class ReadOnlyPermission(BasePermission):
+    def has_permission(self, request, view):
+        if view.action in ['list', 'retrieve']:
+            return True
+        return False
+
+
 class EventPermissions(BasePermission):
     def has_permission(self, request, view):
         if view.action in ['list', 'retrieve']:
