@@ -6,6 +6,7 @@ from . import views
 app_name = 'events'
 router = DefaultRouter(trailing_slash=False)
 
+router.register('locaton', views.LocationViewSet, basename='location')
 router.register('event', views.EventViewSet, basename='event')
 router.register('role', views.RoleViewSet, basename='role')
 router.register('event-contact', views.EventContactViewSet,
