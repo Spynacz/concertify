@@ -7,3 +7,30 @@ head {
   display: none;
   visibility: hidden;
 }
+
+.hidden {
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden;
+  margin: 0 !important;
+}
+
+.mobile {
+  visibility: visible;
+  display: unset;
+}
+.desktop {
+  visibility: collapse;
+  display: none;
+}
+
+@media screen and (min-width: 1081px) {
+  .desktop {
+    visibility: visible;
+    display: unset;
+  }
+  .mobile {
+    visibility: collapse;
+    display: none;
+  }
+}
