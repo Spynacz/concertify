@@ -75,7 +75,7 @@ def generate_paymentinfo(test: bool):
                     'line2': f'test {i}',
                     'city': f'Test{i}',
                     'postal_code': i,
-                    'country': f'Test{i}',
+                    'country': 'TST',
                     'telephone': faker.phone_number(),
                     'mobile': faker.phone_number(),
                     'user': i,
@@ -103,7 +103,7 @@ def generate_notification(test):
                     'title': f'test{i}',
                     'desc': f'test{i}',
                     'notification_type': 'TEST',
-                    'user': i + 1
+                    'user': i//2 + 1
                 } if test else {
                     'title': faker.word(),
                     'desc': faker.text(max_nb_chars=100),
