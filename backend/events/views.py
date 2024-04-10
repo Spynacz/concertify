@@ -17,6 +17,8 @@ class EventViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.EventPermissions]
 
     def get_queryset(self):
+        if self.action == 'retrieve':
+            return Event.objects.all()
         return Event.objects.filter(end__gt=timezone.now())
 
     def get_serializer_class(self):
