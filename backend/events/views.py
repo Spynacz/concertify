@@ -3,7 +3,7 @@ from django.utils import timezone
 from rest_framework import mixins, viewsets
 
 from events import permissions, serializers
-from events.models import Event
+from events.models import Event, SocialMedia
 
 
 class LocationViewSet(mixins.ListModelMixin,
@@ -14,11 +14,15 @@ class LocationViewSet(mixins.ListModelMixin,
 
 
 class EventViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.EventSerializer
     permission_classes = [permissions.EventPermissions]
 
     def get_queryset(self):
         return Event.objects.filter(end__gt=timezone.now())
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return serializers.EventDetailsSerializer
+        return serializers.EventFeedSerializer
 
 
 class RoleViewSet(mixins.CreateModelMixin,
@@ -34,3 +38,6 @@ class EventContactViewSet(viewsets.ModelViewSet):
 
 class SocialMediaViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SocialMediaSerializer
+
+    def get_queryset(self):
+        return SocialMedia.objects.all()

@@ -14,7 +14,7 @@ class LocationSerializer(serializers.Serializer):
         return location
 
 
-class EventSerializer(serializers.ModelSerializer):
+class EventFeedSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Event
         fields = '__all__'
@@ -27,6 +27,41 @@ class EventSerializer(serializers.ModelSerializer):
             name=models.Role.NameChoice.OWNER
         )
         return event
+
+
+class EventDetailsSerializer(EventFeedSerializer):
+    event_contacts = serializers.SerializerMethodField()
+    social_media = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
+
+    def get_event_contacts(self, event):
+        response = []
+        for contact in event.event_contact.all():
+            response.append({
+                'id': contact.id,
+                'name': contact.name,
+                'phone': str(contact.phone)
+            })
+        return response
+
+    def get_social_media(self, event):
+        response = []
+        for media in event.social_media.all():
+            response.append({
+                'id': media.id,
+                'link': media.link,
+                'platform': media.platform
+            })
+        return response
+
+    def get_location(self, event):
+        return {
+            'id': event.location.id,
+            'name': event.location.name,
+            'address_line': event.location.address_line,
+            'postal_code': event.location.postal_code,
+            'country': event.location.country
+        }
 
 
 class RoleSerializer(serializers.ModelSerializer):
