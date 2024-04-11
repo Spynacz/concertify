@@ -1,57 +1,39 @@
 from rest_framework.permissions import BasePermission
 
-from events.models import Role
+from events.models import Role, Event
 
 
-class ReadOnlyPermission(BasePermission):
-    def has_permission(self, request, view):
-        if view.action in ['list', 'retrieve']:
+class IsEventModerator(BasePermission):
+    # View permissions ?
+    def has_object_permission(self, request, view, obj):
+        if isinstance(obj, Event):
+            event = obj
+        else:
+            event = obj.event
+
+        try:
+            role = Role.objects.get(event=event, user=request.user)
+        except Role.DoesNotExist:
+            return False
+
+        if int(role.name) >= Role.NameChoice.MODERATOR:
             return True
         return False
 
 
-class EventPermissions(BasePermission):
-    def has_permission(self, request, view):
-        if view.action in ['list', 'retrieve']:
-            return True
+class IsEventOwner(BasePermission):
+    # View permissions ?
+    def has_object_permission(self, request, view, obj):
+        if isinstance(obj, Event):
+            event = obj
+        else:
+            event = obj.event
 
-        if not request.user.is_authenticated:
+        try:
+            role = Role.objects.get(event=event, user=request.user)
+        except Role.DoesNotExist:
             return False
 
-        if view.action == 'create':
-            return True
-
-        event = view.kwargs.get('pk')
-        if not event:
-            return False
-
-        role = Role.objects.get(
-            event=event,
-            user=request.user
-        )
-
-        if view.action == 'delete' and int(role.name) >= Role.NameChoice.OWNER:
-            return True
-        elif view.action in ['update', 'partial_update']\
-                and int(role.name) >= Role.NameChoice.MODERATOR:
+        if int(role.name) >= Role.NameChoice.OWNER:
             return True
         return False
-
-# Need tweaking
-# class IsModerator(BasePermission):
-#     def has_permission(self, request, view):
-#         if view.action in ['create', 'list', 'retrieve']:
-#             return True
-
-#         event = view.kwargs.get('pk')
-#         if not event:
-#             return False
-
-#         role = Role.objects.get(
-#             event=event,
-#             user=request.user
-#         )
-
-#         if int(role.name) >= Role.NameChoice.MODERATOR:
-#             return True
-        # return False
