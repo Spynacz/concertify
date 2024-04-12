@@ -78,10 +78,23 @@ class EventDetailsSerializer(EventFeedSerializer):
         }
 
 
-class RoleSerializer(serializers.ModelSerializer):
+class RoleSerializer(ValidateUserInContextMixin,
+                     serializers.ModelSerializer):
     class Meta:
         model = models.Role
-        fields = '__all__'
+        fields = ['event', 'user', 'name']
+        extra_kwargs = {
+            'user': {'required': False},
+            'name': {'required': False},
+        }
+
+    def create(self, validated_data):
+        role = models.Role.objects.create(
+            event=validated_data.get('event'),
+            user=self.context.get('request').user,
+            name=models.Role.NameChoice.USER
+        )
+        return role
 
 
 class EventContactSerializer(serializers.ModelSerializer):

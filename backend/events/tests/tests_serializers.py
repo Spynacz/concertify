@@ -129,3 +129,58 @@ class TestEventDetailsSerializer(TestCase):
             location,
             self.serializer.data['location']
         )
+
+
+class TestRoleSerializer(TestCase):
+    def setUp(self):
+        self.serializer_class = serializers.RoleSerializer
+        self.factory = APIRequestFactory()
+        self.user = ConcertifyUser.objects.create_user(
+            username='test',
+            password='test'
+        )
+        location = Location.objects.create(
+            name='test',
+            address_line='test',
+            city='test',
+            postal_code='test',
+            country='TST'
+        )
+        self.event = Event.objects.create(
+            title='test',
+            desc='Test test',
+            location=location
+        )
+        self.request = self.factory.post(reverse("events:role-list"))
+        self.request.user = self.user
+
+    def test_create_minimal_data(self):
+        """Name and user field should be optional"""
+        data = {
+            'event': self.event.id,
+        }
+        serializer = self.serializer_class(
+            context={'request': self.request},
+            data=data
+        )
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        self.assertEqual(instance.event, self.event)
+        self.assertEqual(instance.user, self.user)
+        self.assertEqual(instance.name, Role.NameChoice.USER)
+
+    def test_create_high_role(self):
+        """User shouldn't be able to create role other than USER"""
+        data = {
+            'event': self.event.id,
+            'name': 3
+        }
+        serializer = self.serializer_class(
+            context={'request': self.request},
+            data=data
+        )
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        self.assertEqual(instance.name, Role.NameChoice.USER)
