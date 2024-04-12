@@ -11,13 +11,14 @@
   height: 25vh;
   margin-top: 1em;
   margin-right: 1em;
+  min-width: 25em;
 }
 
 .event-preview {
-  display: block;
   min-height: 20em;
   background-color: #f3f3f3;
   min-width: 25em;
+  max-width: 25em;
 }
 
 .event-preview > * {
@@ -28,7 +29,7 @@
 
 .event-preview-image-container {
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1.0) 50%, transparent 100%);
-  height: 80%;
+  height: 75%;
 }
 
 .event-preview-image {
