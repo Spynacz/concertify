@@ -37,3 +37,19 @@ class IsEventOwner(BasePermission):
         if int(role.name) >= Role.NameChoice.OWNER:
             return True
         return False
+
+
+class DestroyRolePermission(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        event = obj.event
+
+        try:
+            role = Role.objects.get(event=event, user=request.user)
+        except Role.DoesNotExist:
+            return False
+
+        if int(role.name) == Role.NameChoice.OWNER:
+            return True
+        if request.user == obj.user:
+            return True
+        return False
