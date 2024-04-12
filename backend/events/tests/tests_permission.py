@@ -10,6 +10,7 @@ from users.models import ConcertifyUser
 
 
 class TestIsEventModerator(APITestCase):
+    # TODO Missing test from related object to event
     def setUp(self):
         self.user = ConcertifyUser.objects.create(
             username="test",
@@ -111,3 +112,74 @@ class TestIsEventOwner(APITestCase):
                             name=Role.NameChoice.OWNER)
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_from_event_related_object(self):
+        """Permission should work with event related object on the many side"""
+        role = Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.OWNER
+        )
+        data = {
+            'event': self.event.id,
+            'user': self.user.id,
+            'name': Role.NameChoice.STAFF
+        }
+        response = self.client.put(
+            reverse("events:role-detail", kwargs={'pk': role.id}),
+            data=data
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestDestroyRolePermission(APITestCase):
+    fixtures = ['fixtures/test_fixture.json']
+
+    def setUp(self):
+        self.role = Role.objects.first()
+        self.url = reverse("events:role-detail", kwargs={'pk': self.role.id})
+
+        self.user = ConcertifyUser.objects.create(
+            username='test',
+            email='test@email.com',
+            password='test'
+        )
+        self.token = f"Token {AuthToken.objects.create(self.user)[-1]}"
+        self.client.credentials(HTTP_AUTHORIZATION=self.token)
+
+    def test_delete_users_role(self):
+        """User can delete his role"""
+        token_value = AuthToken.objects.create(user=self.role.user)[-1]
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token_value}")
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_request_user_role_missing(self):
+        """User without a role cannot try to delete other users role"""
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_is_event_owner(self):
+        """User with owner role can delete other users role"""
+        Role.objects.create(
+            user=self.user,
+            event=self.role.event,
+            name=Role.NameChoice.OWNER
+        )
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_user_is_not_event_owner(self):
+        """User without owner role cannot delete other users role"""
+        Role.objects.create(
+            user=self.user,
+            event=self.role.event,
+            name=Role.NameChoice.MODERATOR
+        )
+        response = self.client.delete(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
