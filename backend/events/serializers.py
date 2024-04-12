@@ -1,6 +1,19 @@
+from django.utils.translation import gettext_lazy as _
+
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from events import models
+
+
+class ValidateUserInContextMixin:
+    def validate(self, attrs):
+        request = self.context.get("request")
+
+        if not hasattr(request, "user") and request.method != 'GET':
+            raise ValidationError(_("Serializer is missing user in context"))
+
+        return attrs
 
 
 class LocationSerializer(serializers.Serializer):
@@ -14,7 +27,8 @@ class LocationSerializer(serializers.Serializer):
         return location
 
 
-class EventFeedSerializer(serializers.ModelSerializer):
+class EventFeedSerializer(ValidateUserInContextMixin,
+                          serializers.ModelSerializer):
     class Meta:
         model = models.Event
         fields = '__all__'
