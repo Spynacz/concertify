@@ -151,3 +151,63 @@ class TestEventViewSet(APITestCase):
         response = self.client.delete(self.url_details)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class TestRoleViewSet(APITestCase):
+    fixtures = ['fixtures/test_fixture.json']
+
+    def setUp(self):
+        self.event = Event.objects.first()
+        self.user = ConcertifyUser.objects.create(
+            username='test',
+            email='test@email.com',
+            password='test'
+        )
+        self.token = f"Token {AuthToken.objects.create(self.user)[-1]}"
+        self.client.credentials(HTTP_AUTHORIZATION=self.token)
+
+    def test_create_action(self):
+        """Create should return whole event, role and default role"""
+        data = {
+            'event': self.event.id,
+            'user': self.user.id
+        }
+        response = self.client.post(reverse("events:role-list"), data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['event'], self.event.id)
+        self.assertEqual(response.data['user'], self.user.id)
+        self.assertEqual(response.data['name'], Role.NameChoice.USER)
+
+    def test_destroy_action(self):
+        """Destroy should return 204 No content"""
+        role = Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.STAFF
+        )
+        response = self.client.delete(
+            reverse("events:role-detail", kwargs={'pk': role.id})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_update_action(self):
+        """Update should return new role data"""
+        role = Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.OWNER
+        )
+        data = {
+            'event': self.event.id,
+            'user': self.user.id,
+            'name': Role.NameChoice.STAFF
+        }
+        response = self.client.put(
+            reverse("events:role-detail", kwargs={'pk': role.id}),
+            data=data
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertDictEqual(response.data, data)
