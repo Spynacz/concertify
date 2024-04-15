@@ -1,6 +1,9 @@
+from django.contrib.auth.hashers import check_password, make_password
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.test import TestCase
 
+from rest_framework.test import APIRequestFactory
 from rest_framework.serializers import ValidationError
 
 from users import serializers
@@ -122,3 +125,75 @@ class TestAuthSerializer(TestCase):
             str(serializer.errors['non_field_errors'][0]),
             _('Unable to log in with provided credentials.')
         )
+
+
+class TestPasswordSerializer(TestCase):
+    def setUp(self):
+        self.serializer_class = serializers.PasswordSerializer
+        self.old_password = "TestTest123"
+        self.user = ConcertifyUser.objects.create(
+            username="test",
+            email="test@email.com",
+            password=make_password(self.old_password)
+        )
+        factory = APIRequestFactory()
+        url = reverse("users:password-change")
+        self.request = factory.put(url)
+        self.request.user = self.user
+
+    def test_validate_incorrect_old_password(self):
+        """When given incorrect old_password Validation Error will be raised"""
+        data = {
+            'old_password': 'incorrect',
+            'password1': 'new_password123',
+            'password2': 'new_password123',
+        }
+        serializer = self.serializer_class(
+            instance=self.user,
+            data=data,
+            context={'request': self.request}
+        )
+        with self.assertRaises(ValidationError):
+            serializer.is_valid(raise_exception=True)
+        self.assertIn(
+            _("Current password is incorrect"),
+            list(map(str, serializer.errors['old_password']))
+        )
+
+    def test_validate_new_paswords_dont_match(self):
+        """When password 1 and 2 don't match Validation Error will be raised"""
+        data = {
+            'old_password': self.old_password,
+            'password1': 'incorrect',
+            'password2': 'new_password123',
+        }
+        serializer = self.serializer_class(
+            instance=self.user,
+            data=data,
+            context={'request': self.request}
+        )
+
+        with self.assertRaises(ValidationError):
+            serializer.is_valid(raise_exception=True)
+        self.assertIn(
+            _("New passwords are not the same"),
+            list(map(str, serializer.errors['non_field_errors']))
+        )
+
+    def test_update_valid(self):
+        """When given valid data password will be updated"""
+        new_password = '123'
+        data = {
+            'old_password': self.old_password,
+            'password1': new_password,
+            'password2': new_password,
+        }
+        serializer = self.serializer_class(
+            instance=self.user,
+            data=data,
+            context={'request': self.request}
+        )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        self.assertTrue(check_password(new_password, self.user.password))
