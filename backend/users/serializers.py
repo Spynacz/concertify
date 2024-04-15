@@ -16,7 +16,7 @@ class ValidatePasswordMixin:
         try:
             validate_password(password)
         except DjangoValidationError as e:
-            raise ValidationError({'password': e.messages})
+            raise ValidationError(e.messages)
         return password
 
 
