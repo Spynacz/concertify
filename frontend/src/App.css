@@ -38,7 +38,19 @@ head {
   display: none;
 }
 
-.accent-button {
+.btn-primary {
+  --bs-btn-hover-border-color: var(--accent-color);
+  --bs-btn-active-border-color: var(--accent-color);
+  --bs-btn-active-bg: var(--dark-color);
+  --bs-btn-hover-bg: var(--dark-color);
+}
+
+.form-control:focus {
+  border-color: var(--dark-color);
+  box-shadow: none;
+}
+
+.accent-button, .btn-primary {
   background-color: var(--accent-color);
   border-radius: var(--radius);
   padding: 0.5em;
