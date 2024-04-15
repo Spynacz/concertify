@@ -1,6 +1,19 @@
+:root {
+  --accent-color: #f3f36e;
+  --dark-color: #333;
+  --light-color: #eee;
+  --background-color: #f0f0f0;
+  --radius: 1em;
+}
+
 * {
   all: unset;
   box-sizing: border-box;
+}
+
+a {
+  text-decoration: unset;
+  color: unset;
 }
 
 head {
@@ -19,6 +32,7 @@ head {
   visibility: visible;
   display: unset;
 }
+
 .desktop {
   visibility: collapse;
   display: none;
