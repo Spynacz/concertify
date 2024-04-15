@@ -164,7 +164,7 @@ class TestPasswordSerializer(TestCase):
         """When password 1 and 2 don't match Validation Error will be raised"""
         data = {
             'old_password': self.old_password,
-            'password1': 'incorrect',
+            'password1': 'incorrect_password123',
             'password2': 'new_password123',
         }
         serializer = self.serializer_class(
@@ -177,12 +177,12 @@ class TestPasswordSerializer(TestCase):
             serializer.is_valid(raise_exception=True)
         self.assertIn(
             _("New passwords are not the same"),
-            list(map(str, serializer.errors['non_field_errors']))
+            list(map(str, serializer.errors['password1']))
         )
 
     def test_update_valid(self):
         """When given valid data password will be updated"""
-        new_password = '123'
+        new_password = 'NewPass123'
         data = {
             'old_password': self.old_password,
             'password1': new_password,

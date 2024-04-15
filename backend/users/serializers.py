@@ -1,5 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
@@ -9,6 +11,15 @@ from events.serializers import ValidateUserInContextMixin
 from users.models import ConcertifyUser, PaymentInfo
 
 
+class ValidatePasswordMixin:
+    def validate_password(self, password):
+        try:
+            validate_password(password)
+        except DjangoValidationError as e:
+            raise ValidationError({'password': e.messages})
+        return password
+
+
 class PaymentInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentInfo
@@ -16,7 +27,8 @@ class PaymentInfoSerializer(serializers.ModelSerializer):
         extra_kwargs = {'user': {'required': False}}
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(ValidatePasswordMixin,
+                     serializers.ModelSerializer):
     payment_info = PaymentInfoSerializer(required=False)
 
     class Meta:
@@ -54,7 +66,8 @@ class UserSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class PasswordSerializer(ValidateUserInContextMixin,
+class PasswordSerializer(ValidatePasswordMixin,
+                         ValidateUserInContextMixin,
                          serializers.Serializer):
     old_password = serializers.CharField(max_length=128, write_only=True)
     password1 = serializers.CharField(max_length=128, write_only=True)
@@ -66,6 +79,9 @@ class PasswordSerializer(ValidateUserInContextMixin,
         if not check_password(old_password, user.password):
             raise ValidationError(_("Current password is incorrect"))
 
+    def validate_password1(self, password1):
+        return super().validate_password(password1)
+
     def validate(self, attrs):
         attrs = super().validate(attrs)
 
@@ -73,7 +89,11 @@ class PasswordSerializer(ValidateUserInContextMixin,
         password2 = attrs['password2']
 
         if password1 != password2:
-            raise ValidationError(_("New passwords are not the same"))
+            msg = {
+                'password1': _("New passwords are not the same"),
+                'password2': _("New passwords are not the same")
+            }
+            raise ValidationError(msg)
 
         return attrs
 
