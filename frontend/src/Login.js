@@ -31,7 +31,7 @@ export function Register() {
           <Form.Control type="text" placeholder="last name"/>
         </div>
         <Button className="accent-button" type="submit">
-          Login
+          Register
         </Button>
       </Form>
     </div>
