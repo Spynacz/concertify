@@ -6,7 +6,7 @@
   align-items: center;
 }
 
-#navbar #logo {
+#logo {
   margin-left: 1em;
   background-color: #f3f36e;
   padding: 0.5em;
@@ -16,4 +16,10 @@
 #navbar ul li {
   margin-right: 1em;
   padding: 0.2em;
+}
+
+.search-button {
+  background-color: #f3f36e !important;
+  color: #000000 !important;
+  border-width: 0 !important;
 }
