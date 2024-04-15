@@ -43,10 +43,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         payment_instance = instance.payment_info
-        payment_info = validated_data.pop('payment_info')
-        payment_info.update({'user': instance})
-
-        PaymentInfoSerializer().update(payment_instance, payment_info)
+        payment_info = validated_data.pop('payment_info', None)
+        if payment_info:
+            payment_info.update({'user': instance})
+            PaymentInfoSerializer().update(payment_instance, payment_info)
 
         return super().update(instance, validated_data)
 
