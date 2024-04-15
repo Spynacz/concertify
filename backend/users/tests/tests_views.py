@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from django.urls import reverse
 
 from rest_framework import status
@@ -49,4 +50,28 @@ class TestManageUserView(APITestCase):
         """get_object method should return current user information"""
         response = self.client.get(self.url)
         self.assertEqual(response.data['username'], self.data['username'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestPasswordChangeView(APITestCase):
+    def setUp(self):
+        self.old_password = "TestTest123"
+        self.user = ConcertifyUser.objects.create(
+            username="test",
+            email="test@email.com",
+            password=make_password(self.old_password)
+        )
+        token = f"Token {AuthToken.objects.create(user=self.user)[-1]}"
+        self.client.credentials(HTTP_AUTHORIZATION=token)
+
+    def test_update(self):
+        """Calling update methods should change password"""
+        new_password = 'NewPass123'
+        data = {
+            'old_password': self.old_password,
+            'password1': new_password,
+            'password2': new_password
+        }
+        url = reverse("users:password-change")
+        response = self.client.put(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
