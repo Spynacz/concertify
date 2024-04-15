@@ -38,6 +38,13 @@ class PostVote(models.Model):
     user = models.ForeignKey('users.ConcertifyUser', related_name='post_votes',
                              on_delete=models.CASCADE)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['post', 'user'], name='unique_post_user_combination'
+            )
+        ]
+
 
 class CommentVote(models.Model):
     comment = models.ForeignKey(Comment, related_name='votes',
@@ -47,3 +54,11 @@ class CommentVote(models.Model):
         related_name='comment_votes',
         on_delete=models.CASCADE
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['comment', 'user'],
+                name='unique_comment_user_combination'
+            )
+        ]
