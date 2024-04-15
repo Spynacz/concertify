@@ -35,14 +35,15 @@ export default function NavBar({ isGuest }) {
   return (
     <Navbar expand="sm">
       <Container fluid>
-        <Navbar.Brand id="logo"><Link to="/">
+        <Link to="/">
+        <Navbar.Brand id="logo" className="accent-button">
             concertify
-          </Link></Navbar.Brand>
+          </Navbar.Brand></Link>
         <Navbar.Toggle />
         <Navbar.Collapse id="navbar-nav" className="justify-content-end">
           <Form className="d-flex">
             <Form.Control type="text" placeholder="Search" className="me-2" />
-            <Button type="submit" className="search-button">
+            <Button type="submit" className="search-button accent-button">
               Search
             </Button>
           </Form>
