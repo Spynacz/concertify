@@ -60,14 +60,14 @@ class PasswordSerializer(ValidateUserInContextMixin,
     password1 = serializers.CharField(max_length=128, write_only=True)
     password2 = serializers.CharField(max_length=128, write_only=True)
 
-    def validate(self, attrs):
-        attrs = super().validate(attrs)
-
-        old_password = attrs['old_password']
+    def validate_old_password(self, old_password):
         user = self.context.get('request').user
 
         if not check_password(old_password, user.password):
             raise ValidationError(_("Current password is incorrect"))
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
 
         password1 = attrs['password1']
         password2 = attrs['password2']
