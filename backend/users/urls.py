@@ -11,6 +11,8 @@ urlpatterns = [
     path('create', views.CreateUserViews.as_view(), name='create'),
 
     path('profile', views.ManageUserView.as_view(), name='profile'),
+    path('profile/password', views.PasswordChangeView.as_view(),
+         name="password-change"),
 
     path('login', views.LoginView.as_view(), name='knox-login'),
     path('logout', knox_views.LogoutView.as_view(), name='knox-logout'),

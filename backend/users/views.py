@@ -23,6 +23,14 @@ class LoginView(KnoxLoginView):
         return super(LoginView, self).post(request, format=None)
 
 
+class PasswordChangeView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.PasswordSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
 class ManageUserView(generics.RetrieveUpdateAPIView):
     serializer_class = serializers.UserSerializer
     permission_classes = [IsAuthenticated]
