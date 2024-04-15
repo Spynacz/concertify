@@ -16,20 +16,35 @@
   display: flex;
 }
 
-.login-form>input {
-  margin-top: 2em;
+.login-form input {
+  width: 20em;
   border-radius: var(--radius);
   border: solid 0.25em var(--accent-color);
-  padding: 0.5em;
-  width: 20em;
+  background-color: var(--background-color);
+}
+
+.login-form>input {
+  margin-top: 2em;
 }
 
 .login-form>input:first-child {
   margin-top: 0;
 }
 
-.login-form>input[type="submit"] {
+.login-form button {
+  margin-top: 2em;
   align-self: flex-end;
-  background-color: var(--accent-color);
   width: auto;
+}
+
+.login-form>.personal-info-container {
+  margin-top: 2em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 20em;
+}
+
+.login-form>.personal-info-container>input {
+  width: 9em;
 }

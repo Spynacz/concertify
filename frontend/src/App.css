@@ -2,7 +2,7 @@
   --accent-color: #f3f36e;
   --dark-color: #333;
   --light-color: #eee;
-  --background-color: #f0f0f0;
+  --background-color: #fff;
   --radius: 1em;
 }
 
@@ -36,6 +36,14 @@ head {
 .desktop {
   visibility: collapse;
   display: none;
+}
+
+.accent-button {
+  background-color: var(--accent-color);
+  border-radius: var(--radius);
+  padding: 0.5em;
+  color: var(--dark-color);
+  border: dashed 0.15em var(--dark-color);
 }
 
 @media screen and (min-width: 1081px) {
