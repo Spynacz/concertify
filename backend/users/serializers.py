@@ -1,8 +1,11 @@
 from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import check_password
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
+from events.serializers import ValidateUserInContextMixin
 from users.models import ConcertifyUser, PaymentInfo
 
 
@@ -49,6 +52,35 @@ class UserSerializer(serializers.ModelSerializer):
             PaymentInfoSerializer().update(payment_instance, payment_info)
 
         return super().update(instance, validated_data)
+
+
+class PasswordSerializer(ValidateUserInContextMixin,
+                         serializers.Serializer):
+    old_password = serializers.CharField(max_length=128, write_only=True)
+    password1 = serializers.CharField(max_length=128, write_only=True)
+    password2 = serializers.CharField(max_length=128, write_only=True)
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+
+        old_password = attrs['old_password']
+        user = self.context.get('request').user
+
+        if not check_password(old_password, user.password):
+            raise ValidationError(_("Current password is incorrect"))
+
+        password1 = attrs['password1']
+        password2 = attrs['password2']
+
+        if password1 != password2:
+            raise ValidationError(_("New passwords are not the same"))
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['password1'])
+        instance.save()
+        return instance
 
 
 class AuthSerializer(serializers.Serializer):
