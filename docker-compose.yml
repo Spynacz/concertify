@@ -37,5 +37,7 @@ services:
   frontend:
     container_name: React
     build: ./frontend
+    volumes:
+      - ./frontend:/frontend
     ports:
      - "3000:3000"
