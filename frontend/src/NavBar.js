@@ -4,13 +4,13 @@ import "./NavBar.css";
 function UserNavBar() {
   return (
     <>
-      <Nav.Link className="nav-link" href="#">
+      <Nav.Link role="button" href="/new-event">
         New Event
       </Nav.Link>
-      <Nav.Link className="nav-link" href="#">
+      <Nav.Link role="button" href={"/user/" + user.id}>
         Profile
       </Nav.Link>
-      <Nav.Link className="nav-link" href="#">
+      <Nav.Link role="button" href="/logout">
         Logout
       </Nav.Link>
     </>
@@ -20,10 +20,10 @@ function UserNavBar() {
 function GuestNavBar() {
   return (
     <>
-      <Nav.Link className="nav-link" href="#">
+      <Nav.Link role="button" href="/login">
         Login
       </Nav.Link>
-      <Nav.Link className="nav-link" href="#">
+      <Nav.Link role="button" href="/register">
         Register
       </Nav.Link>
     </>
@@ -34,7 +34,7 @@ export default function NavBar({ isGuest }) {
   return (
     <Navbar expand="sm">
       <Container fluid>
-        <Navbar.Brand id="logo" href="#">
+        <Navbar.Brand role="button" id="logo" href="/">
           concertify
         </Navbar.Brand>
         <Navbar.Toggle />
@@ -46,7 +46,9 @@ export default function NavBar({ isGuest }) {
             </Button>
           </Form>
           <Nav>
-            <Nav.Link href="#">Cart</Nav.Link>
+            <Nav.Link role="button" href="/cart">
+              Cart
+            </Nav.Link>
             {isGuest ? <GuestNavBar /> : <UserNavBar />}
           </Nav>
         </Navbar.Collapse>
