@@ -1,12 +1,13 @@
 from django.urls import reverse
 from django.test import TestCase
 
+from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIRequestFactory
 
 from knox.models import AuthToken
 
 from events import serializers
-from events.models import Event, Location, Role
+from events.models import Event, Location, Role, SocialMedia
 from users.models import ConcertifyUser
 
 
@@ -146,9 +147,14 @@ class TestRoleSerializer(TestCase):
             postal_code='test',
             country='TST'
         )
-        self.event = Event.objects.create(
-            title='test',
-            desc='Test test',
+        self.event1 = Event.objects.create(
+            title='test1',
+            desc='Test test1',
+            location=location
+        )
+        self.event2 = Event.objects.create(
+            title='test2',
+            desc='Test test2',
             location=location
         )
         self.request = self.factory.post(reverse("events:role-list"))
@@ -157,7 +163,7 @@ class TestRoleSerializer(TestCase):
     def test_create_minimal_data(self):
         """Name and user field should be optional"""
         data = {
-            'event': self.event.id,
+            'event': self.event1.id,
         }
         serializer = self.serializer_class(
             context={'request': self.request},
@@ -166,14 +172,14 @@ class TestRoleSerializer(TestCase):
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
 
-        self.assertEqual(instance.event, self.event)
+        self.assertEqual(instance.event, self.event1)
         self.assertEqual(instance.user, self.user)
         self.assertEqual(instance.name, Role.NameChoice.USER)
 
     def test_create_high_role(self):
         """User shouldn't be able to create role other than USER"""
         data = {
-            'event': self.event.id,
+            'event': self.event1.id,
             'name': 3
         }
         serializer = self.serializer_class(
@@ -184,3 +190,143 @@ class TestRoleSerializer(TestCase):
         instance = serializer.save()
 
         self.assertEqual(instance.name, Role.NameChoice.USER)
+
+    def test_create_nonunique(self):
+        """User cannot create mutiple roles for one event"""
+        data = {
+            'event': self.event1.id,
+            'name': 2
+        }
+        Role.objects.create(user=self.user, event=self.event1, name=1)
+
+        serializer = self.serializer_class(
+            data=data,
+            context={"request": self.request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        with self.assertRaisesMessage(ValidationError,
+                                      "Object with given data already exists"):
+            serializer.save()
+
+    def test_update_to_nonunique(self):
+        """Role cannot be updated to a not unique one"""
+        data = {
+            'event': self.event2.id,
+            'name': 2
+        }
+        role = Role.objects.create(user=self.user, event=self.event1, name=1)
+        Role.objects.create(user=self.user, event=self.event2, name=1)
+        request = self.factory.put(
+            reverse("events:role-detail", kwargs={'pk': role.id}))
+        request.user = self.user
+
+        serializer = self.serializer_class(
+            instance=role,
+            data=data,
+            context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        with self.assertRaisesMessage(ValidationError,
+                                      "Object with given data already exists"):
+            serializer.save()
+
+
+class TestSocialMediaSerializer(TestCase):
+    fixtures = ['fixtures/test_fixture.json']
+
+    def setUp(self):
+        self.serializer_class = serializers.SocialMediaSerializer
+        self.user = ConcertifyUser.objects.create(
+            username="test",
+            email='test@email.com',
+            password='test'
+        )
+        self.event = Event.objects.first()
+        Role.objects.create(
+            user=self.user,
+            event=self.event,
+            name=3
+        )
+        self.factory = APIRequestFactory()
+        self.data = {
+            'link': "https://www.ex.com",
+            'platform': "INSTAGRAM",
+            'event': self.event
+        }
+        self.instance = SocialMedia.objects.create(**self.data)
+
+    def test_create_unique(self):
+        """User can create unique SocialMedia"""
+        self.data.update({
+            'link': 'https://www.example.com',
+            'event': self.event.id
+        })
+        request = self.factory.post(reverse('events:social-media-list'))
+        request.user = self.user
+
+        serializer = self.serializer_class(
+            data=self.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+    def test_create_nonunique(self):
+        """User cannot create multiple instances of one link for given event"""
+        self.data.update({'link': 'https://www.example.com'})
+        request = self.factory.post(reverse('events:social-media-list'))
+        request.user = self.user
+        SocialMedia.objects.create(**self.data)
+        self.data.update({'event': self.event.id})
+
+        serializer = self.serializer_class(
+            data=self.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        with self.assertRaisesMessage(ValidationError,
+                                      "Object with given data already exists"):
+            serializer.save()
+
+    def test_update_to_unique(self):
+        """User can update SocialMedia to a unique one"""
+        self.data.update({
+            'link': 'https://www.example.com',
+            'event': self.event.id
+        })
+        request = self.factory.put(reverse('events:social-media-detail',
+                                           kwargs={'pk': self.event.id}))
+        request.user = self.user
+
+        serializer = self.serializer_class(
+            instance=self.instance,
+            data=self.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+    def test_update_to_nonunique(self):
+        """User cannot update SocialMedia to a nonunique one"""
+        self.data.update({'link': 'https://www.example.com'})
+        request = self.factory.put(reverse('events:social-media-detail',
+                                           kwargs={'pk': self.event.id}))
+        request.user = self.user
+        SocialMedia.objects.create(**self.data)
+        self.data.update({'event': self.event.id})
+
+        serializer = self.serializer_class(
+            instance=self.instance,
+            data=self.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        with self.assertRaisesMessage(ValidationError,
+                                      "Object with given data already exists"):
+            serializer.save()

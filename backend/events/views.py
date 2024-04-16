@@ -74,6 +74,10 @@ class EventContactViewSet(viewsets.ModelViewSet):
 
 class SocialMediaViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SocialMediaSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+        event_permissions.IsEventModerator
+    ]
 
     def get_queryset(self):
         return SocialMedia.objects.all()
