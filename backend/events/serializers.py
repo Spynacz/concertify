@@ -1,5 +1,3 @@
-from django.utils.translation import gettext_lazy as _
-
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -11,7 +9,7 @@ class ValidateUserInContextMixin:
         request = self.context.get("request")
 
         if not hasattr(request, "user") and request.method != 'GET':
-            raise ValidationError(_("Serializer is missing user in context"))
+            raise ValidationError("Serializer is missing user in context")
 
         return attrs
 
