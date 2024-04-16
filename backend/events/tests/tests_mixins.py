@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 
 from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIRequestFactory
@@ -52,7 +51,7 @@ class TestValidateUserInContextMixin(TestCase):
         with self.assertRaises(ValidationError):
             serializer.is_valid(raise_exception=True)
         self.assertIn(
-            _("Serializer is missing user in context"),
+            "Serializer is missing user in context",
             list(map(str, serializer.errors['non_field_errors']))
         )
 

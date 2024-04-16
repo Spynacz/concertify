@@ -1,6 +1,5 @@
 from django.contrib.auth.hashers import check_password, make_password
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 from django.test import TestCase
 
 from rest_framework.test import APIRequestFactory
@@ -123,7 +122,7 @@ class TestAuthSerializer(TestCase):
             serializer.is_valid(raise_exception=True)
         self.assertEqual(
             str(serializer.errors['non_field_errors'][0]),
-            _('Unable to log in with provided credentials.')
+            'Unable to log in with provided credentials.'
         )
 
 
@@ -156,7 +155,7 @@ class TestPasswordSerializer(TestCase):
         with self.assertRaises(ValidationError):
             serializer.is_valid(raise_exception=True)
         self.assertIn(
-            _("Current password is incorrect"),
+            "Current password is incorrect",
             list(map(str, serializer.errors['old_password']))
         )
 
@@ -176,7 +175,7 @@ class TestPasswordSerializer(TestCase):
         with self.assertRaises(ValidationError):
             serializer.is_valid(raise_exception=True)
         self.assertIn(
-            _("New passwords are not the same"),
+            "New passwords are not the same",
             list(map(str, serializer.errors['password1']))
         )
 

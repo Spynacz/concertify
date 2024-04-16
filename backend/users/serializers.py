@@ -2,7 +2,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -77,7 +76,7 @@ class PasswordSerializer(ValidatePasswordMixin,
         user = self.context.get('request').user
 
         if not check_password(old_password, user.password):
-            raise ValidationError(_("Current password is incorrect"))
+            raise ValidationError("Current password is incorrect")
 
     def validate_password1(self, password1):
         return super().validate_password(password1)
@@ -90,8 +89,8 @@ class PasswordSerializer(ValidatePasswordMixin,
 
         if password1 != password2:
             msg = {
-                'password1': _("New passwords are not the same"),
-                'password2': _("New passwords are not the same")
+                'password1': "New passwords are not the same",
+                'password2': "New passwords are not the same"
             }
             raise ValidationError(msg)
 
@@ -121,7 +120,7 @@ class AuthSerializer(serializers.Serializer):
         )
 
         if not user:
-            msg = _('Unable to log in with provided credentials.')
+            msg = 'Unable to log in with provided credentials.'
             raise serializers.ValidationError(msg, code='authentication')
 
         attrs['user'] = user
