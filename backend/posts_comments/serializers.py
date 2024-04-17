@@ -5,16 +5,45 @@ from events.serializers import ValidateUserInContextMixin
 from posts_comments import models
 
 
-class PostSerializer(serializers.ModelSerializer):
+class VoteMixin:
+    def get_vote_count(self, obj):
+        return obj.votes.all().count()
+
+    def get_has_voted(self, obj):
+        request = self.context.get("request", None)
+
+        if not hasattr(request, "user") or not request.user.is_authenticated:
+            return False
+
+        votes = obj.votes.all()
+        return votes.filter(user=request.user).exists()
+
+
+class PostSerializer(VoteMixin,
+                     serializers.ModelSerializer):
+    vote_count = serializers.SerializerMethodField()
+    has_voted = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Post
         fields = '__all__'
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class CommentSerializer(VoteMixin,
+                        ValidateUserInContextMixin,
+                        serializers.ModelSerializer):
+    vote_count = serializers.SerializerMethodField()
+    has_voted = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Comment
         fields = '__all__'
+        extra_kwargs = {'user': {'read_only': True}}
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        attrs['user'] = self.context.get('request').user
+        return attrs
 
 
 class PostVoteSerializer(ValidateUserInContextMixin,
