@@ -1,7 +1,8 @@
+from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
 from django.urls import reverse
 
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotAuthenticated
 from rest_framework.test import APIRequestFactory
 
 from events import serializers
@@ -48,12 +49,25 @@ class TestValidateUserInContextMixin(TestCase):
             data=self.data
         )
 
-        with self.assertRaises(ValidationError):
+        with self.assertRaisesMessage(
+                ValidationError,
+                "Serializer is missing user in context"):
             serializer.is_valid(raise_exception=True)
-        self.assertIn(
-            "Serializer is missing user in context",
-            list(map(str, serializer.errors['non_field_errors']))
+
+    def test_validate_not_authenticated(self):
+        """Calling method as an AnonymousUser will raise NotAuthenticated"""
+        request = self.factory.post(reverse('events:event-list'))
+        request.user = AnonymousUser()
+
+        serializer = self.serializer_class(
+            context={'request': request},
+            data=self.data
         )
+
+        with self.assertRaisesMessage(
+                NotAuthenticated,
+                'Authentication credentials were not provided.'):
+            serializer.is_valid(raise_exception=True)
 
     def test_validate_user(self):
         """Calling method different than GET with user shouldn't"""\
