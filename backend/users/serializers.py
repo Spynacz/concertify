@@ -23,7 +23,7 @@ class PaymentInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentInfo
         fields = '__all__'
-        extra_kwargs = {'user': {'required': False}}
+        extra_kwargs = {'user': {'read_only': True}}
 
 
 class UserSerializer(ValidatePasswordMixin,
