@@ -4,8 +4,6 @@ from django.test import TestCase
 from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIRequestFactory
 
-from knox.models import AuthToken
-
 from events import serializers
 from events.models import Event, Location, Role, SocialMedia
 from users.models import ConcertifyUser
@@ -59,7 +57,6 @@ class TestEventFeedSerializer(TestCase):
             'desc': 'Test test',
             'location': location.id
         }
-        self.token = f"Token {AuthToken.objects.create(user=self.user)[-1]}"
 
     def test_create(self):
         """create method should make an owner role
