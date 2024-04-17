@@ -1,5 +1,5 @@
+from rest_framework import permissions
 from rest_framework import mixins, viewsets
-from rest_framework.permissions import IsAuthenticated
 
 from events.permissions import IsEventModerator
 
@@ -9,12 +9,33 @@ from posts_comments.permissions import IsOwner
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.PostSerializer
-    permission_classes = [IsEventModerator]
+
+    def get_queryset(self):
+        return models.Post.objects.all()
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        elif self.action in ['create', 'update', 'partial_update', 'destroy']:
+            permission_classes = [
+                permissions.IsAuthenticated,
+                IsEventModerator
+            ]
+        return [permission() for permission in permission_classes]
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CommentSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return models.Comment.objects.all()
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.AllowAny]
+        elif self.action == ['create', 'update', 'partial_update', 'destroy']:
+            permission_classes = [IsOwner]
+        return [permission() for permission in permission_classes]
 
 
 class PostVoteViewSet(mixins.CreateModelMixin,
