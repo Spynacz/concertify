@@ -22,7 +22,7 @@ class PostVoteSerializer(ValidateUserInContextMixin,
     class Meta:
         model = models.PostVote
         fields = '__all__'
-        extra_kwargs = {'user': {'required': False}}
+        extra_kwargs = {'user': {'read_only': True}}
 
     def create(self, validated_data):
         post = validated_data.get('post')
@@ -31,41 +31,24 @@ class PostVoteSerializer(ValidateUserInContextMixin,
         if models.PostVote.objects.filter(post=post, user=user).exists():
             raise ValidationError("Object with given data already exists")
 
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        post = validated_data.get('post')
-        user = self.context.get("request").user
-        obj = models.PostVote.objects.filter(post=post, user=user).first()
-
-        if obj and obj != instance:
-            raise ValidationError("Object with given data already exists")
-
-        return super().update(instance, validated_data)
+        return models.PostVote.objects.create(post=post, user=user)
 
 
 class CommentVoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CommentVote
         fields = '__all__'
+        extra_kwargs = {'user': {'read_only': True}}
 
     def create(self, validated_data):
-        comment = validated_data.get('post')
+        comment = validated_data.get('comment')
         user = self.context.get("request").user
 
         if models.CommentVote.objects.filter(
                 comment=comment, user=user).exists():
             raise ValidationError("Object with given data already exists")
 
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        comment = validated_data.get('comment')
-        user = self.context.get("request").user
-        obj = models.CommentVote.objects.filter(
-            comment=comment, user=user).first()
-
-        if obj and obj != instance:
-            raise ValidationError("Object with given data already exists")
-
-        return super().update(instance, validated_data)
+        return models.CommentVote.objects.create(
+                comment=comment,
+                user=user
+            )
