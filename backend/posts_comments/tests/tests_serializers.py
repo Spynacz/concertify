@@ -8,6 +8,41 @@ from posts_comments import models, serializers
 from users.models import ConcertifyUser
 
 
+class TestCommentSerializer(TestCase):
+    fixtures = ['fixtures/test_fixture.json']
+
+    def setUp(self):
+        self.serializer_class = serializers.CommentSerializer
+        self.factory = APIRequestFactory()
+        self.user = ConcertifyUser.objects.create(
+            username='test',
+            email='test@email.com',
+            password='test'
+        )
+        self.post = models.Post.objects.first()
+
+    def test_validate(self):
+        """Upon validating request user should be added to attrs"""
+        url = reverse('posts_comments:comment-list')
+        request = self.factory.post(url)
+        request.user = self.user
+
+        data = {
+            'title': 'test',
+            'desc': 'test',
+            'post': self.post.id
+        }
+
+        serializer = self.serializer_class(
+            data=data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        self.assertEqual(self.user, serializer.validated_data['user'])
+
+
 class TestPostVoteSerializer(TestCase):
     fixtures = ['fixtures/test_fixture.json']
 
