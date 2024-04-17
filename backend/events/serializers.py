@@ -86,7 +86,7 @@ class RoleSerializer(ValidateUserInContextMixin,
         model = models.Role
         fields = ['event', 'user', 'name']
         extra_kwargs = {
-            'user': {'required': False},
+            'user': {'read_only': True},
             'name': {'required': False},
         }
 
