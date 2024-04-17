@@ -104,6 +104,7 @@ class RoleSerializer(ValidateUserInContextMixin,
         event = validated_data.get('event')
         user = self.context.get("request").user
         obj = models.Role.objects.filter(event=event, user=user).first()
+
         if obj and obj != instance:
             raise ValidationError("Object with given data already exists")
 
@@ -134,6 +135,7 @@ class SocialMediaSerializer(serializers.ModelSerializer):
         event = validated_data.get('event')
         link = validated_data.get('link')
         obj = models.SocialMedia.objects.filter(event=event, link=link).first()
+
         if obj and obj != instance:
             raise ValidationError("Object with given data already exists")
 
