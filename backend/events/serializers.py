@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import NotAuthenticated, ValidationError
 
 from events import models
 
@@ -8,9 +8,13 @@ class ValidateUserInContextMixin:
     def validate(self, attrs):
         request = self.context.get("request")
 
-        if not hasattr(request, "user") and request.method != 'GET':
-            raise ValidationError("Serializer is missing user in context")
+        if request.method != 'GET':
+            if not hasattr(request, "user"):
+                msg = "Serializer is missing user in context"
+                raise ValidationError(msg)
 
+            if not request.user.is_authenticated:
+                raise NotAuthenticated()
         return attrs
 
 
