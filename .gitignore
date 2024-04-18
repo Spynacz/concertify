@@ -43,7 +43,7 @@ media/post_pictures
 media/profile_pics
 
 # fixtures
-fixtures/*.json
+backend/fixtures/*.json
 
 #react
 frontend/node_modules
