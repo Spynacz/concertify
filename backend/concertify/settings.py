@@ -47,9 +47,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'users.apps.UsersConfig',
+    'events.apps.EventsConfig',
+    'posts_comments.apps.PostsCommentsConfig',
+
     'rest_framework',
     'knox',
     'corsheaders',
+    'django_extensions',
     'debug_toolbar'
 ]
 
@@ -99,12 +104,17 @@ DATABASES = {
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'HOST': 'database',
         'PORT': 5432,
+        'TEST': {
+            'NAME': 'ConcertifyTestDB',
+        }
     }
 }
 
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+
+AUTH_USER_MODEL = 'users.ConcertifyUser'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -143,6 +153,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ['knox.auth.TokenAuthentication'],
