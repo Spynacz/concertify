@@ -14,6 +14,7 @@ class PostViewSet(viewsets.ModelViewSet):
         return models.Post.objects.all()
 
     def get_permissions(self):
+        permission_classes = [permissions.AllowAny]
         if self.action in ['list', 'retrieve']:
             permission_classes = [permissions.AllowAny]
         elif self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -33,7 +34,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             permission_classes = [permissions.AllowAny]
-        elif self.action == ['create', 'update', 'partial_update', 'destroy']:
+        elif self.action in ['create', 'update', 'partial_update', 'destroy']:
             permission_classes = [IsOwner]
         return [permission() for permission in permission_classes]
 
