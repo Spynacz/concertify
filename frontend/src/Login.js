@@ -70,6 +70,26 @@ function RegisterPassword() {
   );
 }
 
+export function Logout() {
+  const logout = async() => {
+    await fetch('http://localhost:8000/logout', {
+      method: 'POST',
+    })
+      .then((response) => {
+        if(!response.ok) throw new Error(response.status);
+        return response.json();
+      })
+      .then((data) => {
+        setUser(null);
+        console.log("Logout successful");
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  }
+  logout();
+}
+
 export function Login() {
   function handleSubmit(event) {
     const login = async () => {
@@ -82,11 +102,16 @@ export function Login() {
         headers: { 'Content-type': 'application/json; charset=UTF-8', },
       })
         .then((response) => {
+          if(response.status === 400) {
+            console.log("Invalid username/password");
+          } else if(response.status == 403) {
+            console.log("Probably token limit");
+          }
           if(!response.ok) throw new Error(response.status);
           return response.json();
         })
         .then((data) => {
-          console.log(data);
+          console.log("Login successful");
           setUser({username: data.user.username});
         })
         .catch((err) => {
@@ -128,11 +153,14 @@ export function Register() {
         headers: { 'Content-type': 'application/json; charset=UTF-8', },
       })
         .then((response) => {
+          if(response.status === 400) {
+            console.log("Username/Email taken");
+          }
           if(!response.ok) throw new Error(response.status);
           return response.json();
         })
         .then((data) => {
-          console.log(data);
+          console.log("Registration successful");
         })
         .catch((err) => {
           console.log(err.message);
@@ -141,7 +169,7 @@ export function Register() {
     event.preventDefault();
     const t = event.target;
     if(RegisterPasswordMismatch([t.password.value, t.password2.value]) ||
-      RegisterPasswordInvalid(t.password.value)) {
+       RegisterPasswordInvalid(t.password.value)) {
       return false;
     }
     create();
@@ -151,16 +179,16 @@ export function Register() {
     <div className="login-form-container">
       <Form className="login-form" onSubmit={handleSubmit}>
         <span className="accent-button">Concertify</span>
-      <Form.Control type="text" name="username" placeholder="username"/>
-      <Form.Control type="email" name="email" placeholder="email"/>
-      <RegisterPassword/>
-      <div className="personal-info-container">
-        <Form.Control type="text" name="first_name" placeholder="first name"/>
-        <Form.Control type="text" name="last_name" placeholder="last name"/>
-      </div>
-      <Button className="accent-button" type="submit">
-        Register
-      </Button>
+        <Form.Control type="text" name="username" placeholder="username"/>
+        <Form.Control type="email" name="email" placeholder="email"/>
+        <RegisterPassword/>
+        <div className="personal-info-container">
+          <Form.Control type="text" name="first_name" placeholder="first name"/>
+          <Form.Control type="text" name="last_name" placeholder="last name"/>
+        </div>
+        <Button className="accent-button" type="submit">
+          Register
+        </Button>
       </Form>
     </div>
   );

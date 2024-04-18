@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import "./NavBar.css";
 import { useContext } from "react";
 import { UserContext } from "./App.js";
+import { Logout } from "./Login.js";
 
 function UserNavBar() {
   const { user, setUser } = useContext(UserContext);
@@ -14,9 +15,9 @@ function UserNavBar() {
       <Nav.Link role="button"><Link to={"/user/" + user.username}>
         Profile
       </Link></Nav.Link>
-      <Nav.Link role="button"><Link to="/logout">
+      <Nav.Link role="button" onClick={Logout}>
         Logout
-      </Link></Nav.Link>
+      </Nav.Link>
     </>
   );
 }
