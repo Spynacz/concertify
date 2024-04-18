@@ -31,10 +31,8 @@ const router = createBrowserRouter([
 function Layout() {
   return (
     <>
-      <UserContext.Provider value={{ user: user, setUser: setUser }}>
         <NavBar/>
         <Outlet/>
-      </UserContext.Provider>
     </>
   );
 }
@@ -42,7 +40,9 @@ function Layout() {
 export default function App() {
   const [user, setUser] = useState(null);
   return (
-    <RouterProvider router={router}/>
+    <UserContext.Provider value={{ user: user, setUser: setUser }}>
+        <RouterProvider router={router}/>
+    </UserContext.Provider>
   );
 }
 
