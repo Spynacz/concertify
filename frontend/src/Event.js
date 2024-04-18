@@ -19,16 +19,23 @@ export function EventPreview({ title, location, date, image }) {
 }
 
 export function EventList() {
-  const [events, setEvents] = useState([]);
-
-  useEffect(() => {
-    axios
-      .get("/api/event")
+  const get = async() => {
+    await fetch('http://localhost:8000/event', {
+      method: 'GET',
+    })
       .then((response) => {
-        setEvents(response.data.results);
+        if(!response.ok) throw new Error(response.status);
+        return response.json();
       })
-      .catch((error) => console.log(error));
-  });
+      .then((data) => {
+        setEvents([...events, ...data.results]);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  }
+  const [events, setEvents] = useState([]);
+  useEffect(() => {get();}, []);
 
   return (
     <Container fluid>
