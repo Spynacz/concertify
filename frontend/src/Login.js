@@ -1,7 +1,8 @@
 import React from "react";
 import { Form, Button } from "react-bootstrap";
 import "./Login.css";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { UserContext } from "./App.js";
 
 function RegisterPasswordMismatch(passwords) {
   if(passwords[0].length == 0 || passwords[1].length == 0)
@@ -70,12 +71,39 @@ function RegisterPassword() {
 }
 
 export function Login() {
+  function handleSubmit(event) {
+    const login = async () => {
+      await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        body: JSON.stringify({
+                             username: t.username.value,
+                             password: t.password.value
+        }),
+        headers: { 'Content-type': 'application/json; charset=UTF-8', },
+      })
+        .then((response) => {
+          if(!response.ok) throw new Error(response.status);
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+          setUser({username: data.user.username});
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    };
+    event.preventDefault();
+    const t = event.target;
+    login();
+  }
+  const { user, setUser } = useContext(UserContext);
   return (
     <div className="login-form-container">
-      <Form className="login-form">
+      <Form className="login-form" onSubmit={handleSubmit}>
         <span className="accent-button">Concertify</span>
-        <Form.Control type="text" placeholder="login"/>
-        <Form.Control type="password" placeholder="password"/>
+        <Form.Control type="text" name="username" placeholder="login"/>
+        <Form.Control type="password" name="password" placeholder="password"/>
         <Button className="accent-button" type="submit">
           Login
         </Button>
@@ -86,28 +114,53 @@ export function Login() {
 
 export function Register() {
   function handleSubmit(event) {
+    const create = async () => {
+      await fetch('http://localhost:8000/create', {
+        method: 'POST',
+        body: JSON.stringify({
+                             username: t.username.value,
+                             email: t.email.value,
+                             first_name: t.first_name.value,
+                             last_name: t.last_name.value,
+                             password: t.password.value,
+                             payment_info: {}
+        }),
+        headers: { 'Content-type': 'application/json; charset=UTF-8', },
+      })
+        .then((response) => {
+          if(!response.ok) throw new Error(response.status);
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    };
     event.preventDefault();
     const t = event.target;
     if(RegisterPasswordMismatch([t.password.value, t.password2.value]) ||
-       RegisterPasswordInvalid(t.password.value)) {
+      RegisterPasswordInvalid(t.password.value)) {
       return false;
     }
+    create();
   }
 
   return (
     <div className="login-form-container">
       <Form className="login-form" onSubmit={handleSubmit}>
         <span className="accent-button">Concertify</span>
-        <Form.Control type="text" name="username" placeholder="username"/>
-        <Form.Control type="email" name="email" placeholder="email"/>
-        <RegisterPassword/>
-        <div className="personal-info-container">
-          <Form.Control type="text" name="first_name" placeholder="first name"/>
-          <Form.Control type="text" name="last_name" placeholder="last name"/>
-        </div>
-        <Button className="accent-button" type="submit">
-          Register
-        </Button>
+      <Form.Control type="text" name="username" placeholder="username"/>
+      <Form.Control type="email" name="email" placeholder="email"/>
+      <RegisterPassword/>
+      <div className="personal-info-container">
+        <Form.Control type="text" name="first_name" placeholder="first name"/>
+        <Form.Control type="text" name="last_name" placeholder="last name"/>
+      </div>
+      <Button className="accent-button" type="submit">
+        Register
+      </Button>
       </Form>
     </div>
   );

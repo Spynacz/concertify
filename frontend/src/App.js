@@ -1,24 +1,52 @@
 import React from "react";
-import "./App.css";
-import { Login, Register } from "./Login"
+import "./App.css"
 import NavBar from "./NavBar";
 import { EventList } from "./Event";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
+import { useState } from "react";
+import { Login, Register } from "./Login"
 
-export default function App() {
+export const UserContext = React.createContext(null);
+
+const router = createBrowserRouter([
+  {
+    element: <Layout/>,
+    children: [
+      {
+        path: "/",
+        element: <Home/>,
+      },
+      {
+        path: "/login",
+        element: <Login/>,
+      },
+      {
+        path: "/register",
+        element: <Register/>,
+      }
+    ]
+  }
+]);
+
+function Layout() {
   return (
-    <Router>
-      <NavBar isGuest={true} />
-      <Routes>
-        <Route path="/" exact element={<Home/>}/>
-        <Route path="/login" element={<Login/>}/>
-        <Route path="/register" element={<Register/>}/>
-      </Routes>
-    </Router>
+    <>
+      <UserContext.Provider value={{ user: user, setUser: setUser }}>
+        <NavBar/>
+        <Outlet/>
+      </UserContext.Provider>
+    </>
   );
 }
 
-function Home() {
+export default function App() {
+  const [user, setUser] = useState(null);
+  return (
+    <RouterProvider router={router}/>
+  );
+}
+
+export function Home() {
   return (
     <EventList count={25} />
   );
