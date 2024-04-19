@@ -4,7 +4,7 @@ from rest_framework import mixins, permissions, viewsets
 
 from events import permissions as event_permissions
 from events import serializers
-from events.models import Event, Role, SocialMedia
+from events.models import Event, Location, Role, SocialMedia
 
 
 class LocationViewSet(mixins.ListModelMixin,
@@ -12,6 +12,9 @@ class LocationViewSet(mixins.ListModelMixin,
                       viewsets.GenericViewSet):
     serializer_class = serializers.LocationSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Location.objects.all()
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -26,7 +29,7 @@ class EventViewSet(viewsets.ModelViewSet):
         return serializers.EventFeedSerializer
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
+        if self.request.method in permissions.SAFE_METHODS:
             permission_classes = [permissions.AllowAny]
         elif self.action == 'create':
             permission_classes = [permissions.IsAuthenticated]
@@ -35,7 +38,7 @@ class EventViewSet(viewsets.ModelViewSet):
                 permissions.IsAuthenticated,
                 event_permissions.IsEventModerator
             ]
-        elif self.action == 'destroy':
+        else:  # destroy
             permission_classes = [
                 permissions.IsAuthenticated,
                 event_permissions.IsEventOwner
@@ -60,7 +63,7 @@ class RoleViewSet(mixins.CreateModelMixin,
                 permissions.IsAuthenticated,
                 event_permissions.DestroyRolePermission
             ]
-        elif self.action in ['update', 'partial_update']:
+        else:  # update, partial_update
             permission_classes = [
                 permissions.IsAuthenticated,
                 event_permissions.IsEventOwner
