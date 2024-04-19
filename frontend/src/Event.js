@@ -19,36 +19,39 @@ export function EventPreview({ title, location, date, image }) {
 }
 
 export function EventList() {
-  const get = async() => {
+  const get = async () => {
     const options = {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     };
-    await fetch('http://localhost:8000/event', {
-      method: 'GET',
+
+    await fetch("http://localhost:8000/event", {
+      method: "GET",
     })
       .then((response) => {
-        if(!response.ok) throw new Error(response.status);
+        if (!response.ok) throw new Error(response.status);
         return response.json();
       })
       .then((data) => {
-        const newEvents = 
-          data.results.map(event => 
-                           ({
-                             ...event,
-                             start: new Date(event.start).toLocaleDateString(undefined, options)
-                           }));
+        const newEvents = data.results.map(
+          (event) => ({
+            ...event,
+            start: new Date(event.start).toLocaleDateString(undefined, options),
+          }));
         console.log(newEvents);
         setEvents([...events, ...newEvents]);
       })
       .catch((err) => {
         console.log(err.message);
       });
-  }
+  };
+
   const [events, setEvents] = useState([]);
-  useEffect(() => {get();}, []);
+  useEffect(() => {
+    get();
+  }, []);
 
   return (
     <Container fluid>
@@ -57,13 +60,14 @@ export function EventList() {
           <li key={event.id}>
             <Nav.Link role="button">
               <Link to={"/event/" + event.id}>
-              <EventPreview
-                title={event.title}
-                image="https://weknowyourdreams.com/images/party/party-12.jpg"
-                location={event.location}
-                date={event.start}
-              />
-              </Link></Nav.Link>
+                <EventPreview
+                  title={event.title}
+                  image="https://weknowyourdreams.com/images/party/party-12.jpg"
+                  location={event.location}
+                  date={event.start}
+                />
+              </Link>
+            </Nav.Link>
           </li>
         ))}
       </ul>

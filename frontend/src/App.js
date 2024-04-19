@@ -1,53 +1,50 @@
 import React from "react";
-import "./App.css"
+import "./App.css";
 import NavBar from "./NavBar";
 import { EventList } from "./Event";
 import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
 import { useState } from "react";
 import { useCookies, CookiesProvider } from "react-cookie";
-import { Login, Register } from "./Login"
+import { Login, Register } from "./Login";
 
 const router = createBrowserRouter([
   {
-    element: <Layout/>,
+    element: <Layout />,
     children: [
       {
         path: "/",
-        element: <Home/>,
+        element: <Home />,
       },
       {
         path: "/login",
-        element: <Login/>,
+        element: <Login />,
       },
       {
         path: "/register",
-        element: <Register/>,
-      }
-    ]
-  }
+        element: <Register />,
+      },
+    ],
+  },
 ]);
 
 function Layout() {
   return (
     <>
-        <NavBar/>
-        <Outlet/>
+      <NavBar />
+      <Outlet />
     </>
   );
 }
 
 export default function App() {
-  const [user, setUser] = useState(null);
   const [cookies, setCookie, removeCookie] = useCookies([]);
   return (
     <CookiesProvider defaultSetOptions={{ path: "/" }}>
-      <RouterProvider router={router}/>
+      <RouterProvider router={router} />
     </CookiesProvider>
   );
 }
 
 export function Home() {
-  return (
-    <EventList count={25} />
-  );
+  return <EventList count={25} />;
 }
