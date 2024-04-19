@@ -72,14 +72,15 @@ function RegisterPassword() {
 
 export function Logout() {
   const logout = async() => {
+    console.log(user.token);
     await fetch('http://localhost:8000/logout', {
       method: 'POST',
+      headers: {
+        "Authorization": "Token " + user.token,
+      },
     })
       .then((response) => {
         if(!response.ok) throw new Error(response.status);
-        return response.json();
-      })
-      .then((data) => {
         setUser(null);
         console.log("Logout successful");
       })
@@ -87,7 +88,8 @@ export function Logout() {
         console.log(err.message);
       });
   }
-  logout();
+  const { user, setUser } = useContext(UserContext);
+  return <div onClick={logout}>Logout</div>;
 }
 
 export function Login() {
@@ -112,7 +114,11 @@ export function Login() {
         })
         .then((data) => {
           console.log("Login successful");
-          setUser({username: data.user.username});
+          console.log(data);
+          setUser({
+                  username: data.user.username,
+                  token: data.token
+                  });
         })
         .catch((err) => {
           console.log(err.message);
