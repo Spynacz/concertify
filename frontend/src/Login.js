@@ -1,8 +1,9 @@
 import React from "react";
 import { Form, Button } from "react-bootstrap";
 import "./Login.css";
-import { useState, useContext } from "react";
-import { UserContext } from "./App.js";
+import { useState } from "react";
+import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
 
 function RegisterPasswordMismatch(passwords) {
   if(passwords[0].length == 0 || passwords[1].length == 0)
@@ -81,14 +82,15 @@ export function Logout() {
     })
       .then((response) => {
         if(!response.ok) throw new Error(response.status);
-        setUser(null);
+        removeCookie('user');
         console.log("Logout successful");
       })
       .catch((err) => {
         console.log(err.message);
       });
   }
-  const { user, setUser } = useContext(UserContext);
+  const [cookies, setCookie, removeCookie] = useCookies(['user']);
+  const user = cookies['user'];
   return <div onClick={logout}>Logout</div>;
 }
 
@@ -115,10 +117,12 @@ export function Login() {
         .then((data) => {
           console.log("Login successful");
           console.log(data);
-          setUser({
+          const newUser = {
                   username: data.user.username,
                   token: data.token
-                  });
+                  };
+          setCookie('user', newUser);
+          navigate('/');
         })
         .catch((err) => {
           console.log(err.message);
@@ -128,7 +132,8 @@ export function Login() {
     const t = event.target;
     login();
   }
-  const { user, setUser } = useContext(UserContext);
+  const [cookies, setCookie, removeCookie] = useCookies(['user']);
+  const navigate = useNavigate();
   return (
     <div className="login-form-container">
       <Form className="login-form" onSubmit={handleSubmit}>
@@ -167,6 +172,7 @@ export function Register() {
         })
         .then((data) => {
           console.log("Registration successful");
+          navigate("/login");
         })
         .catch((err) => {
           console.log(err.message);
@@ -181,6 +187,7 @@ export function Register() {
     create();
   }
 
+  const navigate = useNavigate();
   return (
     <div className="login-form-container">
       <Form className="login-form" onSubmit={handleSubmit}>
