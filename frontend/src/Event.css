@@ -16,7 +16,7 @@
 
 .event-preview {
   min-height: 20em;
-  background-color: #f3f3f3;
+  background-color: var(--light-color);
   min-width: 25em;
   max-width: 25em;
 }
