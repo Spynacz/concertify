@@ -65,6 +65,18 @@ class UserSerializer(ValidatePasswordMixin,
         return super().update(instance, validated_data)
 
 
+class ManageUserSerializer(UserSerializer):
+    class Meta:
+        model = ConcertifyUser
+        fields = [
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'payment_info'
+        ]
+
+
 class PasswordSerializer(ValidatePasswordMixin,
                          ValidateUserInContextMixin,
                          serializers.Serializer):
