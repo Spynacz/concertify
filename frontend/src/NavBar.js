@@ -1,5 +1,5 @@
 import { Button, Container, Form, Nav, Navbar } from "react-bootstrap";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./NavBar.css";
 import { useContext } from "react";
 import { UserContext } from "./App.js";

@@ -1,7 +1,7 @@
 import { Card, Container, Nav } from "react-bootstrap";
 import "./Event.css";
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 export function EventPreview({ title, location, date, image }) {
   return (
