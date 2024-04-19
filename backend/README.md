@@ -6,7 +6,7 @@ Events, roles, and related stuff
 ## /location
 
 ### Description:
-List all posts or create new post
+List all locations or create new location
 
 ### Methods:
 - `GET`: Display locations
