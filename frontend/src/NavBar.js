@@ -15,8 +15,8 @@ function UserNavBar() {
       <Nav.Link role="button"><Link to={"/user/" + user.username}>
         Profile
       </Link></Nav.Link>
-      <Nav.Link role="button" onClick={Logout}>
-        Logout
+      <Nav.Link role="button">
+        <Logout/>
       </Nav.Link>
     </>
   );
