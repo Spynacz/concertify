@@ -20,6 +20,12 @@ export function EventPreview({ title, location, date, image }) {
 
 export function EventList() {
   const get = async() => {
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
     await fetch('http://localhost:8000/event', {
       method: 'GET',
     })
@@ -28,7 +34,14 @@ export function EventList() {
         return response.json();
       })
       .then((data) => {
-        setEvents([...events, ...data.results]);
+        const newEvents = 
+          data.results.map(event => 
+                           ({
+                             ...event,
+                             start: new Date(event.start).toLocaleDateString(undefined, options)
+                           }));
+        console.log(newEvents);
+        setEvents([...events, ...newEvents]);
       })
       .catch((err) => {
         console.log(err.message);
