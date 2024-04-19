@@ -1,19 +1,15 @@
-#navbar {
+.navbar {
   display: flex;
   justify-content: space-between;
-  background-color: #f0f0f0;
-  height: 3em;
+  background-color: var(--light-color);
+  height: 8vh;
   align-items: center;
 }
 
-#navbar #logo {
+#logo {
   margin-left: 1em;
-  background-color: #f3f36e;
+  background-color: var(--accent-color);
   padding: 0.5em;
-  border-radius: 1em;
-}
-
-#navbar ul li {
-  margin-right: 1em;
-  padding: 0.2em;
+  border-radius: var(--radius);
+  cursor: pointer;
 }
