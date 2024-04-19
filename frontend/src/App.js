@@ -4,9 +4,8 @@ import NavBar from "./NavBar";
 import { EventList } from "./Event";
 import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
 import { useState } from "react";
+import { useCookies, CookiesProvider } from "react-cookie";
 import { Login, Register } from "./Login"
-
-export const UserContext = React.createContext(null);
 
 const router = createBrowserRouter([
   {
@@ -39,10 +38,11 @@ function Layout() {
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [cookies, setCookie, removeCookie] = useCookies([]);
   return (
-    <UserContext.Provider value={{ user: user, setUser: setUser }}>
-        <RouterProvider router={router}/>
-    </UserContext.Provider>
+    <CookiesProvider defaultSetOptions={{ path: "/" }}>
+      <RouterProvider router={router}/>
+    </CookiesProvider>
   );
 }
 

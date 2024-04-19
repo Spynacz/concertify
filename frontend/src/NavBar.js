@@ -1,18 +1,17 @@
 import { Button, Container, Form, Nav, Navbar } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import "./NavBar.css";
-import { useContext } from "react";
-import { UserContext } from "./App.js";
+import { useCookies, Cookies } from "react-cookie";
 import { Logout } from "./Login.js";
 
 function UserNavBar() {
-  const { user, setUser } = useContext(UserContext);
+  const [cookies] = useCookies([]);
   return (
     <>
       <Nav.Link role="button"><Link to="/new-event">
         New Event
       </Link></Nav.Link>
-      <Nav.Link role="button"><Link to={"/user/" + user.username}>
+      <Nav.Link role="button"><Link to={"/user/" + cookies['user'].username}>
         Profile
       </Link></Nav.Link>
       <Nav.Link role="button">
@@ -36,7 +35,7 @@ function GuestNavBar() {
 }
 
 export default function NavBar() {
-  const { user, setUser } = useContext(UserContext);
+  const [cookies, setCookie, removeCookie] = useCookies(['user']);
   return (
     <Navbar expand="sm">
       <Container fluid>
@@ -55,7 +54,7 @@ export default function NavBar() {
             <Nav.Link role="button"><Link to="/cart">
               Cart
             </Link></Nav.Link>
-            {user == null ? <GuestNavBar/> : <UserNavBar user={user}/>}
+            {'user' in cookies ? <UserNavBar/> : <GuestNavBar/>}
           </Nav>
         </Navbar.Collapse>
       </Container>
