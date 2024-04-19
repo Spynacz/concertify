@@ -31,8 +31,8 @@ class PasswordChangeView(generics.UpdateAPIView):
         return self.request.user
 
 
-class ManageUserView(generics.RetrieveUpdateAPIView):
-    serializer_class = serializers.UserSerializer
+class ManageUserView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = serializers.ManageUserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
