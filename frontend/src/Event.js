@@ -42,14 +42,15 @@ export function EventList() {
       <ul className="event-list">
         {events.map((event) => (
           <li key={event.id}>
-            <Nav.Link role="button" href={"/event/" + event.id}>
+            <Nav.Link role="button">
+              <Link to={"/event/" + event.id}>
               <EventPreview
                 title={event.title}
                 image="https://weknowyourdreams.com/images/party/party-12.jpg"
                 location={event.location}
                 date={event.start}
               />
-            </Nav.Link>
+              </Link></Nav.Link>
           </li>
         ))}
       </ul>
