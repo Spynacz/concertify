@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   database:
     container_name: PostgreSQL
@@ -37,5 +35,10 @@ services:
   frontend:
     container_name: React
     build: ./frontend
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
+    environment:
+      - NODE_ENV=development
     ports:
      - "3000:3000"
