@@ -3,8 +3,7 @@ from django.utils import timezone
 from rest_framework import mixins, permissions, viewsets
 
 from events import permissions as event_permissions
-from events import serializers
-from events.models import Event, Location, Role, SocialMedia
+from events import models, serializers
 
 
 class LocationViewSet(mixins.ListModelMixin,
@@ -14,14 +13,14 @@ class LocationViewSet(mixins.ListModelMixin,
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Location.objects.all()
+        return models.Location.objects.all()
 
 
 class EventViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.action == 'list':
-            return Event.objects.filter(end__gt=timezone.now())
-        return Event.objects.all()
+            return models.Event.objects.filter(end__gt=timezone.now())
+        return models.Event.objects.all()
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -53,7 +52,7 @@ class RoleViewSet(mixins.CreateModelMixin,
     serializer_class = serializers.RoleSerializer
 
     def get_queryset(self):
-        return Role.objects.all()
+        return models.Role.objects.all()
 
     def get_permissions(self):
         if self.action == 'create':
@@ -73,6 +72,13 @@ class RoleViewSet(mixins.CreateModelMixin,
 
 class EventContactViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.EventContactSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+        event_permissions.IsEventModerator
+    ]
+
+    def get_queryset(self):
+        return models.EventContact.objects.all()
 
 
 class SocialMediaViewSet(viewsets.ModelViewSet):
@@ -83,4 +89,15 @@ class SocialMediaViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-        return SocialMedia.objects.all()
+        return models.SocialMedia.objects.all()
+
+
+class TicketViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.SocialMediaSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+        event_permissions.IsEventOwner
+    ]
+
+    def get_queryset(self):
+        return models.Ticket.objects.all()
