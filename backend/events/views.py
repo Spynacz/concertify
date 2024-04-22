@@ -1,9 +1,10 @@
 from django.utils import timezone
 
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import exceptions, mixins, permissions, viewsets
 
 from events import permissions as event_permissions
 from events import models, serializers
+from posts_comments.views import IsEventModeratorPerformCreateMixin
 
 
 class LocationViewSet(mixins.ListModelMixin,
@@ -70,7 +71,8 @@ class RoleViewSet(mixins.CreateModelMixin,
         return [permission() for permission in permission_classes]
 
 
-class EventContactViewSet(viewsets.ModelViewSet):
+class EventContactViewSet(IsEventModeratorPerformCreateMixin,
+                          viewsets.ModelViewSet):
     serializer_class = serializers.EventContactSerializer
     permission_classes = [
         permissions.IsAuthenticated,
@@ -81,7 +83,8 @@ class EventContactViewSet(viewsets.ModelViewSet):
         return models.EventContact.objects.all()
 
 
-class SocialMediaViewSet(viewsets.ModelViewSet):
+class SocialMediaViewSet(IsEventModeratorPerformCreateMixin,
+                         viewsets.ModelViewSet):
     serializer_class = serializers.SocialMediaSerializer
     permission_classes = [
         permissions.IsAuthenticated,
@@ -101,3 +104,18 @@ class TicketViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return models.Ticket.objects.all()
+
+    def perform_create(self, serializer):
+        event = serializer.validated_data.get('event')
+
+        try:
+            role = models.Role.objects.get(event=event, user=self.request.user)
+        except models.Role.DoesNotExist:
+            msg = "You do not have a role in related event."
+            raise exceptions.PermissionDenied(msg)
+
+        if int(role.name) < models.Role.NameChoice.OWNER:
+            msg = "You do not have permission to perform this action."
+            raise exceptions.PermissionDenied(msg)
+
+        return super().perform_create(serializer)
