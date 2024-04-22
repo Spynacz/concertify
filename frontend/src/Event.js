@@ -58,7 +58,7 @@ export function EventList() {
       <ul className="event-list">
         {events.map((event) => (
           <li key={event.id}>
-            <Nav.Link role="button">
+            <Nav.Link as="div" role="button">
               <Link to={"/event/" + event.id}>
                 <EventPreview
                   title={event.title}
