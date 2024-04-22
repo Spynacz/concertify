@@ -9,22 +9,7 @@ from posts_comments import models, serializers
 from posts_comments.permissions import IsOwner
 
 
-class PostViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.PostSerializer
-
-    def get_queryset(self):
-        return models.Post.objects.all()
-
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            permission_classes = [permissions.AllowAny]
-        else:
-            permission_classes = [
-                permissions.IsAuthenticated,
-                IsEventModerator
-            ]
-        return [permission() for permission in permission_classes]
-
+class IsEventModeratorPerformCreateMixin:
     def perform_create(self, serializer):
         event = serializer.validated_data.get('event')
 
@@ -39,6 +24,25 @@ class PostViewSet(viewsets.ModelViewSet):
             raise exceptions.PermissionDenied(msg)
 
         return super().perform_create(serializer)
+
+
+# TODO add test for the mixin  based on this view
+class PostViewSet(IsEventModeratorPerformCreateMixin,
+                  viewsets.ModelViewSet):
+    serializer_class = serializers.PostSerializer
+
+    def get_queryset(self):
+        return models.Post.objects.all()
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [
+                permissions.IsAuthenticated,
+                IsEventModerator
+            ]
+        return [permission() for permission in permission_classes]
 
 
 class CommentViewSet(viewsets.ModelViewSet):
