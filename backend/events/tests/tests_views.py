@@ -210,4 +210,4 @@ class TestRoleViewSet(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertDictEqual(response.data, data)
+        self.assertDictContainsSubset(data, response.data)

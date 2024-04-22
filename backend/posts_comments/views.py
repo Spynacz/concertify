@@ -23,7 +23,6 @@ class PostViewSet(viewsets.ModelViewSet):
                 permissions.IsAuthenticated,
                 IsEventModerator
             ]
-        print(permission_classes)
         return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
@@ -32,10 +31,10 @@ class PostViewSet(viewsets.ModelViewSet):
         try:
             role = Role.objects.get(event=event, user=self.request.user)
         except Role.DoesNotExist:
-            msg = "You do not have permission to perform this action."
+            msg = "You do not have a role in related event."
             raise exceptions.PermissionDenied(msg)
 
-        if int(role.name) >= Role.NameChoice.MODERATOR:
+        if int(role.name) < Role.NameChoice.MODERATOR:
             msg = "You do not have permission to perform this action."
             raise exceptions.PermissionDenied(msg)
 
