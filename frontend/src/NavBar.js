@@ -8,13 +8,13 @@ function UserNavBar() {
   const [cookies] = useCookies([]);
   return (
     <>
-      <Nav.Link role="button">
+      <Nav.Link as="div" role="button">
         <Link to="/new-event">New Event</Link>
       </Nav.Link>
-      <Nav.Link role="button">
+      <Nav.Link as="div" role="button">
         <Link to={"/user/" + cookies['user'].username}>Profile</Link>
       </Nav.Link>
-      <Nav.Link role="button">
+      <Nav.Link as="div" role="button">
         <Logout />
       </Nav.Link>
     </>
@@ -24,10 +24,10 @@ function UserNavBar() {
 function GuestNavBar() {
   return (
     <>
-      <Nav.Link role="button">
+      <Nav.Link as="div" role="button">
         <Link to="/login">Login</Link>
       </Nav.Link>
-      <Nav.Link role="button">
+      <Nav.Link as="div" role="button">
         <Link to="/register">Register</Link>
       </Nav.Link>
     </>
@@ -51,7 +51,7 @@ export default function NavBar() {
             </Button>
           </Form>
           <Nav>
-            <Nav.Link role="button">
+            <Nav.Link as="div" role="button">
               <Link to="/cart">Cart</Link>
             </Nav.Link>
             {'user' in cookies ? <UserNavBar /> : <GuestNavBar />}
