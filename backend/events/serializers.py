@@ -144,3 +144,21 @@ class SocialMediaSerializer(serializers.ModelSerializer):
             raise ValidationError("Object with given data already exists")
 
         return super().update(instance, validated_data)
+
+
+class TicketSerializer(serializers.Serializer):
+    class Meta:
+        model = models.Ticket
+        fields = "__all__"
+
+    def validate_quantity(self, quantity):
+        if quantity < 0:
+            raise ValidationError("Ticket quantity cannot be lower than 0")
+
+        return quantity
+
+    def validate_amount(self, amount):
+        if amount < 0:
+            raise ValidationError("Amount cannot be lower than 0")
+
+        return amount
