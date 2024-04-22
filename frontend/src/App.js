@@ -3,9 +3,10 @@ import { CookiesProvider, useCookies } from "react-cookie";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import "./App.css";
 import ErrorPage from "./ErrorPage";
-import { EventList } from "./Event";
+import EventList from "./event/EventList";
 import { Login, Register } from "./Login";
 import NavBar from "./NavBar";
+import EventPage from "./event/EventPage";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />,
+      },
+      {
+        path: "/event/:id",
+        element: <EventPage />
       },
     ],
   },
