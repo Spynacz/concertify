@@ -95,6 +95,18 @@ class SocialMediaViewSet(IsEventModeratorPerformCreateMixin,
         return models.SocialMedia.objects.all()
 
 
+class SchedulItemViewSet(IsEventModeratorPerformCreateMixin,
+                         viewsets.ModelViewSet):
+    serializer_class = serializers.SocialMediaSerializer
+    permission_classes = [
+        permissions.IsAuthenticated,
+        event_permissions.IsEventModerator
+    ]
+
+    def get_queryset(self):
+        return models.ScheduleItem.objects.all()
+
+
 class TicketViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SocialMediaSerializer
     permission_classes = [
