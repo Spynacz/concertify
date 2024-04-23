@@ -5,6 +5,10 @@ import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 
+function ErrorMsg({text}) {
+  if(text != []) return text.map((msg)=><Form.Text>{msg}</Form.Text>);
+}
+
 function RegisterPasswordMismatch(passwords) {
   if (passwords[0].length == 0 || passwords[1].length == 0)
     return false;
@@ -64,7 +68,7 @@ function PasswordInvalidText({ password }) {
   );
 }
 
-function RegisterPassword() {
+function RegisterPassword({msg}) {
   function changePassword(event) {
     setPassword(event.target.value);
   }
@@ -85,6 +89,7 @@ function RegisterPassword() {
         onChange={changePassword}
       />
       <PasswordInvalidText password={password} />
+      <ErrorMsg text={msg} />
       <Form.Control
         type="password"
         name="password2"
@@ -132,17 +137,11 @@ export function Login() {
         headers: { "Content-type": "application/json; charset=UTF-8" },
       })
         .then((response) => {
-          if (response.status === 400) {
-            console.log("Invalid username/password");
-          } else if (response.status == 403) {
-            console.log("Probably token limit");
-          }
-          if (!response.ok) throw new Error(response.status);
+          if (!response.ok) throw response;
           return response.json();
         })
         .then((data) => {
           console.log("Login successful");
-          console.log(data);
           const newUser = {
             username: data.user.username,
             token: data.token
@@ -151,7 +150,12 @@ export function Login() {
           navigate('/');
         })
         .catch((err) => {
-          console.log(err.message);
+          err.json()
+            .then((data) => {
+              setUsernameMsg((data.username)?data.username:[]);
+              setPassMsg((data.password)?data.password:[]);
+              setGlobalMsg((data.non_field_errors)?data.non_field_errors:[]);
+            });
         });
     };
     event.preventDefault();
@@ -159,13 +163,19 @@ export function Login() {
     login();
   }
   const [ cookies, setCookie, removeCookie ] = useCookies(['user']);
+  const [ usernameMsg, setUsernameMsg ] = useState([]);
+  const [ passMsg, setPassMsg ] = useState([]);
+  const [ globalMsg, setGlobalMsg ] = useState([]);
   const navigate = useNavigate();
   return (
     <div className="login-form-container">
       <Form className="login-form" onSubmit={handleSubmit}>
         <span className="accent-button">Concertify</span>
+        <ErrorMsg text={globalMsg} />
         <Form.Control type="text" name="username" placeholder="login" />
+        <ErrorMsg text={usernameMsg} />
         <Form.Control type="password" name="password" placeholder="password" />
+        <ErrorMsg text={passMsg} />
         <Button className="accent-button" type="submit">
           Login
         </Button>
@@ -190,10 +200,7 @@ export function Register() {
         headers: { "Content-type": "application/json; charset=UTF-8" },
       })
         .then((response) => {
-          if (response.status === 400) {
-            console.log("Username/Email taken");
-          }
-          if (!response.ok) throw new Error(response.status);
+          if (!response.ok) throw response;
           return response.json();
         })
         .then((data) => {
@@ -201,28 +208,39 @@ export function Register() {
           navigate("/login");
         })
         .catch((err) => {
-          console.log(err.message);
+          return err.json()
+            .then((data) => {
+              setEmailMsg((data.email)?data.email:[]);
+              setUsernameMsg((data.username)?data.username:[]);
+              setPassMsg((data.password)?data.password:[]);
+              setGlobalMsg((data.non_field_errors)?data.non_field_errors:[]);
+            });
         });
     };
     event.preventDefault();
     const t = event.target;
-    if (
-      RegisterPasswordMismatch([t.password.value, t.password2.value]) ||
-      RegisterPasswordInvalid(t.password.value)
-    ) {
+    if ( RegisterPasswordMismatch([t.password.value, t.password2.value]) ||
+         RegisterPasswordInvalid(t.password.value)) {
       return false;
     }
     create();
   }
 
+  const [usernameMsg, setUsernameMsg] = useState([]);
+  const [emailMsg, setEmailMsg] = useState([]);
+  const [passMsg, setPassMsg] = useState([]);
+  const [ globalMsg, setGlobalMsg ] = useState([]);
   const navigate = useNavigate();
   return (
     <div className="login-form-container">
       <Form className="login-form" onSubmit={handleSubmit}>
         <span className="accent-button">Concertify</span>
+        <ErrorMsg text={globalMsg} />
         <Form.Control type="text" name="username" placeholder="username" />
+        <ErrorMsg text={usernameMsg} />
         <Form.Control type="email" name="email" placeholder="email" />
-        <RegisterPassword />
+        <ErrorMsg text={emailMsg} />
+        <RegisterPassword msg={passMsg}/>
         <div className="personal-info-container">
           <Form.Control
             type="text"
