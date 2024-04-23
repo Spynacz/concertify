@@ -13,6 +13,8 @@ router.register('event-contact', views.EventContactViewSet,
                 basename='event-contact')
 router.register('social-media', views.SocialMediaViewSet,
                 basename='social-media')
+router.register('schedule-item', views.SchedulItemViewSet,
+                basename='schedule-item')
 router.register('ticket', views.TicketViewSet, basename="ticket")
 
 urlpatterns = router.urls

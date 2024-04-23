@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 
@@ -144,6 +146,19 @@ class SocialMediaSerializer(serializers.ModelSerializer):
             raise ValidationError("Object with given data already exists")
 
         return super().update(instance, validated_data)
+
+
+class ScheduleItemSerializer(serializers.Serializer):
+    class Meta:
+        model = models.ScheduleItem
+        fields = "__all__"
+
+    def validate_when(self, when):
+        if when < timezone.now():
+            msg = "You can't create a schedule with items in the past"
+            raise ValidationError(msg)
+
+        return when
 
 
 class TicketSerializer(serializers.Serializer):
