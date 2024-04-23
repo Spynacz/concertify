@@ -40,7 +40,9 @@ export default function App() {
   const [cookies, setCookie, removeCookie] = useCookies([]);
   return (
     <CookiesProvider defaultSetOptions={{ path: "/" }}>
-      <RouterProvider router={router} />
+      <div>
+        <RouterProvider router={router} />
+      </div>
     </CookiesProvider>
   );
 }
