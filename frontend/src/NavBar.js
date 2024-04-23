@@ -45,7 +45,7 @@ function GuestNavBar() {
 export default function NavBar() {
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   return (
-    <Navbar expand="sm">
+    <Navbar expand="sm" className="sticky-top">
       <Container fluid>
         <LinkContainer to="/">
           <Navbar.Brand role="button" id="logo">
