@@ -59,6 +59,15 @@ head {
   border: dashed 0.15em var(--dark-color);
 }
 
+.container {
+  height: 95vh;
+  max-width: unset;
+  width: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
 @media screen and (min-width: 1081px) {
   .desktop {
     visibility: visible;
@@ -67,5 +76,8 @@ head {
   .mobile {
     visibility: collapse;
     display: none;
+  }
+  .container {
+    height: 92vh;
   }
 }

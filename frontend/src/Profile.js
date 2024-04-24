@@ -3,6 +3,7 @@ import { useCookies, Cookies } from "react-cookie";
 import { Form } from "react-bootstrap";
 import { nullToX } from "./Utils";
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   UsernameField,
   EmailField,
@@ -48,6 +49,10 @@ function Password() {
 export default function Profile() {
   const get = async () => {
     if (fetched) return;
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     await fetch("http://localhost:8000/profile", {
       method: "GET",
       headers: {
@@ -83,6 +88,7 @@ export default function Profile() {
         console.log(err.message);
       });
   };
+  const navigate = useNavigate();
   useEffect(() => {
     get();
   }, []);
