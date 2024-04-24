@@ -1,0 +1,41 @@
+.userform {
+  background-color: var(--light-color);
+  border-radius: var(--radius);
+  flex-direction: column;
+  width: fit-content;
+  padding: 2em;
+  display: flex;
+}
+
+.userform input {
+  width: 20em;
+  border-radius: var(--radius);
+  border: solid 0.25em var(--accent-color);
+  background-color: var(--background-color);
+}
+
+.userform > input {
+  margin-top: 2em;
+}
+
+.userform > input:first-child {
+  margin-top: 0;
+}
+
+.userform button {
+  margin-top: 2em;
+  align-self: flex-end;
+  width: auto;
+}
+
+.userform > .side-by-side {
+  margin-top: 2em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 20em;
+}
+
+.userform > .side-by-side > input {
+  width: 9em;
+}

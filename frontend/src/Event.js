@@ -20,6 +20,7 @@ export function EventPreview({ title, location, date, image }) {
 
 export function EventList() {
   const get = async () => {
+    if (fetched) return;
     const options = {
       weekday: "long",
       year: "numeric",
@@ -39,8 +40,8 @@ export function EventList() {
           ...event,
           start: new Date(event.start).toLocaleDateString(undefined, options),
         }));
-        console.log(newEvents);
         setEvents([...events, ...newEvents]);
+        setFetched(true);
       })
       .catch((err) => {
         console.log(err.message);
@@ -48,6 +49,7 @@ export function EventList() {
   };
 
   const [events, setEvents] = useState([]);
+  const [fetched, setFetched] = useState(false);
   useEffect(() => {
     get();
   }, []);
