@@ -18,7 +18,7 @@ class ValidateUserInContextMixin:
         return attrs
 
 
-class LocationSerializer(serializers.Serializer):
+class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Location
         fields = '__all__'
@@ -84,7 +84,7 @@ class RoleSerializer(ValidateUserInContextMixin,
                      serializers.ModelSerializer):
     class Meta:
         model = models.Role
-        fields = ['event', 'user', 'name']
+        fields = ['id', 'event', 'user', 'name']
         extra_kwargs = {
             'user': {'read_only': True},
             'name': {'required': False},

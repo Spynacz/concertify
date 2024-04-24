@@ -1,19 +1,21 @@
 import React from "react";
+import { CookiesProvider, useCookies } from "react-cookie";
+import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import "./App.css";
 import NavBar from "./NavBar";
 import Profile from "./Profile";
+import ErrorPage from "./ErrorPage";
 import { EventList } from "./Event";
-import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
-import { useState } from "react";
-import { useCookies, CookiesProvider } from "react-cookie";
 import { Login, Register } from "./Login";
 
 const router = createBrowserRouter([
   {
+    path: "/",
     element: <Layout />,
+    errorElement: <ErrorPage />,
     children: [
       {
-        path: "/",
+        path: "",
         element: <Home />,
       },
       {
