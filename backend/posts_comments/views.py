@@ -1,7 +1,9 @@
-from rest_framework import permissions
+from rest_framework import exceptions, permissions
 from rest_framework import mixins, viewsets
 
 from events.permissions import IsEventModerator
+
+from events.models import Role
 
 from posts_comments import models, serializers
 from posts_comments.permissions import IsOwner
@@ -14,15 +16,30 @@ class PostViewSet(viewsets.ModelViewSet):
         return models.Post.objects.all()
 
     def get_permissions(self):
-        permission_classes = [permissions.AllowAny]
-        if self.action in ['list', 'retrieve']:
+        if self.request.method in permissions.SAFE_METHODS:
             permission_classes = [permissions.AllowAny]
-        elif self.action in ['create', 'update', 'partial_update', 'destroy']:
+        else:
             permission_classes = [
                 permissions.IsAuthenticated,
                 IsEventModerator
             ]
+        print(permission_classes)
         return [permission() for permission in permission_classes]
+
+    def perform_create(self, serializer):
+        event = serializer.validated_data.get('event')
+
+        try:
+            role = Role.objects.get(event=event, user=self.request.user)
+        except Role.DoesNotExist:
+            msg = "You do not have permission to perform this action."
+            raise exceptions.PermissionDenied(msg)
+
+        if int(role.name) >= Role.NameChoice.MODERATOR:
+            msg = "You do not have permission to perform this action."
+            raise exceptions.PermissionDenied(msg)
+
+        return super().perform_create(serializer)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -32,9 +49,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         return models.Comment.objects.all()
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
+        if self.request.method in permissions.SAFE_METHODS:
             permission_classes = [permissions.AllowAny]
-        elif self.action in ['create', 'update', 'partial_update', 'destroy']:
+        else:
             permission_classes = [IsOwner]
         return [permission() for permission in permission_classes]
 
