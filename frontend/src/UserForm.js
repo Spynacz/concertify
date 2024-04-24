@@ -114,7 +114,7 @@ export function EmailField({ err, value, onChange }) {
 }
 
 export function PasswordConfirmationInvalid(password1, password2) {
-  return PasswordMismatch(password1, password2) || PasswordInvalid(password1);
+  return PasswordMismatch([password1, password2]) || PasswordInvalid(password1);
 }
 
 export function PasswordConfirmationField({ err }) {
@@ -133,7 +133,7 @@ export function PasswordConfirmationField({ err }) {
     <>
       <UserFormControl
         type="password"
-        name="password"
+        name="password1"
         onChange={changePassword}
       />
       <PasswordInvalidText password={password} />
@@ -144,6 +144,15 @@ export function PasswordConfirmationField({ err }) {
         onChange={changePassword2}
       />
       <PasswordMismatchText passwords={[password, password2]} />
+    </>
+  );
+}
+
+export function PasswordOldField({ err }) {
+  return (
+    <>
+      <UserFormControl type="password" name="old_password" />
+      <ErrorField text={err} />
     </>
   );
 }

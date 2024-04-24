@@ -11,12 +11,48 @@ import {
   SubmitButton,
   UserForm,
   PasswordConfirmationField,
+  PasswordConfirmationInvalid,
+  PasswordOldField,
   PaymentField,
 } from "./UserForm";
 
 function Details({ values, onChanges }) {
+  function handleSubmit(event) {
+    const patch = async () => {
+      await fetch("http://localhost:8000/profile", {
+        method: "PATCH",
+        body: JSON.stringify({
+          username: values.username,
+          email: values.email,
+          first_name: values.names.first,
+          last_name: values.names.last,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          Authorization: "Token " + cookies["user"].token,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) throw response;
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Details updated");
+        })
+        .catch((err) => {
+          console.log(err);
+          err.json().then((data) => {
+            console.log(data);
+          });
+        });
+    };
+    event.preventDefault();
+    const t = event.target;
+    patch();
+  }
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   return (
-    <UserForm>
+    <UserForm onSubmit={handleSubmit}>
       <h3>Change details:</h3>
       <UsernameField value={values.username} onChange={onChanges.username} />
       <EmailField value={values.email} onChange={onChanges.email} />
@@ -27,8 +63,47 @@ function Details({ values, onChanges }) {
 }
 
 function Payment({ values, onChanges }) {
+  function handleSubmit(event) {
+    const patch = async () => {
+      await fetch("http://localhost:8000/profile", {
+        method: "PATCH",
+        body: JSON.stringify({
+          payment_info: {
+            line1: values.line1,
+            line2: values.line2,
+            city: values.city,
+            postal_code: values.postal_code,
+            country: values.country,
+            telephone: values.telephone,
+            mobile: values.mobile,
+          },
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          Authorization: "Token " + cookies["user"].token,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) throw response;
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Payment info updated");
+        })
+        .catch((err) => {
+          console.log(err);
+          err.json().then((data) => {
+            console.log(data);
+          });
+        });
+    };
+    event.preventDefault();
+    const t = event.target;
+    patch();
+  }
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   return (
-    <UserForm>
+    <UserForm onSubmit={handleSubmit}>
       <h3>Change Payment info:</h3>
       <PaymentField values={values} onChanges={onChanges} />
       <SubmitButton value="Confirm" />
@@ -37,9 +112,47 @@ function Payment({ values, onChanges }) {
 }
 
 function Password() {
+  function handleSubmit(event) {
+    const put = async () => {
+      await fetch("http://localhost:8000/profile/password", {
+        method: "PUT",
+        body: JSON.stringify({
+          old_password: t.old_password.value,
+          password1: t.password1.value,
+          password2: t.password2.value,
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          Authorization: "Token " + cookies["user"].token,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) throw response;
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Password updated");
+        })
+        .catch((err) => {
+          console.log(err);
+          err.json().then((data) => {
+            console.log(data);
+          });
+        });
+    };
+    event.preventDefault();
+    const t = event.target;
+    if (PasswordConfirmationInvalid(t.password1.value, t.password2.value)) {
+      console.log(false);
+      return false;
+    }
+    put();
+  }
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   return (
-    <UserForm>
+    <UserForm onSubmit={handleSubmit}>
       <h3>Change password:</h3>
+      <PasswordOldField />
       <PasswordConfirmationField />
       <SubmitButton value="Confirm" />
     </UserForm>

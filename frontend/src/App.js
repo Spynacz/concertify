@@ -38,7 +38,7 @@ function Layout() {
   return (
     <>
       <NavBar />
-      <div class="container">
+      <div className="container">
         <Outlet />
       </div>
     </>
