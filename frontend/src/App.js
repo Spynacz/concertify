@@ -38,7 +38,9 @@ function Layout() {
   return (
     <>
       <NavBar />
-      <Outlet />
+      <div class="container">
+        <Outlet />
+      </div>
     </>
   );
 }

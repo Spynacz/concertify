@@ -33,7 +33,6 @@ export function Logout() {
       .then((response) => {
         if (!response.ok) throw new Error(response.status);
         removeCookie("user");
-        setUser(null);
         console.log("Logout successful");
       })
       .catch((err) => {
