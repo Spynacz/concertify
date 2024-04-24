@@ -12,7 +12,7 @@ function UserNavBar() {
         <Link to="/new-event">New Event</Link>
       </Nav.Link>
       <Nav.Link as="div" role="button">
-        <Link to={"/user/" + cookies['user'].username}>Profile</Link>
+        <Link to={"/user/" + cookies["user"].username}>Profile</Link>
       </Nav.Link>
       <Nav.Link as="div" role="button">
         <Logout />
@@ -35,7 +35,7 @@ function GuestNavBar() {
 }
 
 export default function NavBar() {
-  const [cookies, setCookie, removeCookie] = useCookies(['user']);
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   return (
     <Navbar expand="sm">
       <Container fluid>
@@ -54,7 +54,7 @@ export default function NavBar() {
             <Nav.Link as="div" role="button">
               <Link to="/cart">Cart</Link>
             </Nav.Link>
-            {'user' in cookies ? <UserNavBar /> : <GuestNavBar />}
+            {"user" in cookies ? <UserNavBar /> : <GuestNavBar />}
           </Nav>
         </Navbar.Collapse>
       </Container>
