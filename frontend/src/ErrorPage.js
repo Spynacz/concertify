@@ -1,4 +1,4 @@
-import { Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import { useRouteError } from "react-router-dom";
 
 export default function ErrorPage() {
@@ -8,12 +8,16 @@ export default function ErrorPage() {
   return (
     <Container>
       <Row className="text-center">
-        <h1>Oops!</h1>
+        <Col>
+          <h1>Oops!</h1>
+        </Col>
       </Row>
       <Row className="text-center">
-        <p>
-          <i>{error.statusText || error.message}</i>
-        </p>
+        <Col>
+          <p>
+            <i>{error.statusText || error.message}</i>
+          </p>
+        </Col>
       </Row>
     </Container>
   );
