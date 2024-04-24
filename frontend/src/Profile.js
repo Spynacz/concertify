@@ -13,6 +13,38 @@ import {
   PaymentField,
 } from "./UserForm";
 
+function Details({ values, onChanges }) {
+  return (
+    <UserForm>
+      <h3>Change details:</h3>
+      <UsernameField value={values.username} onChange={onChanges.username} />
+      <EmailField value={values.email} onChange={onChanges.email} />
+      <NamesField values={values.names} onChanges={onChanges.names} />
+      <SubmitButton value="Confirm" />
+    </UserForm>
+  );
+}
+
+function Payment({ values, onChanges }) {
+  return (
+    <UserForm>
+      <h3>Change Payment info:</h3>
+      <PaymentField values={values} onChanges={onChanges} />
+      <SubmitButton value="Confirm" />
+    </UserForm>
+  );
+}
+
+function Password() {
+  return (
+    <UserForm>
+      <h3>Change password:</h3>
+      <PasswordConfirmationField />
+      <SubmitButton value="Confirm" />
+    </UserForm>
+  );
+}
+
 export default function Profile() {
   const get = async () => {
     if (fetched) return;
@@ -27,9 +59,14 @@ export default function Profile() {
         return response.json();
       })
       .then((data) => {
-        setUsername(data.username);
-        setEmail(data.email);
-        setNames({ first: data.first_name, last: data.last_name });
+        setDetails({
+          username: data.username,
+          email: data.email,
+          names: {
+            first: data.first_name,
+            last: data.last_name,
+          },
+        });
         const payment = nullToX(data.payment_info, "");
         setPayment({
           line1: payment.line1,
@@ -52,13 +89,14 @@ export default function Profile() {
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const user = cookies["user"];
   const [fetched, setFetched] = useState(false);
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [names, setNames] = useState({ first: "", last: "" });
-  const nameChanges = {
-    first: (e) => setNames({ ...names, first: e.target.value }),
-    last: (e) => setNames({ ...names, last: e.target.value }),
-  };
+  const [details, setDetails] = useState({
+    username: "",
+    email: "",
+    names: {
+      first: "",
+      last: "",
+    },
+  });
   const [payment, setPayment] = useState({
     line1: "",
     line2: "",
@@ -77,25 +115,21 @@ export default function Profile() {
     telephone: (e) => setPayment({ ...payment, telephone: e.target.value }),
     mobile: (e) => setPayment({ ...payment, mobile: e.target.value }),
   };
+  const detailChanges = {
+    username: (e) => setDetails({ ...details, username: e.target.value }),
+    email: (e) => setDetails({ ...details, email: e.target.value }),
+    names: {
+      first: (e) =>
+        setDetails({ ...details, names: { ...names, first: e.target.value } }),
+      last: (e) =>
+        setDetails({ ...details, names: { ...names, last: e.target.value } }),
+    },
+  };
   return (
     <div className="profile-container">
-      <UserForm>
-        <h3>Change details:</h3>
-        <UsernameField value={username} onChange={setUsername} />
-        <EmailField value={email} onChange={setEmail} />
-        <NamesField values={names} onChanges={nameChanges} />
-        <SubmitButton value="Confirm" />
-      </UserForm>
-      <UserForm>
-        <h3>Change Payment info:</h3>
-        <PaymentField values={payment} onChanges={paymentChanges} />
-        <SubmitButton value="Confirm" />
-      </UserForm>
-      <UserForm>
-        <h3>Change password:</h3>
-        <PasswordConfirmationField />
-        <SubmitButton value="Confirm" />
-      </UserForm>
+      <Details values={details} onChanges={detailChanges} />
+      <Payment values={payment} onChanges={paymentChanges} />
+      <Password />
     </div>
   );
 }
