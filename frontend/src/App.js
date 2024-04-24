@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import NavBar from "./NavBar";
+import Profile from "./Profile";
 import { EventList } from "./Event";
 import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
 import { useState } from "react";
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
       },
     ],
   },
