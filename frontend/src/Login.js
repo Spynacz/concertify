@@ -109,7 +109,7 @@ export function Register() {
           email: t.email.value,
           first_name: t.first_name.value,
           last_name: t.last_name.value,
-          password: t.password.value,
+          password: t.password1.value,
           payment_info: {},
         }),
         headers: { "Content-type": "application/json; charset=UTF-8" },
@@ -134,7 +134,7 @@ export function Register() {
     };
     event.preventDefault();
     const t = event.target;
-    if (PasswordConfirmationInvalid(t.password.value, t.password2.value)) {
+    if (PasswordConfirmationInvalid(t.password1.value, t.password2.value)) {
       return false;
     }
     create();
