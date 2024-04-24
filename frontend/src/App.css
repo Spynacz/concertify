@@ -50,7 +50,8 @@ head {
   box-shadow: none;
 }
 
-.accent-button, .btn-primary {
+.accent-button,
+.btn-primary {
   background-color: var(--accent-color);
   border-radius: var(--radius);
   padding: 0.5em;

@@ -35,11 +35,10 @@ export function EventList() {
         return response.json();
       })
       .then((data) => {
-        const newEvents = data.results.map(
-          (event) => ({
-            ...event,
-            start: new Date(event.start).toLocaleDateString(undefined, options),
-          }));
+        const newEvents = data.results.map((event) => ({
+          ...event,
+          start: new Date(event.start).toLocaleDateString(undefined, options),
+        }));
         console.log(newEvents);
         setEvents([...events, ...newEvents]);
       })

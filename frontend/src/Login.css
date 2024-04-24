@@ -23,11 +23,11 @@
   background-color: var(--background-color);
 }
 
-.login-form>input {
+.login-form > input {
   margin-top: 2em;
 }
 
-.login-form>input:first-child {
+.login-form > input:first-child {
   margin-top: 0;
 }
 
@@ -37,7 +37,7 @@
   width: auto;
 }
 
-.login-form>.personal-info-container {
+.login-form > .personal-info-container {
   margin-top: 2em;
   display: flex;
   flex-direction: row;
@@ -45,6 +45,6 @@
   width: 20em;
 }
 
-.login-form>.personal-info-container>input {
+.login-form > .personal-info-container > input {
   width: 9em;
 }
