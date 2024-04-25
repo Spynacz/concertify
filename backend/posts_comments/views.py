@@ -32,6 +32,10 @@ class PostViewSet(IsEventModeratorPerformCreateMixin,
     serializer_class = serializers.PostSerializer
 
     def get_queryset(self):
+        event = self.request.query_params.get("event")
+        if event:
+            return models.Post.objects.filter(event=event)\
+                .order_by("-created_at")
         return models.Post.objects.all()
 
     def get_permissions(self):
@@ -49,6 +53,10 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CommentSerializer
 
     def get_queryset(self):
+        post = self.request.query_params.get("post")
+        if post:
+            return models.Comment.objects.filter(post=post)\
+                .order_by("-created_at")
         return models.Comment.objects.all()
 
     def get_permissions(self):
