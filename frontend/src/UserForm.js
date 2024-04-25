@@ -66,21 +66,22 @@ function SideBySide({ children }) {
 function UserFormControl({ type, name, value, onChange }) {
   if (typeof onChange !== "undefined") {
     return (
-      <Form.Control
-        type={type}
-        name={name}
-        placeholder={name.replace("_", " ")}
-        value={value}
-        onChange={onChange}
-      />
+      <div className="labeled">
+        <Form.Label>{name.replace("_", " ")}</Form.Label>
+        <Form.Control
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+        />
+      </div>
     );
   } else {
     return (
-      <Form.Control
-        type={type}
-        name={name}
-        placeholder={name.replace("_", " ")}
-      />
+      <div className="labeled">
+        <Form.Label>{name.replace("_", " ")}</Form.Label>
+        <Form.Control type={type} name={name} />
+      </div>
     );
   }
 }

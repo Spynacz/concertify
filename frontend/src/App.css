@@ -46,6 +46,17 @@ head {
   --bs-btn-hover-bg: var(--dark-color);
 }
 
+.nav-pills .nav-link.active {
+  background-color: var(--accent-color);
+  color: var(--dark-color);
+  border: dashed 0.15em var(--dark-color);
+}
+
+.nav-pills .nav-link {
+  color: var(--dark-color);
+  border: dashed 0.15em transparent;
+}
+
 .form-control:focus {
   border-color: var(--dark-color);
   box-shadow: none;
