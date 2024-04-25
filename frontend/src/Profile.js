@@ -17,7 +17,7 @@ import {
   PaymentField,
 } from "./UserForm";
 
-function getData(cookies, setCookie, removeCookie) {
+export function getProfileData(cookies, setCookie, removeCookie) {
   const user = cookies["user"];
   fetch("http://localhost:8000/profile", {
     method: "GET",
@@ -74,7 +74,7 @@ export function ProfileDetails() {
         })
         .then((data) => {
           console.log("Details updated");
-          getData(cookies, setCookie, removeCookie);
+          getProfileData(cookies, setCookie, removeCookie);
         })
         .catch((err) => {
           console.log(err);
@@ -133,7 +133,7 @@ export function ProfilePayment() {
           return response.json();
         })
         .then((data) => {
-          getData(cookies, setCookie, removeCookie);
+          getProfileData(cookies, setCookie, removeCookie);
           console.log("Payment info updated");
         })
         .catch((err) => {
@@ -263,7 +263,7 @@ export function Profile() {
       navigate("/");
     }
     if (fetched) return;
-    getData(cookies, setCookie, removeCookie);
+    getProfileData(cookies, setCookie, removeCookie);
     setFetched(true);
   }
   const navigate = useNavigate();
