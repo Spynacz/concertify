@@ -5,11 +5,10 @@ services:
     container_name: PostgreSQL
     image: postgres:latest
     environment:
-      POSTGRES_USER: DB_USER
-      POSTGRES_PASSWORD: DB_PASSWORD
-      POSTGRES_DB: DB_NAME
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - ./postgresql:/docker-entrypoint-initdb.d
       - ./postgresql/data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
@@ -25,12 +24,9 @@ services:
       - ./backend:/backend
     ports:
       - "8000:8000"
-    environment:
-      POSTGRES_USER: DB_USER
-      POSTGRES_PASSWORD: DB_PASSWORD
-      POSTGRES_DB: DB_NAME
     depends_on:
-      - database
+        database:
+          condition: service_started
     env_file:
       - .env
 
