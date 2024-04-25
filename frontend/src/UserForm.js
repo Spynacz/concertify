@@ -63,52 +63,28 @@ function SideBySide({ children }) {
   return <div className="side-by-side">{children}</div>;
 }
 
-function UserFormControl({ type, name, value, onChange }) {
-  if (typeof onChange !== "undefined") {
-    return (
-      <div className="labeled">
-        <Form.Label>{name.replace("_", " ")}</Form.Label>
-        <Form.Control
-          type={type}
-          name={name}
-          value={value}
-          onChange={onChange}
-        />
-      </div>
-    );
-  } else {
-    return (
-      <div className="labeled">
-        <Form.Label>{name.replace("_", " ")}</Form.Label>
-        <Form.Control type={type} name={name} />
-      </div>
-    );
-  }
+function UserFormControl({ type, name, value }) {
+  return (
+    <div className="labeled">
+      <Form.Label>{name.replace("_", " ")}</Form.Label>
+      <Form.Control type={type} name={name} defaultValue={value} />
+    </div>
+  );
 }
 
-export function UsernameField({ err, value, onChange }) {
+export function UsernameField({ err, value }) {
   return (
     <>
-      <UserFormControl
-        type="text"
-        name="username"
-        value={value}
-        onChange={onChange}
-      />
+      <UserFormControl type="text" name="username" value={value} />
       <ErrorField text={err} />
     </>
   );
 }
 
-export function EmailField({ err, value, onChange }) {
+export function EmailField({ err, value }) {
   return (
     <>
-      <UserFormControl
-        type="email"
-        name="email"
-        value={value}
-        onChange={onChange}
-      />
+      <UserFormControl type="email" name="email" value={value} />
       <ErrorField text={err} />
     </>
   );
@@ -167,22 +143,12 @@ export function PasswordField({ err }) {
   );
 }
 
-export function NamesField({ values, onChanges }) {
-  if (values && onChanges) {
+export function NamesField({ values }) {
+  if (values) {
     return (
       <SideBySide>
-        <UserFormControl
-          type="text"
-          name="first_name"
-          value={values.first}
-          onChange={onChanges.first}
-        />
-        <UserFormControl
-          type="text"
-          name="last_name"
-          value={values.last}
-          onChange={onChanges.last}
-        />
+        <UserFormControl type="text" name="first_name" value={values.first} />
+        <UserFormControl type="text" name="last_name" value={values.last} />
       </SideBySide>
     );
   } else {
@@ -203,45 +169,24 @@ export function SubmitButton({ value }) {
   );
 }
 
-export function PaymentField({ values, onChanges, err }) {
-  if (values && onChanges) {
+export function PaymentField({ values, err }) {
+  if (values) {
     return (
       <>
-        <UserFormControl
-          type="text"
-          name="line1"
-          value={values.line1}
-          onChange={onChanges.line1}
-        />
+        <UserFormControl type="text" name="line1" value={values.line1} />
         <ErrorField text={err.line1} />
-        <UserFormControl
-          type="text"
-          name="line2"
-          value={values.line2}
-          onChange={onChanges.line2}
-        />
+        <UserFormControl type="text" name="line2" value={values.line2} />
         <ErrorField text={err.line2} />
-        <UserFormControl
-          type="text"
-          name="city"
-          value={values.city}
-          onChange={onChanges.city}
-        />
+        <UserFormControl type="text" name="city" value={values.city} />
         <ErrorField text={err.city} />
         <SideBySide>
           <UserFormControl
             type="text"
             name="postal_code"
             value={values.postal_code}
-            onChange={onChanges.postal_code}
           />
           <ErrorField text={err.postal_code} />
-          <UserFormControl
-            type="text"
-            name="country"
-            value={values.country}
-            onChange={onChanges.country}
-          />
+          <UserFormControl type="text" name="country" value={values.country} />
           <ErrorField text={err.country} />
         </SideBySide>
         <SideBySide>
@@ -249,15 +194,9 @@ export function PaymentField({ values, onChanges, err }) {
             type="tel"
             name="telephone"
             value={values.telephone}
-            onChange={onChanges.telephone}
           />
           <ErrorField text={err.telephone} />
-          <UserFormControl
-            type="tel"
-            name="mobile"
-            value={values.mobile}
-            onChange={onChanges.mobile}
-          />
+          <UserFormControl type="tel" name="mobile" value={values.mobile} />
           <ErrorField text={err.mobile} />
         </SideBySide>
       </>
@@ -266,15 +205,22 @@ export function PaymentField({ values, onChanges, err }) {
     return (
       <>
         <UserFormControl type="text" name="line1" />
+        <ErrorField text={err.line1} />
         <UserFormControl type="text" name="line2" />
+        <ErrorField text={err.line2} />
         <UserFormControl type="text" name="city" />
+        <ErrorField text={err.city} />
         <SideBySide>
           <UserFormControl type="text" name="postal_code" />
+          <ErrorField text={err.postal_code} />
           <UserFormControl type="text" name="country" />
+          <ErrorField text={err.country} />
         </SideBySide>
         <SideBySide>
           <UserFormControl type="tel" name="telephone" />
+          <ErrorField text={err.telephone} />
           <UserFormControl type="tel" name="mobile" />
+          <ErrorField text={err.mobile} />
         </SideBySide>
       </>
     );

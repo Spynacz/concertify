@@ -17,16 +17,51 @@ import {
   PaymentField,
 } from "./UserForm";
 
+function getData(cookies, setCookie, removeCookie) {
+  const user = cookies["user"];
+  fetch("http://localhost:8000/profile", {
+    method: "GET",
+    headers: {
+      Authorization: "Token " + user.token,
+    },
+  })
+    .then((response) => {
+      if (!response.ok) throw response;
+      return response.json();
+    })
+    .then((data) => {
+      const payment = nullToX(data.payment_info, "");
+      setCookie("user", {
+        ...user,
+        username: data.username,
+        email: data.email,
+        names: {
+          first: data.first_name,
+          last: data.last_name,
+        },
+        payment: {
+          line1: payment.line1,
+          line2: payment.line2,
+          city: payment.city,
+          postal_code: payment.postal_code,
+          country: payment.country,
+          telephone: payment.telephone,
+          mobile: payment.mobile,
+        },
+      });
+    });
+}
+
 export function ProfileDetails() {
   function handleSubmit(event) {
     const patch = async () => {
       await fetch("http://localhost:8000/profile", {
         method: "PATCH",
         body: JSON.stringify({
-          username: user.username,
-          email: user.email,
-          first_name: user.names.first,
-          last_name: user.names.last,
+          username: t.username.value,
+          email: t.email.value,
+          first_name: t.first_name.value,
+          last_name: t.last_name.value,
         }),
         headers: {
           "Content-type": "application/json; charset=UTF-8",
@@ -39,8 +74,10 @@ export function ProfileDetails() {
         })
         .then((data) => {
           console.log("Details updated");
+          getData(cookies, setCookie, removeCookie);
         })
         .catch((err) => {
+          console.log(err);
           err.json().then((data) => {
             setErr({
               username: data.username,
@@ -55,22 +92,6 @@ export function ProfileDetails() {
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const user = cookies["user"];
-  const onChanges = {
-    username: (e) => setCookie("user", { ...user, username: e.target.value }),
-    email: (e) => setCookie("user", { ...user, email: e.target.value }),
-    names: {
-      first: (e) =>
-        setCookie("user", {
-          ...user,
-          names: { ...names, first: e.target.value },
-        }),
-      last: (e) =>
-        setCookie("user", {
-          ...user,
-          names: { ...names, last: e.target.value },
-        }),
-    },
-  };
   const [err, setErr] = useState({
     username: "",
     email: "",
@@ -78,17 +99,9 @@ export function ProfileDetails() {
   return (
     <UserForm onSubmit={handleSubmit}>
       <h3>Change details:</h3>
-      <UsernameField
-        value={user.username}
-        onChange={onChanges.username}
-        err={err.username}
-      />
-      <EmailField
-        value={user.email}
-        onChange={onChanges.email}
-        err={err.email}
-      />
-      <NamesField values={user.names} onChanges={onChanges.names} />
+      <UsernameField value={user.username} err={err.username} />
+      <EmailField value={user.email} err={err.email} />
+      <NamesField values={user.names} />
       <SubmitButton value="Confirm" />
     </UserForm>
   );
@@ -101,13 +114,13 @@ export function ProfilePayment() {
         method: "PATCH",
         body: JSON.stringify({
           payment_info: {
-            line1: user.payment.line1,
-            line2: user.payment.line2,
-            city: user.payment.city,
-            postal_code: user.payment.postal_code,
-            country: user.payment.country,
-            telephone: user.payment.telephone,
-            mobile: user.payment.mobile,
+            line1: t.line1.value,
+            line2: t.line2.value,
+            city: t.city.value,
+            postal_code: t.postal_code.value,
+            country: t.country.value,
+            telephone: t.telephone.value,
+            mobile: t.mobile.value,
           },
         }),
         headers: {
@@ -120,6 +133,7 @@ export function ProfilePayment() {
           return response.json();
         })
         .then((data) => {
+          getData(cookies, setCookie, removeCookie);
           console.log("Payment info updated");
         })
         .catch((err) => {
@@ -142,44 +156,6 @@ export function ProfilePayment() {
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const user = cookies["user"];
-  const [open, setOpen] = useState(false);
-  const onChanges = {
-    line1: (e) =>
-      setCookie("user", {
-        ...user,
-        payment: { ...user.payment, line1: e.target.value },
-      }),
-    line2: (e) =>
-      setCookie("user", {
-        ...user,
-        payment: { ...user.payment, line2: e.target.value },
-      }),
-    city: (e) =>
-      setCookie("user", {
-        ...user,
-        payment: { ...user.payment, city: e.target.value },
-      }),
-    postal_code: (e) =>
-      setCookie("user", {
-        ...user,
-        payment: { ...user.payment, postal_code: e.target.value },
-      }),
-    country: (e) =>
-      setCookie("user", {
-        ...user,
-        payment: { ...user.payment, country: e.target.value },
-      }),
-    telephone: (e) =>
-      setCookie("user", {
-        ...user,
-        payment: { ...user.payment, telephone: e.target.value },
-      }),
-    mobile: (e) =>
-      setCookie("user", {
-        ...user,
-        payment: { ...user.payment, mobile: e.target.value },
-      }),
-  };
   const [err, setErr] = useState({
     line1: "",
     line2: "",
@@ -192,7 +168,7 @@ export function ProfilePayment() {
   return (
     <UserForm onSubmit={handleSubmit}>
       <h3>Change Payment info:</h3>
-      <PaymentField values={user.payment} onChanges={onChanges} err={err} />
+      <PaymentField values={user.payment} err={err} />
       <SubmitButton value="Confirm" />
     </UserForm>
   );
@@ -282,56 +258,22 @@ export function ProfileSecurity() {
 }
 
 export function Profile() {
-  const get = async () => {
-    if (fetched) return;
+  function get() {
     if (!user) {
-      navigate("/login");
-      return;
+      navigate("/");
     }
-    await fetch("http://localhost:8000/profile", {
-      method: "GET",
-      headers: {
-        Authorization: "Token " + user.token,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error(response.status);
-        return response.json();
-      })
-      .then((data) => {
-        const payment = nullToX(data.payment_info, "");
-        setCookie("user", {
-          ...user,
-          username: data.username,
-          email: data.email,
-          names: {
-            first: data.first_name,
-            last: data.last_name,
-          },
-          payment: {
-            line1: payment.line1,
-            line2: payment.line2,
-            city: payment.city,
-            postal_code: payment.postal_code,
-            country: payment.country,
-            telephone: payment.telephone,
-            mobile: payment.mobile,
-          },
-        });
-        setFetched(true);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-  };
+    if (fetched) return;
+    getData(cookies, setCookie, removeCookie);
+    setFetched(true);
+  }
   const navigate = useNavigate();
-  useEffect(() => {
-    get();
-  }, []);
   const [subsite, setSubsite] = useState(0);
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const user = cookies["user"];
   const [fetched, setFetched] = useState(false);
+  useEffect(() => {
+    get();
+  }, []);
   return (
     <div className="profile-container">
       <div className="profile-header">
