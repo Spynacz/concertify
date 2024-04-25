@@ -15,11 +15,11 @@
   background-color: var(--background-color);
 }
 
-.userform > input {
+.userform > .labeled {
   margin-top: 2em;
 }
 
-.userform > input:first-child {
+.userform > .labeled:first-child {
   margin-top: 0;
 }
 
@@ -27,6 +27,15 @@
   margin-top: 2em;
   align-self: flex-end;
   width: auto;
+}
+
+.userform .labeled {
+  white-space: nowrap;
+}
+
+.userform .labeled label {
+  text-transform: capitalize;
+  margin-right: 1em;
 }
 
 .userform > .side-by-side {
@@ -37,7 +46,7 @@
   width: 30em;
 }
 
-.userform > .side-by-side > input {
+.userform > .side-by-side > .labeled {
   width: 12em;
 }
 
@@ -52,7 +61,13 @@
   .userform > .side-by-side {
     width: 20em;
   }
-  .userform > .side-by-side > input {
+  .userform > .side-by-side > .labeled > input {
     width: 9em;
+  }
+  .userform > .labeled {
+    margin-top: 1em;
+  }
+  .userform > .side-by-side {
+    margin-top: 1em;
   }
 }
