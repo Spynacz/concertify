@@ -40,9 +40,11 @@ function Details({ values, onChanges }) {
           console.log("Details updated");
         })
         .catch((err) => {
-          console.log(err);
           err.json().then((data) => {
-            console.log(data);
+            setErr({
+              username: data.username,
+              email: data.email,
+            });
           });
         });
     };
@@ -51,11 +53,23 @@ function Details({ values, onChanges }) {
     patch();
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const [err, setErr] = useState({
+    username: "",
+    email: "",
+  });
   return (
     <UserForm onSubmit={handleSubmit}>
       <h3>Change details:</h3>
-      <UsernameField value={values.username} onChange={onChanges.username} />
-      <EmailField value={values.email} onChange={onChanges.email} />
+      <UsernameField
+        value={values.username}
+        onChange={onChanges.username}
+        err={err.username}
+      />
+      <EmailField
+        value={values.email}
+        onChange={onChanges.email}
+        err={err.email}
+      />
       <NamesField values={values.names} onChanges={onChanges.names} />
       <SubmitButton value="Confirm" />
     </UserForm>
@@ -91,9 +105,16 @@ function Payment({ values, onChanges }) {
           console.log("Payment info updated");
         })
         .catch((err) => {
-          console.log(err);
           err.json().then((data) => {
-            console.log(data);
+            setErr({
+              line1: data.line1,
+              line2: data.line2,
+              city: data.city,
+              postal_code: data.postal_code,
+              country: data.country,
+              telephone: data.telephone,
+              mobile: data.mobile,
+            });
           });
         });
     };
@@ -102,10 +123,19 @@ function Payment({ values, onChanges }) {
     patch();
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const [err, setErr] = useState({
+    line1: "",
+    line2: "",
+    city: "",
+    postal_code: "",
+    country: "",
+    telephone: "",
+    mobile: "",
+  });
   return (
     <UserForm onSubmit={handleSubmit}>
       <h3>Change Payment info:</h3>
-      <PaymentField values={values} onChanges={onChanges} />
+      <PaymentField values={values} onChanges={onChanges} err={err} />
       <SubmitButton value="Confirm" />
     </UserForm>
   );
@@ -134,26 +164,33 @@ function Password() {
           console.log("Password updated");
         })
         .catch((err) => {
-          console.log(err);
           err.json().then((data) => {
-            console.log(data);
+            setErr({
+              old_password: data.old_password,
+              password1: data.password1,
+              password2: data.password2,
+            });
           });
         });
     };
     event.preventDefault();
     const t = event.target;
     if (PasswordConfirmationInvalid(t.password1.value, t.password2.value)) {
-      console.log(false);
       return false;
     }
     put();
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const [err, setErr] = useState({
+    old_password: "",
+    password1: "",
+    password2: "",
+  });
   return (
     <UserForm onSubmit={handleSubmit}>
       <h3>Change password:</h3>
-      <PasswordOldField />
-      <PasswordConfirmationField />
+      <PasswordOldField err={err.old_password} />
+      <PasswordConfirmationField err={err.password1} />
       <SubmitButton value="Confirm" />
     </UserForm>
   );

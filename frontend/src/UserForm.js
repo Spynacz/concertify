@@ -202,7 +202,7 @@ export function SubmitButton({ value }) {
   );
 }
 
-export function PaymentField({ values, onChanges }) {
+export function PaymentField({ values, onChanges, err }) {
   if (values && onChanges) {
     return (
       <>
@@ -212,18 +212,21 @@ export function PaymentField({ values, onChanges }) {
           value={values.line1}
           onChange={onChanges.line1}
         />
+        <ErrorField text={err.line1} />
         <UserFormControl
           type="text"
           name="line2"
           value={values.line2}
           onChange={onChanges.line2}
         />
+        <ErrorField text={err.line2} />
         <UserFormControl
           type="text"
           name="city"
           value={values.city}
           onChange={onChanges.city}
         />
+        <ErrorField text={err.city} />
         <SideBySide>
           <UserFormControl
             type="text"
@@ -231,12 +234,14 @@ export function PaymentField({ values, onChanges }) {
             value={values.postal_code}
             onChange={onChanges.postal_code}
           />
+          <ErrorField text={err.postal_code} />
           <UserFormControl
             type="text"
             name="country"
             value={values.country}
             onChange={onChanges.country}
           />
+          <ErrorField text={err.country} />
         </SideBySide>
         <SideBySide>
           <UserFormControl
@@ -245,12 +250,14 @@ export function PaymentField({ values, onChanges }) {
             value={values.telephone}
             onChange={onChanges.telephone}
           />
+          <ErrorField text={err.telephone} />
           <UserFormControl
             type="tel"
             name="mobile"
             value={values.mobile}
             onChange={onChanges.mobile}
           />
+          <ErrorField text={err.mobile} />
         </SideBySide>
       </>
     );
