@@ -23,10 +23,10 @@ export function ProfileDetails() {
       await fetch("http://localhost:8000/profile", {
         method: "PATCH",
         body: JSON.stringify({
-          username: details.username,
-          email: details.email,
-          first_name: details.names.first,
-          last_name: details.names.last,
+          username: user.username,
+          email: user.email,
+          first_name: user.names.first,
+          last_name: user.names.last,
         }),
         headers: {
           "Content-type": "application/json; charset=UTF-8",
@@ -54,22 +54,21 @@ export function ProfileDetails() {
     patch();
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
-  const [details, setDetails] = useState({
-    username: "",
-    email: "",
-    names: {
-      first: "",
-      last: "",
-    },
-  });
-  const detailChanges = {
-    username: (e) => setDetails({ ...details, username: e.target.value }),
-    email: (e) => setDetails({ ...details, email: e.target.value }),
+  const user = cookies["user"];
+  const onChanges = {
+    username: (e) => setCookie("user", { ...user, username: e.target.value }),
+    email: (e) => setCookie("user", { ...user, email: e.target.value }),
     names: {
       first: (e) =>
-        setDetails({ ...details, names: { ...names, first: e.target.value } }),
+        setCookie("user", {
+          ...user,
+          names: { ...names, first: e.target.value },
+        }),
       last: (e) =>
-        setDetails({ ...details, names: { ...names, last: e.target.value } }),
+        setCookie("user", {
+          ...user,
+          names: { ...names, last: e.target.value },
+        }),
     },
   };
   const [err, setErr] = useState({
@@ -80,16 +79,16 @@ export function ProfileDetails() {
     <UserForm onSubmit={handleSubmit}>
       <h3>Change details:</h3>
       <UsernameField
-        value={details.username}
-        onChange={detailChanges.username}
+        value={user.username}
+        onChange={onChanges.username}
         err={err.username}
       />
       <EmailField
-        value={details.email}
-        onChange={detailChanges.email}
+        value={user.email}
+        onChange={onChanges.email}
         err={err.email}
       />
-      <NamesField values={details.names} onChanges={detailChanges.names} />
+      <NamesField values={user.names} onChanges={onChanges.names} />
       <SubmitButton value="Confirm" />
     </UserForm>
   );
@@ -102,13 +101,13 @@ export function ProfilePayment() {
         method: "PATCH",
         body: JSON.stringify({
           payment_info: {
-            line1: values.line1,
-            line2: values.line2,
-            city: values.city,
-            postal_code: values.postal_code,
-            country: values.country,
-            telephone: values.telephone,
-            mobile: values.mobile,
+            line1: user.payment.line1,
+            line2: user.payment.line2,
+            city: user.payment.city,
+            postal_code: user.payment.postal_code,
+            country: user.payment.country,
+            telephone: user.payment.telephone,
+            mobile: user.payment.mobile,
           },
         }),
         headers: {
@@ -142,24 +141,44 @@ export function ProfilePayment() {
     patch();
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const user = cookies["user"];
   const [open, setOpen] = useState(false);
-  const [payment, setPayment] = useState({
-    line1: "",
-    line2: "",
-    city: "",
-    postal_code: "",
-    country: "",
-    telephone: "",
-    mobile: "",
-  });
-  const paymentChanges = {
-    line1: (e) => setPayment({ ...payment, line1: e.target.value }),
-    line2: (e) => setPayment({ ...payment, line2: e.target.value }),
-    city: (e) => setPayment({ ...payment, city: e.target.value }),
-    postal_code: (e) => setPayment({ ...payment, postal_code: e.target.value }),
-    country: (e) => setPayment({ ...payment, country: e.target.value }),
-    telephone: (e) => setPayment({ ...payment, telephone: e.target.value }),
-    mobile: (e) => setPayment({ ...payment, mobile: e.target.value }),
+  const onChanges = {
+    line1: (e) =>
+      setCookie("user", {
+        ...user,
+        payment: { ...user.payment, line1: e.target.value },
+      }),
+    line2: (e) =>
+      setCookie("user", {
+        ...user,
+        payment: { ...user.payment, line2: e.target.value },
+      }),
+    city: (e) =>
+      setCookie("user", {
+        ...user,
+        payment: { ...user.payment, city: e.target.value },
+      }),
+    postal_code: (e) =>
+      setCookie("user", {
+        ...user,
+        payment: { ...user.payment, postal_code: e.target.value },
+      }),
+    country: (e) =>
+      setCookie("user", {
+        ...user,
+        payment: { ...user.payment, country: e.target.value },
+      }),
+    telephone: (e) =>
+      setCookie("user", {
+        ...user,
+        payment: { ...user.payment, telephone: e.target.value },
+      }),
+    mobile: (e) =>
+      setCookie("user", {
+        ...user,
+        payment: { ...user.payment, mobile: e.target.value },
+      }),
   };
   const [err, setErr] = useState({
     line1: "",
@@ -173,7 +192,7 @@ export function ProfilePayment() {
   return (
     <UserForm onSubmit={handleSubmit}>
       <h3>Change Payment info:</h3>
-      <PaymentField values={payment} onChanges={paymentChanges} err={err} />
+      <PaymentField values={user.payment} onChanges={onChanges} err={err} />
       <SubmitButton value="Confirm" />
     </UserForm>
   );
@@ -280,23 +299,24 @@ export function Profile() {
         return response.json();
       })
       .then((data) => {
-        setDetails({
+        const payment = nullToX(data.payment_info, "");
+        setCookie("user", {
+          ...user,
           username: data.username,
           email: data.email,
           names: {
             first: data.first_name,
             last: data.last_name,
           },
-        });
-        const payment = nullToX(data.payment_info, "");
-        setPayment({
-          line1: payment.line1,
-          line2: payment.line2,
-          city: payment.city,
-          postal_code: payment.postal_code,
-          country: payment.country,
-          telephone: payment.telephone,
-          mobile: payment.mobile,
+          payment: {
+            line1: payment.line1,
+            line2: payment.line2,
+            city: payment.city,
+            postal_code: payment.postal_code,
+            country: payment.country,
+            telephone: payment.telephone,
+            mobile: payment.mobile,
+          },
         });
         setFetched(true);
       })
