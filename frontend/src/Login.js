@@ -33,6 +33,7 @@ export function Logout() {
       .then((response) => {
         if (!response.ok) throw new Error(response.status);
         removeCookie("user");
+        navigate("/");
         console.log("Logout successful");
       })
       .catch((err) => {
@@ -40,6 +41,7 @@ export function Logout() {
       });
   };
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const navigate = useNavigate();
   const user = cookies["user"];
   return <div onClick={logout}>Logout</div>;
 }
