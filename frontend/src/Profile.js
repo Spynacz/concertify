@@ -1,6 +1,6 @@
 import "./Profile.css";
 import { useCookies, Cookies } from "react-cookie";
-import { Form } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { nullToX } from "./Utils";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -159,6 +159,41 @@ function Password() {
   );
 }
 
+function Advanced() {
+  function handleClick(event) {
+    const del = async () => {
+      await fetch("http://localhost:8000/profile", {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          Authorization: "Token " + cookies["user"].token,
+        },
+      })
+        .then((response) => {
+          if (!response.ok) throw response;
+          removeCookie("user");
+          navigate("/");
+          console.log("Account Deleted");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+    event.preventDefault();
+    del();
+  }
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const navigate = useNavigate();
+  return (
+    <UserForm>
+      <h3>Advanced:</h3>
+      <Button className="red-button" onClick={handleClick}>
+        Delete Account
+      </Button>
+    </UserForm>
+  );
+}
+
 export default function Profile() {
   const get = async () => {
     if (fetched) return;
@@ -246,9 +281,12 @@ export default function Profile() {
   };
   return (
     <div className="profile-container">
-      <Details values={details} onChanges={detailChanges} />
-      <Payment values={payment} onChanges={paymentChanges} />
-      <Password />
+      <div className="form-container">
+        <Details values={details} onChanges={detailChanges} />
+        <Payment values={payment} onChanges={paymentChanges} />
+        <Password />
+        <Advanced />
+      </div>
     </div>
   );
 }
