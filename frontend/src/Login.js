@@ -70,7 +70,7 @@ export function Login() {
         })
         .catch((err) => {
           err.json().then((data) => {
-            const newdata = nulltoX(data, []);
+            const newdata = nullToX(data, []);
             setUsernameMsg(newdata.username);
             setPassMsg(newdata.password);
             setGlobalMsg(newdata.non_field_errors);

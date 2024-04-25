@@ -3,6 +3,7 @@
   --dark-color: #333;
   --light-color: #eee;
   --background-color: #fff;
+  --red-color: #f36e6e;
   --radius: 1em;
 }
 
@@ -53,6 +54,16 @@ head {
 .accent-button,
 .btn-primary {
   background-color: var(--accent-color);
+  border-radius: var(--radius);
+  padding: 0.5em;
+  color: var(--dark-color);
+  border: dashed 0.15em var(--dark-color);
+  height: fit-content;
+  width: fit-content;
+}
+
+.red-button {
+  background-color: var(--red-color);
   border-radius: var(--radius);
   padding: 0.5em;
   color: var(--dark-color);
