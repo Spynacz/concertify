@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "react-bootstrap";
 import "./EventPage.css";
 
 export default function EventDetails({ eventId }) {
@@ -44,6 +45,7 @@ export default function EventDetails({ eventId }) {
           start: new Date(data.start).toLocaleDateString(undefined, options),
           end: new Date(data.end).toLocaleDateString(undefined, options),
         }));
+        console.log(data);
       })
       .catch((err) => {
         console.log(err.message);
@@ -56,7 +58,7 @@ export default function EventDetails({ eventId }) {
 
   return (
     <div className="event-details">
-      <div className="container-fluid parallax parallax-image"></div>
+      <div className="parallax parallax-image"></div>
       <h1 className="event-title text-center">{eventData.title}</h1>
       <div className="event-date text-center">
         {eventData.start} - {eventData.end}

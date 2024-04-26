@@ -69,9 +69,3 @@ head {
     display: none;
   }
 }
-
-.container-fluid {
-    display: block;
-    margin: 0;
-    padding: 0;
-}

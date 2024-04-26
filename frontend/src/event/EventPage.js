@@ -11,7 +11,7 @@ export default function EventPage() {
   const [cookies, setCookie, removeCookie] = useCookies("[user]");
 
   return (
-    <Container fluid>
+    <Container fluid style={{ display: "block", padding: "0" }}>
       <EventDetails eventId={id} />
       {"user" in cookies ? <JoinButton /> : ""}
       <PostList eventId={id} />
