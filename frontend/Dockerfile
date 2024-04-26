@@ -1,16 +1,16 @@
 FROM node:latest
 
 EXPOSE 3000
-WORKDIR /react/
+WORKDIR /frontend/
 
-COPY package.json /react/package.json
+COPY package.json /frontend/package.json
 RUN npm install
 
-COPY src /react/src
-COPY template.html /react/template.html
-COPY babel.config.json /react/babel.config.json
-COPY webpack.common.js /react/webpack.common.js
-COPY webpack.dev.js /react/webpack.dev.js
-COPY webpack.prod.js /react/webpack.prod.js
+COPY webpack.common.js /frontend/webpack.common.js
+COPY webpack.dev.js /frontend/webpack.dev.js
+COPY webpack.prod.js /frontend/webpack.prod.js
+COPY babel.config.json /frontend/babel.config.json
+COPY template.html /frontend/template.html
+COPY src /frontend/src
 
 CMD ["npm", "start"]

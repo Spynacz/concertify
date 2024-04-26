@@ -1,0 +1,15 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--light-color);
+  height: 8vh;
+  align-items: center;
+}
+
+#logo {
+  margin-left: 1em;
+  background-color: var(--accent-color);
+  padding: 0.5em;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
