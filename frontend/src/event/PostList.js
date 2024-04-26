@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Card, Col, Row } from "react-bootstrap";
 
 export default function PostList({ eventId }) {
   const [posts, setPosts] = useState([]);
@@ -12,7 +13,7 @@ export default function PostList({ eventId }) {
         return response.json();
       })
       .then((data) => {
-        setPosts(data);
+        setPosts(data.results);
       })
       .catch((err) => {
         console.log(err.message);
@@ -23,5 +24,21 @@ export default function PostList({ eventId }) {
     get();
   }, []);
 
-  return <div>Post List. TBI</div>;
+  return (
+    <div className="post-list">
+      {posts.map((post) => (
+        <Row className="justify-content-center my-3" key={post.id}>
+          <Col sm={9} md={8}>
+            <Card>
+              <Card.Body>
+                <Card.Title>{post.title}</Card.Title>
+                <br />
+                <Card.Text>{post.desc}</Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      ))}
+    </div>
+  );
 }
