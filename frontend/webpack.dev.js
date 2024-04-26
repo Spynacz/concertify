@@ -8,6 +8,13 @@ module.exports = merge(common, {
     historyApiFallback: true,
     port: 3000,
     open: true,
-    hot: true
+    hot: true,
+    proxy: [
+      {
+        context: ["/api"],
+        target: "http://localhost:8000",
+        pathRewrite: { "^/api": "" },
+      },
+    ],
   },
 });
