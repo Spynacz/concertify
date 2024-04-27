@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 from phonenumber_field.modelfields import PhoneNumberField
 
-
 class ConcertifyUser(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
     picture = models.ImageField(blank=True, null=True)
@@ -36,14 +35,21 @@ class PaymentInfo(models.Model):
 
 
 class Notification(models.Model):
+    class TypeChoice(models.IntegerChoices):
+        IMPORTANT = (2, _('important'))
+        REMINDER = (1, _('reminder'))
+        CASUAL = (0, _('casual'))
+
     title = models.CharField(_('title'), max_length=150)
     desc = models.CharField(_('description'), max_length=300)
     notification_type = models.CharField(
         _('notification type'),
-        max_length=100
+        choices=TypeChoice.choices
     )
+    has_been_seen = models.BooleanField(default=False)
     user = models.ForeignKey(ConcertifyUser, related_name='notification',
                              on_delete=models.CASCADE)
+    
 
 
 class EventReport(models.Model):
