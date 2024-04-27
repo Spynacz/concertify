@@ -33,9 +33,19 @@ services:
       - database
     env_file:
       - .env
-
   frontend:
     container_name: React
     build: ./frontend
     ports:
      - "3000:3000"
+  # rabbitmq:
+  #   image: rabbitmq
+  #   container_name: my-rabbitmq
+  #   ports:
+  #     - "5672:5672"
+  # redis:
+  #   container_name: Redis
+  #   image: redis:latest
+  #   command: ["redis-server", "--bind", "redis", "--port", "6379"]
+  #   ports:
+  #   - "6379:6379"

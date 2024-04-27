@@ -1,12 +1,17 @@
 from django.utils import timezone
 
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import mixins, permissions, viewsets, generics
+from rest_framework.response import Response
+from rest_framework import status
+from celery import shared_task
+from datetime import datetime, timedelta
+import copy
 
 from events import permissions as event_permissions
 from events import serializers
 from events.models import Event, Location, Role, SocialMedia
-
-
+from users import serializers as users_serializers
+from users import models as users_models
 class LocationViewSet(mixins.ListModelMixin,
                       mixins.CreateModelMixin,
                       viewsets.GenericViewSet):
@@ -44,8 +49,11 @@ class EventViewSet(viewsets.ModelViewSet):
                 event_permissions.IsEventOwner
             ]
         return [permission() for permission in permission_classes]
-
-
+        
+    def perform_destroy(self, instance):
+        serializers.EventFeedSerializer.revoke_task(instance)
+        super().perform_destroy(instance)
+    
 class RoleViewSet(mixins.CreateModelMixin,
                   mixins.DestroyModelMixin,
                   mixins.UpdateModelMixin,
@@ -84,3 +92,9 @@ class SocialMediaViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return SocialMedia.objects.all()
+
+class CreateNotificationView(generics.CreateAPIView):
+    serializer_class = serializers.NotificationSerializer
+    permission_classes = [ 
+        permissions.IsAuthenticated,
+        event_permissions.CreateNotificiationPermision ]

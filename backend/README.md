@@ -533,6 +533,9 @@ TBD
 
 TBD
 
+## /event/<int:pk>/send-notification
+### Methods
+- `POST` - sends notification to all user(user with role 'user') realted with some event (event id should put in url exxample: /event/1/send-notification)
 # Posts_comments app
 
 ### Description:
@@ -1522,8 +1525,12 @@ Display and edit current user profile
 ## /logoutall
 ### Methods:
 - `POST`: delete all user tokens
-
+## /notifications
+### Methods
+- `GET` - get all notifications related with user
+- `POST` - set notification ass seen
 #### Response codes:
 - `204 NO CONTENT` - Tokens were succesfully deleted
 - `400 BAD REQUEST` - Invalid request parameters
 - `401 UNAUTHORIZED` - Invalid credentials
+
