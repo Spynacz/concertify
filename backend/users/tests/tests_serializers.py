@@ -1,13 +1,16 @@
 from django.contrib.auth.hashers import check_password, make_password
 from django.urls import reverse
 from django.test import TestCase
+from django.utils.timezone import now, timedelta
 
 from rest_framework.test import APIRequestFactory
 from rest_framework.serializers import ValidationError
 
-from users import serializers
-from users.models import ConcertifyUser
+from knox.models import AuthToken
 
+from users import serializers
+from users.models import ConcertifyUser, Notification
+from events.models import Event, Role, Location
 
 class TestUserSerializer(TestCase):
     def setUp(self):
@@ -196,3 +199,55 @@ class TestPasswordSerializer(TestCase):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         self.assertTrue(check_password(new_password, self.user.password))
+
+
+
+class TestUserNotificationSetAsSeen(TestCase):
+
+    def setUp(self):
+        self.location = Location.objects.create(
+            name='test',
+            address_line='test',
+            city='test',
+            postal_code='test',
+            country='TST'
+        )
+        self.user = ConcertifyUser.objects.create(
+            username='test',
+            email='test@email.com',
+            password='TestTest'
+        )
+        self.event = Event.objects.create(
+            title="test1",
+            desc="test1",
+            start=now() - timedelta(days=20),
+            end=now() - timedelta(days=10),
+            location=self.location
+        )
+        Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.USER
+        )
+        self.notification = Notification.objects.create(
+            title='title',
+            desc='desc',
+            notification_type=Notification.TypeChoice.CASUAL,
+            user=self.user
+        )
+        self.factory = APIRequestFactory()
+        self.serializer_class = serializers.UserNotificationSetAsSeenSerializer
+        self.request = self.factory.put(reverse("users:notifications", kwargs={'pk': self.notification.id}))
+    
+    def test_update_valid(self):
+        """When there is a notification in DB, it can be set as seen"""
+        data = {
+        }
+        serializer = self.serializer_class(
+            context={'request': self.request},
+            data=data,
+            instance=self.notification
+        )
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        self.assertEqual(instance.has_been_seen, True)
