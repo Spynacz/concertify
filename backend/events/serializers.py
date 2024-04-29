@@ -1,3 +1,5 @@
+import decimal
+
 from django.utils import timezone
 
 from rest_framework import serializers
@@ -148,7 +150,7 @@ class SocialMediaSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class ScheduleItemSerializer(serializers.Serializer):
+class ScheduleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ScheduleItem
         fields = "__all__"
@@ -161,7 +163,7 @@ class ScheduleItemSerializer(serializers.Serializer):
         return when
 
 
-class TicketSerializer(serializers.Serializer):
+class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Ticket
         fields = "__all__"
@@ -177,3 +179,41 @@ class TicketSerializer(serializers.Serializer):
             raise ValidationError("Amount cannot be lower than 0")
 
         return amount
+
+
+class CartItemSerializer(serializers.Serializer):
+    TICKET_CHOICES = [
+        (.5, 'REDUCED'),
+        (1, 'REGULAR')
+    ]
+    ticket_type = serializers.ChoiceField(choices=TICKET_CHOICES)
+    quantity = serializers.IntegerField()
+    amount = serializers.DecimalField(max_digits=9, decimal_places=2)
+    total_amount = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = "__all__"
+
+    def get_total_amount(self, cart_item):
+        print(cart_item)
+        return (decimal.Decimal(cart_item.get("amount"))
+                * decimal.Decimal(cart_item.get("quantity"))
+                * decimal.Decimal(cart_item.get("ticket_type")))
+
+
+class CartSerializer(serializers.Serializer):
+    items = CartItemSerializer(many=True)
+    total = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = "__all__"
+
+    def get_total(self, cart):
+        total = 0
+        print(cart.get("items"))
+        for item in cart.get("items"):
+            total += (decimal.Decimal(item.get("amount"))
+                      * decimal.Decimal(item.get("quantity"))
+                      * decimal.Decimal(item.get("ticket_type")))
+
+        return total
