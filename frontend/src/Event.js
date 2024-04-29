@@ -1,6 +1,6 @@
 import { Card, Container, Nav } from "react-bootstrap";
 import "./Event.css";
-import { Link } from "react-router-dom";
+import { LinkContainer } from "react-router-bootstrap";
 import { useEffect, useState } from "react";
 
 export function EventPreview({ title, location, date, image }) {
@@ -59,16 +59,16 @@ export function EventList() {
       <ul className="event-list">
         {events.map((event) => (
           <li key={event.id}>
-            <Nav.Link as="div" role="button">
-              <Link to={"/event/" + event.id}>
+            <LinkContainer to={"/event/" + event.id}>
+              <Nav.Link as="div" role="button">
                 <EventPreview
                   title={event.title}
                   image="https://weknowyourdreams.com/images/party/party-12.jpg"
                   location={event.location}
                   date={event.start}
                 />
-              </Link>
-            </Nav.Link>
+              </Nav.Link>
+            </LinkContainer>
           </li>
         ))}
       </ul>

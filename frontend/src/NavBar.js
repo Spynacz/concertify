@@ -1,6 +1,6 @@
 import { Button, Container, Form, Nav, Navbar } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import "./NavBar.css";
+import { LinkContainer } from "react-router-bootstrap";
 import { useCookies, Cookies } from "react-cookie";
 import { Logout } from "./Login.js";
 
@@ -8,12 +8,16 @@ function UserNavBar() {
   const [cookies] = useCookies([]);
   return (
     <>
-      <Nav.Link as="div" role="button">
-        <Link to="/new-event">New Event</Link>
-      </Nav.Link>
-      <Nav.Link as="div" role="button">
-        <Link to={"/profile"}>Profile</Link>
-      </Nav.Link>
+      <LinkContainer to="/new-event">
+        <Nav.Link as="div" role="button">
+          New Event
+        </Nav.Link>
+      </LinkContainer>
+      <LinkContainer to="/profile">
+        <Nav.Link as="div" role="button">
+          Profile
+        </Nav.Link>
+      </LinkContainer>
       <Nav.Link as="div" role="button">
         <Logout />
       </Nav.Link>
@@ -24,12 +28,16 @@ function UserNavBar() {
 function GuestNavBar() {
   return (
     <>
-      <Nav.Link as="div" role="button">
-        <Link to="/login">Login</Link>
-      </Nav.Link>
-      <Nav.Link as="div" role="button">
-        <Link to="/register">Register</Link>
-      </Nav.Link>
+      <LinkContainer to="/login">
+        <Nav.Link as="div" role="button">
+          Login
+        </Nav.Link>
+      </LinkContainer>
+      <LinkContainer to="/register">
+        <Nav.Link as="div" role="button">
+          Register
+        </Nav.Link>
+      </LinkContainer>
     </>
   );
 }
@@ -39,9 +47,11 @@ export default function NavBar() {
   return (
     <Navbar expand="sm">
       <Container fluid>
-        <Navbar.Brand role="button" id="logo">
-          <Link to="/">concertify</Link>
-        </Navbar.Brand>
+        <LinkContainer to="/">
+          <Navbar.Brand role="button" id="logo">
+            concertify
+          </Navbar.Brand>
+        </LinkContainer>
         <Navbar.Toggle />
         <Navbar.Collapse id="navbar-nav" className="justify-content-end">
           <Form className="d-flex">
@@ -51,9 +61,11 @@ export default function NavBar() {
             </Button>
           </Form>
           <Nav>
-            <Nav.Link as="div" role="button">
-              <Link to="/cart">Cart</Link>
-            </Nav.Link>
+            <LinkContainer to="/cart">
+              <Nav.Link as="div" role="button">
+                Cart
+              </Nav.Link>
+            </LinkContainer>
             {"user" in cookies ? <UserNavBar /> : <GuestNavBar />}
           </Nav>
         </Navbar.Collapse>
