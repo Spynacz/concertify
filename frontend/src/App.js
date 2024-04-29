@@ -1,11 +1,22 @@
 import React from "react";
 import { CookiesProvider, useCookies } from "react-cookie";
-import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+  Outlet,
+  RouterProvider,
+  createBrowserRouter,
+  Navigate,
+} from "react-router-dom";
 import "./App.css";
+import NavBar from "./NavBar";
+import {
+  Profile,
+  ProfileDetails,
+  ProfilePayment,
+  ProfileSecurity,
+} from "./Profile";
 import ErrorPage from "./ErrorPage";
 import { EventList } from "./Event";
 import { Login, Register } from "./Login";
-import NavBar from "./NavBar";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +36,28 @@ const router = createBrowserRouter([
         path: "/register",
         element: <Register />,
       },
+      {
+        path: "/profile",
+        element: <Profile />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="details" replace />,
+          },
+          {
+            path: "details",
+            element: <ProfileDetails />,
+          },
+          {
+            path: "payment",
+            element: <ProfilePayment />,
+          },
+          {
+            path: "security",
+            element: <ProfileSecurity />,
+          },
+        ],
+      },
     ],
   },
 ]);
@@ -33,7 +66,9 @@ function Layout() {
   return (
     <>
       <NavBar />
-      <Outlet />
+      <div className="app-container">
+        <Outlet />
+      </div>
     </>
   );
 }

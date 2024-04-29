@@ -12,7 +12,7 @@ function UserNavBar() {
         <Link to="/new-event">New Event</Link>
       </Nav.Link>
       <Nav.Link as="div" role="button">
-        <Link to={"/user/" + cookies["user"].username}>Profile</Link>
+        <Link to={"/profile"}>Profile</Link>
       </Nav.Link>
       <Nav.Link as="div" role="button">
         <Logout />
