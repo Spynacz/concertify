@@ -1,6 +1,7 @@
 from django.utils import timezone
 
 from rest_framework import exceptions, mixins, permissions, viewsets
+from rest_framework.filters import SearchFilter
 
 from events import permissions as event_permissions
 from events import models, serializers
@@ -18,6 +19,14 @@ class LocationViewSet(mixins.ListModelMixin,
 
 
 class EventViewSet(viewsets.ModelViewSet):
+    filter_backends = [SearchFilter]
+    search_fields = [
+        'title',
+        'location__name',
+        '^location__city',
+        '^location__country'
+    ]
+
     def get_queryset(self):
         if self.action == 'list':
             return models.Event.objects.filter(end__gt=timezone.now())
