@@ -1,3 +1,5 @@
+from django.urls import path
+
 from rest_framework.routers import DefaultRouter
 
 from . import views
@@ -17,4 +19,9 @@ router.register('schedule-item', views.SchedulItemViewSet,
                 basename='schedule-item')
 router.register('ticket', views.TicketViewSet, basename="ticket")
 
+
 urlpatterns = router.urls
+
+urlpatterns += [
+    path('cart', views.ShoppingCartView.as_view(), name='cart'),
+]
