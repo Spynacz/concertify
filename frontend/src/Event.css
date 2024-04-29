@@ -1,7 +1,8 @@
 .event-list {
   display: flex;
-  flex-direction: column;
   width: 100%;
+  flex-flow: row wrap;
+  height: 100%;
   align-items: center;
   justify-content: center;
 }
@@ -71,10 +72,6 @@
 }
 
 @media screen and (min-width: 1081px) {
-  .event-list {
-    flex-flow: row wrap;
-  }
-
   .event-list .event-preview {
     width: unset;
   }
