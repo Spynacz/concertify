@@ -46,8 +46,8 @@
   width: 30em;
 }
 
-.userform > .side-by-side > .labeled {
-  width: 12em;
+.userform > .side-by-side > .labeled > input {
+  width: 13em;
 }
 
 @media screen and (min-width: 1081px) {
