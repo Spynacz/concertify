@@ -38,6 +38,8 @@ export function Logout() {
       })
       .catch((err) => {
         console.log(err.message);
+        removeCookie("user");
+        navigate("/");
       });
   };
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
