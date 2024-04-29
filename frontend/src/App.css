@@ -7,6 +7,11 @@
   --radius: 1em;
 }
 
+#root {
+  height: 100vh;
+  display: block;
+}
+
 * {
   all: unset;
   box-sizing: border-box;
@@ -81,11 +86,12 @@ head {
   border: dashed 0.15em var(--dark-color);
 }
 
-.container {
-  height: 95vh;
+.app-container {
+  height: 92%;
   max-width: unset;
   width: 100%;
-  display: block;
+  justify-content: center;
+  display: flex;
   margin: 0;
   padding: 0;
 }
@@ -99,7 +105,7 @@ head {
     visibility: collapse;
     display: none;
   }
-  .container {
-    height: 92vh;
+  .app-container {
+    height: 92%;
   }
 }

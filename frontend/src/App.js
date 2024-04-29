@@ -66,7 +66,7 @@ function Layout() {
   return (
     <>
       <NavBar />
-      <div className="container">
+      <div className="app-container">
         <Outlet />
       </div>
     </>

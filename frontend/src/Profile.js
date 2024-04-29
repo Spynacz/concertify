@@ -243,17 +243,20 @@ export function ProfileSecurity() {
     password2: "",
   });
   return (
-    <>
+    <div>
       <UserForm onSubmit={handleSubmit}>
         <h3>Change password:</h3>
         <PasswordOldField err={err.old_password} />
         <PasswordConfirmationField err={err.password1} />
         <SubmitButton value="Confirm" />
       </UserForm>
+      <h3>Advanced</h3>
+      <br/>
+      <br/>
       <Button className="red-button" onClick={handleDelete}>
         Delete Account
       </Button>
-    </>
+    </div>
   );
 }
 
