@@ -247,12 +247,15 @@ export function ProfileSecurity() {
       <UserForm onSubmit={handleSubmit}>
         <h3>Change password:</h3>
         <PasswordOldField err={err.old_password} />
-        <PasswordConfirmationField err={err.password1} />
+        <PasswordConfirmationField
+          err={err.password1}
+          labels={["New Password", "Repeat New Password"]}
+        />
         <SubmitButton value="Confirm" />
       </UserForm>
       <h3>Advanced</h3>
-      <br/>
-      <br/>
+      <br />
+      <br />
       <Button className="red-button" onClick={handleDelete}>
         Delete Account
       </Button>
