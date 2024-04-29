@@ -102,8 +102,8 @@ DATABASES = {
         'NAME': os.environ.get('POSTGRES_DB'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': 'database',
-        'PORT': 5432,
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT'),
         'TEST': {
             'NAME': 'ConcertifyTestDB',
         }
@@ -162,6 +162,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 25,
 }
 
+# Knox JWT auth
 REST_KNOX = {
     'SECURE_HASH_ALGORITHM': 'cryptography.hazmat.primitives.hashes.SHA512',
     'AUTH_TOKEN_CHARACTER_LENGTH': 64,  # default: 64
@@ -170,4 +171,18 @@ REST_KNOX = {
     'TOKEN_LIMIT_PER_USER': 5,  # default: None
     'AUTO_REFRESH': False,
     'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
+}
+
+# Redis in memory database
+CACHE_TTL = 60 * 20  # 20 min
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "example"
+    }
 }
