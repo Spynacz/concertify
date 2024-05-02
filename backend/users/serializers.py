@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from events.serializers import ValidateUserInContextMixin
-from users.models import ConcertifyUser, PaymentInfo
+from users.models import ConcertifyUser, PaymentInfo, Notification
 
 
 class ValidatePasswordMixin:
@@ -137,3 +137,25 @@ class AuthSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = [
+            'title',
+            'desc',
+            'notification_type',
+            'has_been_seen'
+        ]
+
+
+class UserNotificationSetAsSeenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = []
+
+    def update(self, instance, validated_data):
+        instance.has_been_seen = True
+        instance.save()
+        return instance

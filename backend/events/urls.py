@@ -24,4 +24,9 @@ urlpatterns = router.urls
 
 urlpatterns += [
     path('cart', views.ShoppingCartView.as_view(), name='cart'),
+    path(
+        'event/<int:pk>/send-notification',
+        views.CreateNotificationView.as_view(),
+        name='send-notification'
+    )
 ]

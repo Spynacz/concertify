@@ -24,3 +24,6 @@ redis==5.0.4
 redis-cli==1.0.1
 six==1.16.0
 sqlparse==0.4.4
+celery==5.4.0
+redis==5.0.4
+mock==5.1.0

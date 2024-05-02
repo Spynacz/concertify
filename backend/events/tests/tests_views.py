@@ -6,10 +6,12 @@ from rest_framework.test import APITestCase
 
 from knox.models import AuthToken
 
-from events.models import Event, Location, Role
-from events.serializers import EventDetailsSerializer, EventFeedSerializer
+from unittest.mock import patch, ANY
 
-from users.models import ConcertifyUser
+from events.models import Event, Location, Role
+from events.serializers import EventDetailsSerializer, EventFeedSerializer, NotificationSerializer
+
+from users.models import ConcertifyUser, Notification
 
 
 class TestEventViewSet(APITestCase):
@@ -139,8 +141,9 @@ class TestEventViewSet(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertDictEqual(data, response.data)
 
-    def test_destroy_action(self):
-        """Only users with at least owner permissions can delete event"""
+    @patch('events.serializers.EventFeedSerializer.revoke_task')
+    def test_destroy_action(self, mock_revoke_task):
+        """Only users with at least owner permissions can delete event, while deleting event celery task is killed"""
         self.client.credentials(HTTP_AUTHORIZATION=self.token)
 
         response = self.client.delete(self.url_details)
@@ -149,7 +152,14 @@ class TestEventViewSet(APITestCase):
         Role.objects.create(user=self.user, event=self.event1,
                             name=Role.NameChoice.OWNER)
         response = self.client.delete(self.url_details)
-
+        event = Event(
+            title="test1",
+            desc="test1",
+            start=now() - timedelta(days=20),
+            end=now() - timedelta(days=10),
+            location=self.location
+        )
+        mock_revoke_task.assert_called_once_with(ANY)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
@@ -211,3 +221,51 @@ class TestRoleViewSet(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertDictContainsSubset(data, response.data)
+
+
+class TestCreateNotificationView(APITestCase):
+    def setUp(self):
+        self.serializer_class = NotificationSerializer
+        self.user = ConcertifyUser.objects.create(
+            username="test",
+            email='test@email.com',
+            password='test'
+        )
+        location = Location.objects.create(
+            name='test',
+            address_line='test',
+            city='test',
+            postal_code='test',
+            country='TST'
+        )
+        self.event = Event.objects.create(
+            title='test1',
+            desc='Test test1',
+            location=location
+        )
+        Role.objects.create(
+            user=self.user,
+            event=self.event,
+            name=Role.NameChoice.OWNER
+        )
+
+        self.token = f"Token {AuthToken.objects.create(self.user)[-1]}"
+        self.client.credentials(HTTP_AUTHORIZATION=self.token)
+
+    def test_create_notifications(self):
+        """Create should return template of notification"""
+        data = {
+            'title': "title",
+            'desc': "desc",
+            'notification_type': Notification.TypeChoice.CASUAL,
+        }
+        response = self.client.post(
+            reverse('events:send-notification',
+                    kwargs={'pk': self.event.id}),
+            data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            response.data,
+            data
+        )
