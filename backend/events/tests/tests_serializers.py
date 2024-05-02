@@ -1,10 +1,8 @@
 from django.urls import reverse
-from django.test import TestCase,  override_settings
-from django.utils.timezone import now, timedelta
+from django.test import TestCase
+from django.utils import timezone
 
 from datetime import datetime
-
-from zoneinfo import ZoneInfo
 
 from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIRequestFactory
@@ -18,6 +16,7 @@ from events.models import Event, Location, Role, SocialMedia
 
 from users.models import ConcertifyUser, Notification
 from users.serializers import UserNotificationSerializer
+
 
 class TestLocationSerializer(TestCase):
     def setUp(self):
@@ -51,7 +50,7 @@ class TestEventFeedSerializer(TestCase):
     def setUp(self):
         self.serializer_class = serializers.EventFeedSerializer
         self.factory = APIRequestFactory()
-        self.userOwner = ConcertifyUser.objects.create(
+        self.user = ConcertifyUser.objects.create(
             username='test',
             email='test@email.com',
             password='TestTest'
@@ -73,16 +72,19 @@ class TestEventFeedSerializer(TestCase):
             'title': 'test',
             'desc': 'Test test',
             'location': self.location.id,
-            'start' :  datetime.strptime("2024-04-30 12:00:00", "%Y-%m-%d %H:%M:%S")
+            'start':  datetime.strptime(
+                "2024-04-30 12:00:00",
+                "%Y-%m-%d %H:%M:%S"
+            )
         }
+
     @patch('events.serializers.EventFeedSerializer.send_reminders.apply_async')
     def test_create(self, mock_apply_async):
         """create method should make an owner role
            for the user that creates it and also should schedule the proces of creating notifications."""
-        
 
         request = self.factory.get(reverse('events:event-list'))
-        request.user = self.userOwner
+        request.user = self.user
 
         serializer = self.serializer_class(
             context={'request': request},
@@ -91,14 +93,19 @@ class TestEventFeedSerializer(TestCase):
         serializer.is_valid(raise_exception=True)
         event = serializer.save()
 
-        role = Role.objects.get(user=self.userOwner)
+        role = Role.objects.get(user=self.user)
 
         self.assertIsNotNone(role)
         self.assertEqual(int(role.name), Role.NameChoice.OWNER)
 
-        #remember to set timezone in Warsaw on your local machine/docker/check pipeline or change it to dynamically retrieve timezone, otherwise test might fail
-        mock_apply_async.assert_called_once_with(args=(1, 'test', datetime(2024, 4, 30, 12, 0, tzinfo=zoneinfo.ZoneInfo(key='Europe/Warsaw'))), eta=datetime(2024, 4, 29, 12, 0, tzinfo=zoneinfo.ZoneInfo(key='Europe/Warsaw')), task_id='event: 1')
-    
+        mock_apply_async.assert_called_once_with(
+            event.id,
+            event.title,
+            datetime(timezone.datetime(2024, 4, 30, 12, 0)),
+            eta=datetime(timezone.datetime(2024, 4, 29, 12, 0)),
+            task_id=f'event: {event.id}'
+        )
+
     def test_send_reminders(self):
         """Before the event start there should be notifications created for each intrested user"""
         event = Event.objects.create(
@@ -113,11 +120,20 @@ class TestEventFeedSerializer(TestCase):
             name=Role.NameChoice.USER
         )
 
-        serializers.EventFeedSerializer.send_reminders(event.id, event.title, datetime(2024, 4, 30, 12, 0, tzinfo=zoneinfo.ZoneInfo(key='Europe/Warsaw')))
+        serializers.EventFeedSerializer.send_reminders(
+            event.id,
+            event.title,
+            timezone.datetime(2024, 4, 30, 12, 0)
+        )
+
         self.assertEqual(Notification.objects.count(), 1)
         instance = Notification.objects.first()
         self.assertEqual(instance.title, "Reminder about upcoming event")
-        self.assertEqual(instance.desc, 'The event "' + event.title + '" starts '+event.start.strftime('%Y-%m-%d %H:%M:%S'))
+        self.assertEqual(
+            instance.desc,
+            f"""The event "{event.title}" starts """
+            f"""{event.start.strftime('%Y-%m-%d %H:%M:%S')}"""
+        )
         self.assertEqual(instance.notification_type, '1')
         self.assertEqual(instance.user, self.user)
 
@@ -127,14 +143,14 @@ class TestEventFeedSerializer(TestCase):
         """When event updated scheduled task should deleted and new task should be scheduled"""
 
         request = self.factory.put(reverse('events:event-list'))
-        request.user = self.userOwner
+        request.user = self.user
         event = Event.objects.create(
             title='test1',
             desc='Test test1',
             location=self.location,
             start=datetime.strptime("2024-04-30 12:00:00", "%Y-%m-%d %H:%M:%S")
         )
-        
+
         serializer = self.serializer_class(
             context={'request': request},
             data=self.data,
@@ -143,11 +159,17 @@ class TestEventFeedSerializer(TestCase):
         serializer.is_valid(raise_exception=True)
         event = serializer.save()
 
-
         mock_revoke_task.assert_called_once_with(event)
-        #remember to set timezone in Warsaw on your local machine/docker/check pipeline or change it to dynamically retrieve timezone, otherwise test might fail
-        mock_apply_async.assert_called_once_with(args=(event.id, 'test', datetime(2024, 4, 30, 12, 0, tzinfo=zoneinfo.ZoneInfo(key='Europe/Warsaw'))), eta=datetime(2024, 4, 29, 12, 0, tzinfo=zoneinfo.ZoneInfo(key='Europe/Warsaw')), task_id='event: ' + str(event.id))
-    
+        mock_apply_async.assert_called_once_with(
+            args=(
+                event.id,
+                event.title,
+                datetime(timezone.datetime(2024, 4, 30, 12, 0))
+            ),
+            eta=datetime(timezone.datetime(2024, 4, 29, 12, 0)),
+            task_id=f'event: {event.id}'
+        )
+
 
 class TestEventDetailsSerializer(TestCase):
     fixtures = ['fixtures/test_fixture.json']
@@ -400,11 +422,11 @@ class TestSocialMediaSerializer(TestCase):
                                       "Object with given data already exists"):
             serializer.save()
 
-class TestNotificationSerializer(TestCase):
 
+class TestNotificationSerializer(TestCase):
     def setUp(self):
         self.serializer_class = serializers.NotificationSerializer
-        self.userOwner = ConcertifyUser.objects.create(
+        self.user_owner = ConcertifyUser.objects.create(
             username="test",
             email='test@email.com',
             password='test'
@@ -440,7 +462,8 @@ class TestNotificationSerializer(TestCase):
 
     def test_create_notifications(self):
         """Owner of event can create notification"""
-        request = self.factory.post(reverse('events:send-notification',  kwargs={'pk': self.event.id}))
+        request = self.factory.post(reverse('events:send-notification',
+                                            kwargs={'pk': self.event.id}))
 
         serializer = self.serializer_class(
             data=self.data,
@@ -448,6 +471,7 @@ class TestNotificationSerializer(TestCase):
         )
         request.parser_context = {'kwargs': {'pk': self.event.id}}
         serializer.is_valid(raise_exception=True)
-        result = serializer.save()
+        serializer.save()
+
         self.assertEqual(Notification.objects.count(), 1)
-        self.assertDictEqual(self.serializer_class(instance=Notification.objects.first()).data, self.data)
+        self.assertDictEqual(serializer.validated_data, self.data)

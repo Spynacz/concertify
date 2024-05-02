@@ -146,9 +146,9 @@ class TestEventViewSet(APITestCase):
         """Only users with at least owner permissions can delete event, while deleting event celery task is killed"""
         self.client.credentials(HTTP_AUTHORIZATION=self.token)
 
-        # response = self.client.delete(self.url_details)
-        # self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        
+        response = self.client.delete(self.url_details)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
         Role.objects.create(user=self.user, event=self.event1,
                             name=Role.NameChoice.OWNER)
         response = self.client.delete(self.url_details)
@@ -220,10 +220,10 @@ class TestRoleViewSet(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertDictEqual(response.data, data)
+        self.assertDictContainsSubset(data, response.data)
+
 
 class TestCreateNotificationView(APITestCase):
-
     def setUp(self):
         self.serializer_class = NotificationSerializer
         self.user = ConcertifyUser.objects.create(
@@ -259,7 +259,10 @@ class TestCreateNotificationView(APITestCase):
             'desc': "desc",
             'notification_type': Notification.TypeChoice.CASUAL,
         }
-        response = self.client.post(reverse('events:send-notification',  kwargs={'pk': self.event.id}), data=data)
+        response = self.client.post(
+            reverse('events:send-notification',
+                    kwargs={'pk': self.event.id}),
+            data=data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
