@@ -138,19 +138,22 @@ class AuthSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
 
+
 class UserNotificationSerializer(serializers.ModelSerializer):
     class Meta:
-        model =  Notification
-        fields = ['title',
-                  'desc',
-                  'notification_type',
-                  'has_been_seen']
-        
-class UserNotificationSetAsSeenSerializer(serializers.ModelSerializer):
+        model = Notification
+        fields = [
+            'title',
+            'desc',
+            'notification_type',
+            'has_been_seen'
+        ]
 
+
+class UserNotificationSetAsSeenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = []
+        exclude = '__all__'
 
     def update(self, instance, validated_data):
         instance.has_been_seen = True

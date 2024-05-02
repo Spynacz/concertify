@@ -1,13 +1,15 @@
+from django.utils.timezone import timedelta
+
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 
 from celery import shared_task
-from datetime import datetime, timedelta
 from celery.result import AsyncResult
 
 from events import models
 from users import models as users_models
 import copy
+
 
 class ValidateUserInContextMixin:
     def validate(self, attrs):
@@ -57,10 +59,18 @@ class EventFeedSerializer(ValidateUserInContextMixin,
         instance.save()
         self._schedule_reminder(instance)
         return instance
-    
+
     def _schedule_reminder(self, event):
+        if not event.start:
+            print("Event is missing start date")
+            return
         eta = event.start - timedelta(days=1)
-        EventFeedSerializer.send_reminders.apply_async(args=(event.id, event.title, event.start),eta=eta, task_id = self.generate_task_id(event))
+        EventFeedSerializer.send_reminders.apply_async(
+            args=(event.id, event.title, event.start),
+            eta=eta,
+            task_id=self.generate_task_id(event)
+        )
+
     @staticmethod
     def revoke_task(event):
         try:
@@ -68,16 +78,27 @@ class EventFeedSerializer(ValidateUserInContextMixin,
             if result.state in ['PENDING']:
                 result.revoke(terminate=False)
         except Exception:
-            print("Error while revoking task related with reminder ")
+            print("Error while revoking task related with reminder")
+
     @staticmethod
     def generate_task_id(event):
-        return "event: " +  str(event.pk)
+        return "event: " + str(event.pk)
+
     @staticmethod
     @shared_task
     def send_reminders(event_id, event_name, start_date):
-        users = users_models.ConcertifyUser.objects.filter(role__event_id=event_id, role__name= models.Role.NameChoice.USER)
-        template = users_models.Notification(title="Reminder about upcoming event", desc= 'The event "' + event_name + '" starts '+start_date.strftime('%Y-%m-%d %H:%M:%S') , notification_type=users_models.Notification.TypeChoice.REMINDER)
+        users = users_models.ConcertifyUser.objects.filter(
+            role__event_id=event_id,
+            role__name=models.Role.NameChoice.USER
+        )
+        template = users_models.Notification(
+            title="Reminder about upcoming event",
+            desc=f"""The event "{event_name}" starts """
+            f"""{start_date.strftime('%Y-%m-%d %H:%M:%S')}""",
+            notification_type=users_models.Notification.TypeChoice.REMINDER
+        )
         NotificationSerializer.create_notifications_for_users(template, users)
+
 
 class EventDetailsSerializer(EventFeedSerializer):
     event_contacts = serializers.SerializerMethodField()
@@ -179,18 +200,22 @@ class SocialMediaSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
-class NotificationSerializer(serializers.ModelSerializer):
 
+class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = users_models.Notification
         fields = ('title', 'desc', 'notification_type')
+
     def create(self, validated_data):
-              request = self.context.get('request')
-              pk = request.parser_context['kwargs'].get('pk')
-              users = users_models.ConcertifyUser.objects.filter(role__event_id=pk, role__name= models.Role.NameChoice.USER)
-              template = users_models.Notification(**validated_data)
-              self.create_notifications_for_users(template, users)
-              return template
+        request = self.context.get('request')
+        pk = request.parser_context['kwargs'].get('pk')
+        users = users_models.ConcertifyUser.objects.filter(
+            role__event_id=pk,
+            role__name=models.Role.NameChoice.USER
+        )
+        template = users_models.Notification(**validated_data)
+        self.create_notifications_for_users(template, users)
+        return template
 
     @staticmethod
     def create_notifications_for_users(template, users):
