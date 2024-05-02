@@ -7,9 +7,6 @@ WORKDIR /backend
 COPY ./requirements.txt /backend/
 COPY ./entrypoint.sh /backend/
 
-RUN apt update
-RUN apt install -y redis-server 
-
 RUN python -m pip install --upgrade pip
 RUN pip install -r requirements.txt
 
