@@ -14,7 +14,7 @@ services:
     volumes:
       - ./postgresql/data:/var/lib/postgresql/data
 
-  cache:
+  redis:
     container_name: Redis
     image: redis:latest
     ports:
@@ -23,7 +23,7 @@ services:
     env_file:
       - .env
     volumes:
-      - cache:/data
+      - redis:/data
 
   backend:
     container_name: Django
@@ -31,9 +31,9 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-        database:
+        redis:
           condition: service_started
-        cache:
+        database:
           condition: service_started
     command: /backend/entrypoint.sh
     env_file:
@@ -53,7 +53,7 @@ services:
       - /frontend/node_modules
 
 volumes:
-  cache:
+  redis:
     driver: local
 
   database:
