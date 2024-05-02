@@ -2,8 +2,6 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
 
-from datetime import datetime
-
 from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIRequestFactory
 
@@ -13,7 +11,6 @@ from events import serializers
 from events.models import Event, Location, Role, SocialMedia
 
 from users.models import ConcertifyUser, Notification
-from users.serializers import UserNotificationSerializer
 
 
 class TestLocationSerializer(TestCase):
@@ -70,12 +67,13 @@ class TestEventFeedSerializer(TestCase):
             'title': 'test',
             'desc': 'Test test',
             'location': self.location.id,
-            'start':  datetime.strptime(
+            'start':  timezone.datetime.strptime(
                 "2024-04-30 12:00:00",
                 "%Y-%m-%d %H:%M:%S"
             )
         }
 
+    # TODO split test
     @patch('events.serializers.EventFeedSerializer.send_reminders.apply_async')
     def test_create(self, mock_apply_async):
         """create method should make an owner role
@@ -97,10 +95,12 @@ class TestEventFeedSerializer(TestCase):
         self.assertEqual(int(role.name), Role.NameChoice.OWNER)
 
         mock_apply_async.assert_called_once_with(
-            event.id,
-            event.title,
-            datetime(timezone.datetime(2024, 4, 30, 12, 0)),
-            eta=datetime(timezone.datetime(2024, 4, 29, 12, 0)),
+            args=(
+                event.id,
+                event.title,
+                timezone.datetime(2024, 4, 30, 12, 0).astimezone()
+            ),
+            eta=timezone.datetime(2024, 4, 29, 12, 0).astimezone(),
             task_id=f'event: {event.id}'
         )
 
@@ -110,7 +110,10 @@ class TestEventFeedSerializer(TestCase):
             title='test1',
             desc='Test test1',
             location=self.location,
-            start=datetime.strptime("2024-04-30 12:00:00", "%Y-%m-%d %H:%M:%S")
+            start=timezone.datetime.strptime(
+                "2024-04-30 12:00:00",
+                "%Y-%m-%d %H:%M:%S"
+            )
         )
         Role.objects.create(
             user=self.user,
@@ -135,6 +138,7 @@ class TestEventFeedSerializer(TestCase):
         self.assertEqual(instance.notification_type, '1')
         self.assertEqual(instance.user, self.user)
 
+    # TODO split test
     @patch('events.serializers.EventFeedSerializer.revoke_task')
     @patch('events.serializers.EventFeedSerializer.send_reminders.apply_async')
     def test_update(self, mock_apply_async, mock_revoke_task):
@@ -146,7 +150,10 @@ class TestEventFeedSerializer(TestCase):
             title='test1',
             desc='Test test1',
             location=self.location,
-            start=datetime.strptime("2024-04-30 12:00:00", "%Y-%m-%d %H:%M:%S")
+            start=timezone.datetime.strptime(
+                "2024-04-30 12:00:00",
+                "%Y-%m-%d %H:%M:%S"
+                )
         )
 
         serializer = self.serializer_class(
@@ -162,9 +169,9 @@ class TestEventFeedSerializer(TestCase):
             args=(
                 event.id,
                 event.title,
-                datetime(timezone.datetime(2024, 4, 30, 12, 0))
+                timezone.datetime(2024, 4, 30, 12, 0).astimezone(),
             ),
-            eta=datetime(timezone.datetime(2024, 4, 29, 12, 0)),
+            eta=timezone.datetime(2024, 4, 29, 12, 0).astimezone(),
             task_id=f'event: {event.id}'
         )
 
