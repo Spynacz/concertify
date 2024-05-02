@@ -23,7 +23,6 @@ class PostViewSet(viewsets.ModelViewSet):
                 permissions.IsAuthenticated,
                 IsEventModerator
             ]
-        print(permission_classes)
         return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):

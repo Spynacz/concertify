@@ -14,8 +14,12 @@ router.register('event-contact', views.EventContactViewSet,
                 basename='event-contact')
 router.register('social-media', views.SocialMediaViewSet,
                 basename='social-media')
+
 urlpatterns = [
-    path('event/<int:pk>/send-notification', views.CreateNotificationView.as_view(),
-                name='send-notification')
+    path(
+        'event/<int:pk>/send-notification',
+        views.CreateNotificationView.as_view(),
+        name='send-notification'
+    )
 ]
 urlpatterns += router.urls

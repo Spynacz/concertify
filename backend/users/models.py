@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from phonenumber_field.modelfields import PhoneNumberField
 
+
 class ConcertifyUser(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
     picture = models.ImageField(blank=True, null=True)
@@ -49,7 +50,6 @@ class Notification(models.Model):
     has_been_seen = models.BooleanField(default=False)
     user = models.ForeignKey(ConcertifyUser, related_name='notification',
                              on_delete=models.CASCADE)
-    
 
 
 class EventReport(models.Model):
