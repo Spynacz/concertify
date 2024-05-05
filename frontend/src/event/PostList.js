@@ -34,6 +34,7 @@ export default function PostList({ eventId }) {
             desc={post.desc}
             votes={post.vote_count}
             image={post.picture}
+            key={post.id}
           />
         ))}
       </div>

@@ -45,7 +45,6 @@ export default function EventDetails({ eventId }) {
           start: new Date(data.start).toLocaleDateString(undefined, options),
           end: new Date(data.end).toLocaleDateString(undefined, options),
         }));
-        console.log(data);
       })
       .catch((err) => {
         console.log(err.message);
