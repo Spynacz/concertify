@@ -1,7 +1,8 @@
 from django.core.cache import cache
 from django.utils import timezone
 
-from rest_framework import exceptions, mixins, permissions, status, viewsets, generics
+from rest_framework import exceptions, mixins, permissions, status, viewsets
+from rest_framework.generics import CreateAPIView
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -190,7 +191,7 @@ class ShoppingCartView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CreateNotificationView(generics.CreateAPIView):
+class CreateNotificationView(CreateAPIView):
     serializer_class = serializers.NotificationSerializer
     permission_classes = [
         permissions.IsAuthenticated,
