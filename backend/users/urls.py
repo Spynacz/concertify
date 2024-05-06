@@ -18,8 +18,16 @@ urlpatterns = [
     path('logout', knox_views.LogoutView.as_view(), name='knox-logout'),
     path('logoutall', knox_views.LogoutAllView.as_view(),
          name='knox-logoutall'),
-    path('notifications/<int:pk>/', views.UserNotificationView.as_view(), name='notifications'),
-    path('notifications', views.UserNotificationView.as_view(), name='notifications')
+    path(
+        'notifications/<int:pk>/',
+        views.UserNotificationView.as_view(),
+        name='notifications'
+    ),
+    path(
+        'notifications',
+        views.UserNotificationView.as_view(),
+        name='notifications'
+    )
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

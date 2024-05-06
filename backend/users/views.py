@@ -8,6 +8,7 @@ from knox.views import LoginView as KnoxLoginView
 from users import serializers
 from users import models
 
+
 class CreateUserViews(generics.CreateAPIView):
     serializer_class = serializers.UserSerializer
 
@@ -37,13 +38,16 @@ class ManageUserView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         return self.request.user
-    
+
+
 class UserNotificationView(generics.ListAPIView, generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
+
     def get_serializer_class(self):
         if self.request.method == 'PUT':
             return serializers.UserNotificationSetAsSeenSerializer
         else:
-            return serializers.UserNotificationSerializer    
+            return serializers.UserNotificationSerializer
+
     def get_queryset(self):
         return models.Notification.objects.filter(user=self.request.user)
