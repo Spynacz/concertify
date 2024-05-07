@@ -110,9 +110,11 @@ class TestEventFeedSerializer(TestCase):
             title='test1',
             desc='Test test1',
             location=self.location,
-            start=timezone.datetime.strptime(
-                "2024-04-30 12:00:00",
-                "%Y-%m-%d %H:%M:%S"
+            start=timezone.datetime(
+                year=2024,
+                month=4,
+                day=30,
+                hour=12
             )
         )
         Role.objects.create(
@@ -120,11 +122,11 @@ class TestEventFeedSerializer(TestCase):
             event=event,
             name=Role.NameChoice.USER
         )
-
-        serializers.EventFeedSerializer.send_reminders(
+        serializer = serializers.EventFeedSerializer()
+        serializer.send_reminders(
             event.id,
             event.title,
-            timezone.datetime(2024, 4, 30, 12, 0)
+            event.start
         )
 
         self.assertEqual(Notification.objects.count(), 1)
@@ -150,10 +152,12 @@ class TestEventFeedSerializer(TestCase):
             title='test1',
             desc='Test test1',
             location=self.location,
-            start=timezone.datetime.strptime(
-                "2024-04-30 12:00:00",
-                "%Y-%m-%d %H:%M:%S"
-                )
+            start=timezone.datetime(
+                year=2024,
+                month=4,
+                day=30,
+                hour=12
+            )
         )
 
         serializer = self.serializer_class(

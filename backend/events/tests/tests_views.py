@@ -152,7 +152,7 @@ class TestEventViewSet(APITestCase):
         Role.objects.create(user=self.user, event=self.event1,
                             name=Role.NameChoice.OWNER)
         response = self.client.delete(self.url_details)
-        event = Event(
+        Event.objects.create(
             title="test1",
             desc="test1",
             start=now() - timedelta(days=20),
