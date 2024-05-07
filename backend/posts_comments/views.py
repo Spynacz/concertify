@@ -1,29 +1,11 @@
-from rest_framework import exceptions, permissions
+from rest_framework import permissions
 from rest_framework import mixins, viewsets
 
 from events.permissions import IsEventModerator
 
-from events.models import Role
-
 from posts_comments import models, serializers
+from posts_comments.mixins import IsEventModeratorPerformCreateMixin
 from posts_comments.permissions import IsOwner
-
-
-class IsEventModeratorPerformCreateMixin:
-    def perform_create(self, serializer):
-        event = serializer.validated_data.get('event')
-
-        try:
-            role = Role.objects.get(event=event, user=self.request.user)
-        except Role.DoesNotExist:
-            msg = "You do not have a role in related event."
-            raise exceptions.PermissionDenied(msg)
-
-        if int(role.name) < Role.NameChoice.MODERATOR:
-            msg = "You do not have permission to perform this action."
-            raise exceptions.PermissionDenied(msg)
-
-        return super().perform_create(serializer)
 
 
 # TODO add test for the mixin  based on this view
