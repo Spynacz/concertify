@@ -10,7 +10,8 @@ from knox.models import AuthToken
 from users.models import ConcertifyUser, Notification
 from users.serializers import UserNotificationSerializer
 
-from events.models import Event, Role, Location
+from events.models import Event, Location
+
 
 class TestLoginView(APITestCase):
     def setUp(self):
@@ -79,6 +80,7 @@ class TestPasswordChangeView(APITestCase):
         response = self.client.put(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
 class TestUserNotificationView(APITestCase):
 
     def setUp(self):
@@ -140,7 +142,8 @@ class TestUserNotificationView(APITestCase):
 
     def test_set_as_seen(self):
         """Put request should set has_been_seen flag as true"""
-        url = reverse("users:notifications", kwargs={'pk': self.notification1.id})
+        url = reverse("users:notifications",
+                      kwargs={'pk': self.notification1.id})
         response = self.client.put(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

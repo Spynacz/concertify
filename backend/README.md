@@ -1528,7 +1528,7 @@ Display and edit current user profile
 ## /notifications
 ### Methods
 - `GET` - get all notifications related with user
-- `POST` - set notification ass seen
+- `POST` - set notification as seen
 #### Response codes:
 - `204 NO CONTENT` - Tokens were succesfully deleted
 - `400 BAD REQUEST` - Invalid request parameters
