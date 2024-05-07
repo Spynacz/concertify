@@ -1,22 +1,19 @@
 from django.urls import reverse
 
-from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIRequestFactory
 
 from knox.models import AuthToken
 
-from events.models import Event, Location, Role
+from events import permissions
+from events.models import Event, EventContact, Location, Role
 from users.models import ConcertifyUser
 
 
 class TestIsEventModerator(APITestCase):
-    # TODO Missing test from related object to event
     def setUp(self):
-        self.user = ConcertifyUser.objects.create(
-            username="test",
-            email="test@email.com",
-            password="test"
-        )
+        self.factory = APIRequestFactory()
+        self.permission_check = permissions.IsEventModerator()
+        self.user = ConcertifyUser.objects.create(username="test")
         location = Location.objects.create(
             name="test",
             address_line="test",
@@ -29,41 +26,90 @@ class TestIsEventModerator(APITestCase):
             desc="test",
             location=location
         )
-        token = f"Token {AuthToken.objects.create(user=self.user)[-1]}"
-        self.client.credentials(HTTP_AUTHORIZATION=token)
         self.url = reverse('events:event-detail',
                            kwargs={'pk': self.event.id})
 
-    def test_permission_invalid(self):
-        """Users with permission lower that moderator should be blocked"""
-        response = self.client.patch(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    def test_invalid_for_user_without_a_role(self):
+        """User without a related role do not have access"""
+        request = self.factory.patch(self.url)
+        request.user = self.user
 
-        role = Role.objects.create(user=self.user, event=self.event,
-                                   name=Role.NameChoice.USER)
-        response = self.client.patch(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.event
+        )
 
-        role.name = Role.NameChoice.STAFF
-        role.save()
-        response = self.client.patch(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(permission)
 
-    def test_permission_valid(self):
-        """Users with permission of moderator or higher should be allowed"""
-        role = Role.objects.create(user=self.user, event=self.event,
-                                   name=Role.NameChoice.MODERATOR)
-        response = self.client.patch(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_invalid_for_user_with_too_low_permision(self):
+        """User without at least moderator permission do not have access"""
+        Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.STAFF
+        )
+        request = self.factory.patch(self.url)
+        request.user = self.user
 
-        role.name = Role.NameChoice.OWNER
-        role.save()
-        response = self.client.patch(self.url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.event
+        )
+
+        self.assertFalse(permission)
+
+    def test_valid(self):
+        """User with at least moderator permission have access"""
+        Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.MODERATOR
+        )
+        request = self.factory.patch(self.url)
+        request.user = self.user
+
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.event
+        )
+
+        self.assertTrue(permission)
+
+    def test_from_event_related_object(self):
+        """Permission should work with event related object on the many side"""
+        Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.MODERATOR
+        )
+        event_contact = EventContact.objects.create(
+            name="test",
+            event=self.event
+        )
+        url = reverse(
+            "events:event-contact-detail",
+            kwargs={'pk': event_contact.id}
+        )
+
+        request = self.factory.patch(url)
+        request.user = self.user
+
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            event_contact
+        )
+
+        self.assertTrue(permission)
 
 
 class TestIsEventOwner(APITestCase):
     def setUp(self):
+        self.factory = APIRequestFactory()
+        self.permission_check = permissions.IsEventOwner()
         self.user = ConcertifyUser.objects.create(
             username="test",
             email="test@email.com",
@@ -86,57 +132,90 @@ class TestIsEventOwner(APITestCase):
         self.url = reverse('events:event-detail',
                            kwargs={'pk': self.event.id})
 
-    def test_permission_invalid(self):
-        """Users with permission lower that owner should be blocked"""
-        response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    def test_invalid_for_user_without_a_role(self):
+        """User without a related role do not have access"""
+        request = self.factory.delete(self.url)
+        request.user = self.user
 
-        role = Role.objects.create(user=self.user, event=self.event,
-                                   name=Role.NameChoice.USER)
-        response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.event
+        )
 
-        role.name = Role.NameChoice.STAFF
-        role.save()
-        response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(permission)
 
-        role.name = Role.NameChoice.MODERATOR
-        role.save()
-        response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    def test_invalid_for_user_with_too_low_permision(self):
+        """User without at least moderator permission do not have access"""
+        Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.MODERATOR
+        )
+        request = self.factory.delete(self.url)
+        request.user = self.user
 
-    def test_permission_valid(self):
-        """Users with permission of owner or higher should be allowed"""
-        Role.objects.create(user=self.user, event=self.event,
-                            name=Role.NameChoice.OWNER)
-        response = self.client.delete(self.url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.event
+        )
 
-    def test_from_event_related_object(self):
-        """Permission should work with event related object on the many side"""
-        role = Role.objects.create(
+        self.assertFalse(permission)
+
+    def test_valid(self):
+        """User with at least moderator permission have access"""
+        Role.objects.create(
             event=self.event,
             user=self.user,
             name=Role.NameChoice.OWNER
         )
-        data = {
-            'event': self.event.id,
-            'user': self.user.id,
-            'name': Role.NameChoice.STAFF
-        }
-        response = self.client.put(
-            reverse("events:role-detail", kwargs={'pk': role.id}),
-            data=data
+        request = self.factory.delete(self.url)
+        request.user = self.user
+
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.event
         )
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(permission)
+
+    def test_from_event_related_object(self):
+        """Permission should work with event related object on the many side"""
+        Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.OWNER
+        )
+        user_role = Role.objects.create(
+            event=self.event,
+            user=ConcertifyUser.objects.create(username="test-temp"),
+            name=Role.NameChoice.USER
+        )
+        url = reverse(
+            "events:role-detail",
+            kwargs={'pk': user_role.id}
+        )
+
+        request = self.factory.patch(url)
+        request.user = self.user
+
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            user_role
+        )
+
+        self.assertTrue(permission)
 
 
 class TestDestroyRolePermission(APITestCase):
     fixtures = ['fixtures/test_fixture.json']
 
     def setUp(self):
+        self.factory = APIRequestFactory()
+        self.permission_check = permissions.DestroyRolePermission()
         self.role = Role.objects.first()
         self.url = reverse("events:role-detail", kwargs={'pk': self.role.id})
 
@@ -145,22 +224,32 @@ class TestDestroyRolePermission(APITestCase):
             email='test@email.com',
             password='test'
         )
-        self.token = f"Token {AuthToken.objects.create(self.user)[-1]}"
-        self.client.credentials(HTTP_AUTHORIZATION=self.token)
 
     def test_delete_users_role(self):
         """User can delete his role"""
-        token_value = AuthToken.objects.create(user=self.role.user)[-1]
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token_value}")
-        response = self.client.delete(self.url)
+        request = self.factory.delete(self.url)
+        request.user = self.role.user
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.role
+        )
+
+        self.assertTrue(permission)
 
     def test_request_user_role_missing(self):
         """User without a role cannot try to delete other users role"""
-        response = self.client.delete(self.url)
+        request = self.factory.delete(self.url)
+        request.user = self.user
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.role
+        )
+
+        self.assertFalse(permission)
 
     def test_user_is_event_owner(self):
         """User with owner role can delete other users role"""
@@ -169,9 +258,16 @@ class TestDestroyRolePermission(APITestCase):
             event=self.role.event,
             name=Role.NameChoice.OWNER
         )
-        response = self.client.delete(self.url)
+        request = self.factory.delete(self.url)
+        request.user = self.user
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.role
+        )
+
+        self.assertTrue(permission)
 
     def test_user_is_not_event_owner(self):
         """User without owner role cannot delete other users role"""
@@ -180,6 +276,13 @@ class TestDestroyRolePermission(APITestCase):
             event=self.role.event,
             name=Role.NameChoice.MODERATOR
         )
-        response = self.client.delete(self.url)
+        request = self.factory.delete(self.url)
+        request.user = self.user
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        permission = self.permission_check.has_object_permission(
+            request,
+            None,
+            self.role
+        )
+
+        self.assertFalse(permission)
