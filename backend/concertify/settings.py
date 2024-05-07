@@ -179,7 +179,7 @@ CACHE_TTL = 60 * 20  # 20 min
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis:6379/1",
+        "LOCATION": "redis://redis_cache:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
@@ -187,5 +187,5 @@ CACHES = {
 }
 
 # Celery Configuration Options
-CELERY_BROKER_URL = 'redis://redis:6379/0'
-CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_BROKER_URL = 'redis://redis_celery:6380/0'
+CELERY_RESULT_BACKEND = 'redis://redis_celery:6380/0'
