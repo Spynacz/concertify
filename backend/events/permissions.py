@@ -1,10 +1,11 @@
 from rest_framework.permissions import BasePermission
 
 from events.models import Role, Event
-from users.models import Notification
+
 
 class IsEventModerator(BasePermission):
     # View permissions ?
+
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, Event):
             event = obj
@@ -54,15 +55,12 @@ class DestroyRolePermission(BasePermission):
             return True
         return False
 
-class CreateNotificiationPermision(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if isinstance(obj, Notification):
-            notification = obj
-        else:
-            notification = obj.notification
 
+class CreateNotificiationPermision(BasePermission):
+    def has_permission(self, request, view):
+        pk = view.kwargs.get('pk')
         try:
-            role = Role.objects.get(event_id=obj.pk, user=request.user)
+            role = Role.objects.get(event_id=pk, user=request.user)
         except Role.DoesNotExist:
             return False
 
