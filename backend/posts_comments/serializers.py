@@ -5,6 +5,11 @@ from events.mixins import ValidateUserInContextMixin
 from posts_comments import models
 from posts_comments.mixins import VoteMixin
 
+from events.serializers import NotificationSerializer
+from events.models import Role
+
+from users import models as users_models
+
 
 class PostSerializer(VoteMixin,
                      serializers.ModelSerializer):
@@ -14,6 +19,43 @@ class PostSerializer(VoteMixin,
     class Meta:
         model = models.Post
         fields = '__all__'
+
+    def create(self, validated_data):
+        post = models.Post.objects.create(**validated_data)
+        users = users_models.ConcertifyUser.objects.filter(
+            role__event_id=post.event.id,
+            role__name=Role.NameChoice.USER
+        )
+
+        template = users_models.Notification(
+            title='New post was added related to the event you are '
+            'participating in.',
+            desc=f'Post was added to "{post.event.title }" event.',
+            notification_type=users_models.Notification.TypeChoice.CASUAL
+        )
+
+        NotificationSerializer.create_notifications_for_users(template, users)
+        return post
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        users = users_models.ConcertifyUser.objects.filter(
+            role__event_id=instance.event.id,
+            role__name=Role.NameChoice.USER
+        )
+
+        template = users_models.Notification(
+            title='Post was changed that is related to the event you are '
+            'participating in.',
+            desc=f'Post with tiltle "{instance.title}" was changed.',
+            notification_type=users_models.Notification.TypeChoice.CASUAL
+        )
+
+        NotificationSerializer.create_notifications_for_users(template, users)
+        return instance
 
 
 class CommentSerializer(VoteMixin,

@@ -5,6 +5,7 @@ from events.models import Role, Event
 
 class IsEventModerator(BasePermission):
     # View permissions ?
+
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, Event):
             event = obj
@@ -56,9 +57,14 @@ class DestroyRolePermission(BasePermission):
 
 
 class CreateNotificiationPermision(BasePermission):
+<<<<<<< HEAD
     def has_object_permission(self, request, view, obj):
+=======
+    def has_permission(self, request, view):
+        pk = view.kwargs.get('pk')
+>>>>>>> backend_NotificationSystem
         try:
-            role = Role.objects.get(event_id=obj.pk, user=request.user)
+            role = Role.objects.get(event_id=pk, user=request.user)
         except Role.DoesNotExist:
             return False
 
