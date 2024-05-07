@@ -1,22 +1,12 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError as DjangoValidationError
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from events.serializers import ValidateUserInContextMixin
+from events.mixins import ValidateUserInContextMixin
 from users.models import ConcertifyUser, PaymentInfo, Notification
-
-
-class ValidatePasswordMixin:
-    def validate_password(self, password):
-        try:
-            validate_password(password)
-        except DjangoValidationError as e:
-            raise ValidationError(e.messages)
-        return password
+from users.mixins import ValidatePasswordMixin
 
 
 class PaymentInfoSerializer(serializers.ModelSerializer):
