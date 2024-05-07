@@ -5,7 +5,114 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIRequestFactory
 
 from posts_comments import models, serializers
-from users.models import ConcertifyUser
+from users.models import ConcertifyUser, Notification
+from events.models import Event, Location, Role
+
+
+class TestPostSerializer(TestCase):
+    def setUp(self):
+        self.serializer_class = serializers.PostSerializer
+        self.factory = APIRequestFactory()
+        self.owner = ConcertifyUser.objects.create(
+            username='test',
+            email='test@email.com',
+            password='test'
+        )
+        self.user = ConcertifyUser.objects.create(
+            username='test12',
+            email='test12@email.com',
+            password='test'
+        )
+        location = Location.objects.create(
+            name="test",
+            address_line="test",
+            city="test",
+            postal_code="12-345",
+            country="TST"
+        )
+        self.event = Event.objects.create(
+            title="test",
+            desc="test",
+            location=location
+        )
+        Role.objects.create(
+            event=self.event,
+            user=self.user,
+            name=Role.NameChoice.USER
+        )
+        self.data = {
+            'title': 'test',
+            'desc': 'test',
+            'event': self.event.id
+        }
+
+    def test_send_notification_after_creation(self):
+        """After post added to database, there should be a notification
+          added"""
+        url = reverse('posts_comments:post-list')
+        request = self.factory.post(url)
+        request.user = self.owner
+
+        serializer = self.serializer_class(
+            data=self.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        expedcted_notification = Notification(
+            title='New post was added related to the event you are ' 
+            'participating in.',
+            desc=f'Post was added to "{serializer.validated_data["title"]}" '
+            'event.',
+            notification_type=Notification.TypeChoice.CASUAL
+        )
+
+        self.assertEqual(Notification.objects.count(), 1)
+        notification = Notification.objects.first()
+        self.assertEqual(notification.title,
+                         expedcted_notification.title)
+        self.assertEqual(notification.desc,
+                         expedcted_notification.desc)
+        self.assertEqual(Notification.TypeChoice(int(
+            notification.notification_type)),
+                         expedcted_notification.notification_type)
+
+    def test_send_notification_after_update(self):
+        """After post updated, there should be a notification added"""
+        url = reverse('posts_comments:post-detail',
+                      kwargs={'pk': self.event.id})
+        request = self.factory.put(url)
+
+        post = models.Post.objects.create(
+            title='test2',
+            desc='test2',
+            event=self.event)
+        
+        serializer = self.serializer_class(
+            instance=post,
+            data=self.data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        expedcted_notification = Notification(
+            title='Post was changed that is related to the event you '
+            'are participating in.',
+            desc=f'Post with tiltle "{serializer.validated_data["title"]}" ' 
+            'was changed.',
+            notification_type=Notification.TypeChoice.CASUAL
+        )
+        
+        self.assertEqual(Notification.objects.count(), 1)
+        notification = Notification.objects.first()
+        self.assertEqual(notification.title,
+                         expedcted_notification.title)
+        self.assertEqual(notification.desc,
+                         expedcted_notification.desc)
+        self.assertEqual(Notification.TypeChoice(int(
+            notification.notification_type)),
+                         expedcted_notification.notification_type)
 
 
 class TestCommentSerializer(TestCase):
