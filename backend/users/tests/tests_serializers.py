@@ -6,11 +6,10 @@ from django.utils.timezone import now, timedelta
 from rest_framework.test import APIRequestFactory
 from rest_framework.serializers import ValidationError
 
-from knox.models import AuthToken
-
 from users import serializers
 from users.models import ConcertifyUser, Notification
 from events.models import Event, Role, Location
+
 
 class TestUserSerializer(TestCase):
     def setUp(self):
@@ -201,7 +200,6 @@ class TestPasswordSerializer(TestCase):
         self.assertTrue(check_password(new_password, self.user.password))
 
 
-
 class TestUserNotificationSetAsSeen(TestCase):
 
     def setUp(self):
@@ -237,7 +235,9 @@ class TestUserNotificationSetAsSeen(TestCase):
         )
         self.factory = APIRequestFactory()
         self.serializer_class = serializers.UserNotificationSetAsSeenSerializer
-        self.request = self.factory.put(reverse("users:notifications", kwargs={'pk': self.notification.id}))
+        self.request = self.factory.put(
+            reverse("users:notifications",
+                    kwargs={'pk': self.notification.id}))
     
     def test_update_valid(self):
         """When there is a notification in DB, it can be set as seen"""

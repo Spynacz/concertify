@@ -143,7 +143,8 @@ class TestEventViewSet(APITestCase):
 
     @patch('events.serializers.EventFeedSerializer.revoke_task')
     def test_destroy_action(self, mock_revoke_task):
-        """Only users with at least owner permissions can delete event, while deleting event celery task is killed"""
+        """Only users with at least owner permissions can delete event,
+        while deleting event celery task is killed"""
         self.client.credentials(HTTP_AUTHORIZATION=self.token)
 
         response = self.client.delete(self.url_details)
