@@ -35,7 +35,6 @@ class CreateNotificationMixin:
 
     def _schedule_reminder(self, event):
         if not event.start:
-            print("Event is missing start date")
             return
         eta = event.start - timezone.timedelta(days=1)
         self.send_reminders.apply_async(
