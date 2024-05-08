@@ -1,0 +1,42 @@
+.cart-container {
+  padding: 2em;
+  margin: 1em 2em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  height: fit-content;
+}
+
+.ticket {
+  background-color: var(--light-color);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius);
+  height: fit-content;
+  margin: 2em;
+}
+
+.ticket .side-by-side {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.ticket hr {
+  margin: 0.5em 0;
+}
+
+.ticket .side-by-side > * {
+  width: 5em;
+}
+
+.ticket .event-preview {
+  margin: 0;
+}
+
+.ticket form {
+  padding: 1em;
+  flex-direction: column;
+  justify-content: space-between;
+  display: flex;
+}
