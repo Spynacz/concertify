@@ -8,18 +8,7 @@ from knox import views as knox_views
 from . import views
 
 app_name = 'users'
-
-router = DefaultRouter()
-
-router.register(
-    'event-report',
-    views.EventReportViewSet,
-    basename='event-report'
-)
-
-urlpatterns = router.url
-
-urlpatterns += [
+urlpatterns = [
     path('create', views.CreateUserViews.as_view(), name='create'),
 
     path('profile', views.ManageUserView.as_view(), name='profile'),
@@ -43,3 +32,13 @@ urlpatterns += [
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
+
+router = DefaultRouter(trailing_slash=False)
+
+router.register(
+    'event-report',
+    views.EventReportViewSet,
+    basename='event-report'
+)
+
+urlpatterns += router.urls
