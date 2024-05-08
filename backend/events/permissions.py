@@ -5,7 +5,6 @@ from events.models import Role, Event
 
 class IsEventModerator(BasePermission):
     # View permissions ?
-
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, Event):
             event = obj

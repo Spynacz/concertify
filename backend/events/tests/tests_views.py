@@ -9,7 +9,11 @@ from knox.models import AuthToken
 from unittest.mock import patch, ANY
 
 from events.models import Event, Location, Role
-from events.serializers import EventDetailsSerializer, EventFeedSerializer, NotificationSerializer
+from events.serializers import (
+    EventDetailsSerializer,
+    EventFeedSerializer,
+    NotificationSerializer
+)
 
 from users.models import ConcertifyUser, Notification
 
