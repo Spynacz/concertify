@@ -5,7 +5,12 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from events.mixins import ValidateUserInContextMixin
-from users.models import ConcertifyUser, PaymentInfo, Notification
+from users.models import (
+    ConcertifyUser,
+    EventReport,
+    PaymentInfo,
+    Notification
+)
 from users.mixins import ValidatePasswordMixin
 
 
@@ -127,6 +132,17 @@ class AuthSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class EventReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventReport
+        fields = [
+            "title",
+            "desc",
+            "report_type",
+            "event"
+        ]
 
 
 class UserNotificationSerializer(serializers.ModelSerializer):
