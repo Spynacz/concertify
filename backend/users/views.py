@@ -1,6 +1,6 @@
 from django.contrib.auth import login
 
-from rest_framework import generics
+from rest_framework import generics, permissions, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from knox.views import LoginView as KnoxLoginView
@@ -46,8 +46,21 @@ class UserNotificationView(generics.ListAPIView, generics.UpdateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'PUT':
             return serializers.UserNotificationSetAsSeenSerializer
-        else:
-            return serializers.UserNotificationSerializer
+        return serializers.UserNotificationSerializer
 
     def get_queryset(self):
         return models.Notification.objects.filter(user=self.request.user)
+
+
+class EventReportViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.EventReport
+
+    def get_permissions(self):
+        if (self.request.method in permissions.SAFE_METHODS
+                or self.request.method in ['PUT', 'PATCH']):
+            permission_classes = [permissions.IsAdminUser]
+        else:
+            permission_classes = [
+                permissions.IsAuthenticated,
+            ]
+        return [permission() for permission in permission_classes]

@@ -1,5 +1,6 @@
 from django.urls import path
 
+from rest_framework.routers import DefaultRouter
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from knox import views as knox_views
@@ -7,7 +8,18 @@ from knox import views as knox_views
 from . import views
 
 app_name = 'users'
-urlpatterns = [
+
+router = DefaultRouter()
+
+router.register(
+    'event-report',
+    views.EventReportViewSet,
+    basename='event-report'
+)
+
+urlpatterns = router.url
+
+urlpatterns += [
     path('create', views.CreateUserViews.as_view(), name='create'),
 
     path('profile', views.ManageUserView.as_view(), name='profile'),
