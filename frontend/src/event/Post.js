@@ -40,9 +40,12 @@ export default function Post({ id, title, desc, votes, image }) {
             />
             <Card.Body>
               <Card.Title>{title}</Card.Title>
-              <br />
-              <Card.Text>{desc}</Card.Text>
-              <Button className="float-end">{votes}</Button>
+              <div className="d-flex justify-content-between">
+                <Card.Text>{desc}</Card.Text>
+                <a>
+                  <i className="fas fa-thumbs-up"></i> {votes}
+                </a>
+              </div>
             </Card.Body>
           </Card>
         </Col>
@@ -72,9 +75,9 @@ export default function Post({ id, title, desc, votes, image }) {
               <h5>{comment.user}</h5>
               <div className="d-flex justify-content-between">
                 <p>{comment.desc}</p>
-                <Button variant="secondary">
+                <a>
                   <i className="fas fa-thumbs-up"></i> {comment.vote_count}
-                </Button>
+                </a>
               </div>
               <hr className="my-1" style={{ height: "3px" }} />
             </div>
