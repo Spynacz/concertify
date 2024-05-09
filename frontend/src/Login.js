@@ -31,7 +31,7 @@ export function Logout() {
       },
     })
       .then((response) => {
-        if (!response.ok) throw new Error(response.status);
+        if (!response.ok) console.error(response.status);
         removeCookie("user");
         navigate("/");
         console.log("Logout successful");
