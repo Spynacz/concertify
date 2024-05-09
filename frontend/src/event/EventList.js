@@ -1,7 +1,7 @@
-import { Card, Container, Nav } from "react-bootstrap";
-import "./Event.css";
-import { LinkContainer } from "react-router-bootstrap";
 import { useEffect, useState } from "react";
+import { Card, Container, Nav } from "react-bootstrap";
+import { LinkContainer } from "react-router-bootstrap";
+import "./EventList.css";
 
 function EventPreview({ title, location, date, image }) {
   return (
