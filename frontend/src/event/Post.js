@@ -32,7 +32,7 @@ export default function Post({ id, title, desc, votes, image }) {
   return (
     <>
       <Row className="justify-content-center my-3 post" onClick={handleShow}>
-        <Col sm={9} md={8}>
+        <Col sm={9} md={8} lg={7} xl={6} xxl={5}>
           <Card>
             <Card.Img
               variant="top"
@@ -53,7 +53,7 @@ export default function Post({ id, title, desc, votes, image }) {
 
       <Modal
         fullscreen="lg-down"
-        size="xl"
+        size="lg"
         show={show}
         onHide={handleClose}
         centered
@@ -71,13 +71,20 @@ export default function Post({ id, title, desc, votes, image }) {
           </div>
 
           {comments.map((comment) => (
-            <div className="d-flex flex-column my-3" key={comment.id}>
-              <h5>{comment.user}</h5>
-              <div className="d-flex justify-content-between">
-                <p>{comment.desc}</p>
-                <a>
-                  <i className="fas fa-thumbs-up"></i> {comment.vote_count}
-                </a>
+            <div className="d-flex my-4" key={comment.id}>
+              <img
+                className="rounded-circle me-3"
+                style={{ width: "60px", height: "60px" }}
+                src="https://png.pngtree.com/png-vector/20190710/ourlarge/pngtree-business-user-profile-vector-png-image_1541960.jpg"
+              />
+              <div className="w-100">
+                <h5>{comment.user.username}</h5>
+                <div className="d-flex justify-content-between">
+                  <p>{comment.desc}</p>
+                  <a>
+                    <i className="fas fa-thumbs-up"></i> {comment.vote_count}
+                  </a>
+                </div>
               </div>
               <hr className="my-1" style={{ height: "3px" }} />
             </div>
