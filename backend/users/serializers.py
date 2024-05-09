@@ -60,6 +60,19 @@ class UserSerializer(ValidatePasswordMixin,
         return super().update(instance, validated_data)
 
 
+class ReadOnlyUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConcertifyUser
+        fields = [
+            'username',
+            'picture'
+        ]
+        extra_kwargs = {
+            'username': {'read_only': True},
+            'picture': {'read_only': True}
+        }
+
+
 class ManageUserSerializer(UserSerializer):
     class Meta:
         model = ConcertifyUser
