@@ -60,14 +60,13 @@ class PostSerializer(VoteMixin,
 class CommentSerializer(VoteMixin,
                         ValidateUserInContextMixin,
                         serializers.ModelSerializer):
-    user = ReadOnlyUserSerializer()
+    user = ReadOnlyUserSerializer(read_only=True)
     vote_count = serializers.SerializerMethodField()
     has_voted = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Comment
         fields = '__all__'
-        extra_kwargs = {'user': {'read_only': True}}
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
