@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Col, Modal, Row } from "react-bootstrap";
+import { Card, Col, Modal, Row } from "react-bootstrap";
 import "./Post.css";
+import PostVote from "./PostVote";
+import CommentVote from "./CommentVote";
 
-export default function Post({ id, title, desc, votes, image }) {
+export default function Post({ id, title, desc, votes, image, hasVoted }) {
   const [comments, setComments] = useState([]);
   const [show, setShow] = useState(false);
+  const [voted, setVoted] = useState(hasVoted);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const get = async () => {
+  const getComments = async () => {
     await fetch(`http://localhost:8000/comment?post=${id}`, {
       method: "GET",
     })
@@ -26,14 +29,14 @@ export default function Post({ id, title, desc, votes, image }) {
   };
 
   useEffect(() => {
-    get();
+    getComments();
   }, []);
 
   return (
     <>
-      <Row className="justify-content-center my-3 post" onClick={handleShow}>
+      <Row className="justify-content-center my-3">
         <Col sm={9} md={8} lg={7} xl={6} xxl={5}>
-          <Card>
+          <Card onClick={handleShow} className="post">
             <Card.Img
               variant="top"
               src="https://media.timeout.com/images/103926031/image.jpg" /* src={image} */
@@ -42,9 +45,7 @@ export default function Post({ id, title, desc, votes, image }) {
               <Card.Title>{title}</Card.Title>
               <div className="d-flex justify-content-between">
                 <Card.Text>{desc}</Card.Text>
-                <a>
-                  <i className="fas fa-thumbs-up"></i> {votes}
-                </a>
+                <PostVote postId={id} numVotes={votes} hasVoted={voted}/>
               </div>
             </Card.Body>
           </Card>
@@ -71,22 +72,19 @@ export default function Post({ id, title, desc, votes, image }) {
           </div>
 
           {comments.map((comment) => (
-            <div className="d-flex my-4" key={comment.id}>
+            <div className="d-flex my-5" key={comment.id}>
               <img
                 className="rounded-circle me-3"
-                style={{ width: "60px", height: "60px" }}
+                style={{ width: "50px", height: "50px" }}
                 src="https://png.pngtree.com/png-vector/20190710/ourlarge/pngtree-business-user-profile-vector-png-image_1541960.jpg"
               />
               <div className="w-100">
                 <h5>{comment.user.username}</h5>
                 <div className="d-flex justify-content-between">
                   <p>{comment.desc}</p>
-                  <a>
-                    <i className="fas fa-thumbs-up"></i> {comment.vote_count}
-                  </a>
+                  <CommentVote commentId={comment.id} numVotes={comment.vote_count} />
                 </div>
               </div>
-              <hr className="my-1" style={{ height: "3px" }} />
             </div>
           ))}
         </Modal.Body>
