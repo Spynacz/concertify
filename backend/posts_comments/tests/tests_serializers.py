@@ -61,7 +61,7 @@ class TestPostSerializer(TestCase):
         serializer.save()
 
         expedcted_notification = Notification(
-            title='New post was added related to the event you are ' 
+            title='New post was added related to the event you are '
             'participating in.',
             desc=f'Post was added to "{serializer.validated_data["title"]}" '
             'event.',
@@ -88,7 +88,7 @@ class TestPostSerializer(TestCase):
             title='test2',
             desc='test2',
             event=self.event)
-        
+
         serializer = self.serializer_class(
             instance=post,
             data=self.data,
@@ -99,11 +99,11 @@ class TestPostSerializer(TestCase):
         expedcted_notification = Notification(
             title='Post was changed that is related to the event you '
             'are participating in.',
-            desc=f'Post with tiltle "{serializer.validated_data["title"]}" ' 
+            desc=f'Post with tiltle "{serializer.validated_data["title"]}" '
             'was changed.',
             notification_type=Notification.TypeChoice.CASUAL
         )
-        
+
         self.assertEqual(Notification.objects.count(), 1)
         notification = Notification.objects.first()
         self.assertEqual(notification.title,
