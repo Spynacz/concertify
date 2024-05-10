@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import Post from "./Post";
-import { Button, Modal } from "react-bootstrap";
+import { useCookies } from "react-cookie";
 
 export default function PostList({ eventId }) {
   const [posts, setPosts] = useState([]);
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+
+  const user = cookies["user"];
   const get = async () => {
     await fetch(`http://localhost:8000/post?event=${eventId}`, {
       method: "GET",
+      headers: {
+        Authorization: "Token " + user.token,
+      },
     })
       .then((response) => {
         if (!response.ok) throw new Error(response.status);
@@ -34,6 +40,7 @@ export default function PostList({ eventId }) {
             desc={post.desc}
             votes={post.vote_count}
             image={post.picture}
+            hasVoted={post.has_voted}
             key={post.id}
           />
         ))}
