@@ -1,3 +1,5 @@
+from django.http import Http404
+
 from rest_framework import permissions
 from rest_framework import mixins, viewsets
 
@@ -55,6 +57,16 @@ class PostVoteViewSet(mixins.CreateModelMixin,
     serializer_class = serializers.PostVoteSerializer
     permission_classes = [IsOwner]
 
+    def get_object(self):
+        post = self.request.data.get('post')
+        try:
+            return models.PostVote.objects.get(
+                post=post,
+                user=self.request.user
+            )
+        except models.PostVote.DoesNotExist:
+            raise Http404
+
     def get_queryset(self):
         return models.PostVote.objects.all()
 
@@ -64,6 +76,16 @@ class CommentVoteViewSet(mixins.CreateModelMixin,
                          viewsets.GenericViewSet):
     serializer_class = serializers.CommentVoteSerializer
     permission_classes = [IsOwner]
+
+    def get_object(self):
+        comment = self.request.data.get('comment')
+        try:
+            return models.CommentVote.objects.get(
+                comment=comment,
+                user=self.request.user
+            )
+        except models.CommentVote.DoesNotExist:
+            raise Http404
 
     def get_queryset(self):
         return models.CommentVote.objects.all()
