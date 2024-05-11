@@ -10,7 +10,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: python:latest
 
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
