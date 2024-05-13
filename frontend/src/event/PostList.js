@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import Post from "./Post";
 import { useCookies } from "react-cookie";
+import Post from "./Post";
+import { getAuthorization } from "../Utils";
 
 export default function PostList({ eventId }) {
   const [posts, setPosts] = useState([]);
@@ -11,7 +12,7 @@ export default function PostList({ eventId }) {
     await fetch(`http://localhost:8000/post?event=${eventId}`, {
       method: "GET",
       headers: {
-        Authorization: "Token " + user.token,
+        Authorization: getAuthorization(user),
       },
     })
       .then((response) => {
