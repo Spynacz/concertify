@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useCookies } from "react-cookie";
+import { getAuthorization } from "../Utils";
 
 export default function CommentVote({ commentId, numVotes, hasVoted }) {
   const [votes, setVotes] = useState(numVotes);
@@ -16,7 +17,7 @@ export default function CommentVote({ commentId, numVotes, hasVoted }) {
     await fetch("http://localhost:8000/comment-vote", {
       method: "POST",
       headers: {
-        Authorization: "Token " + user.token,
+        Authorization: getAuthorization(user),
         "Content-type": "application/json; charset=UTF=8",
       },
       body: JSON.stringify({
@@ -38,7 +39,7 @@ export default function CommentVote({ commentId, numVotes, hasVoted }) {
     await fetch("http://localhost:8000/comment-vote", {
       method: "DELETE",
       headers: {
-        Authorization: "Token " + user.token,
+        Authorization: getAuthorization(user),
         "Content-type": "application/json; charset=UTF=8",
       },
       body: JSON.stringify({
