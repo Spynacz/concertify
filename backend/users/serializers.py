@@ -1,22 +1,17 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError as DjangoValidationError
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from events.serializers import ValidateUserInContextMixin
-from users.models import ConcertifyUser, PaymentInfo
-
-
-class ValidatePasswordMixin:
-    def validate_password(self, password):
-        try:
-            validate_password(password)
-        except DjangoValidationError as e:
-            raise ValidationError(e.messages)
-        return password
+from events.mixins import ValidateUserInContextMixin
+from users.models import (
+    ConcertifyUser,
+    EventReport,
+    PaymentInfo,
+    Notification
+)
+from users.mixins import ValidatePasswordMixin
 
 
 class PaymentInfoSerializer(serializers.ModelSerializer):
@@ -63,6 +58,19 @@ class UserSerializer(ValidatePasswordMixin,
             PaymentInfoSerializer().update(payment_instance, payment_info)
 
         return super().update(instance, validated_data)
+
+
+class ReadOnlyUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConcertifyUser
+        fields = [
+            'username',
+            'picture'
+        ]
+        extra_kwargs = {
+            'username': {'read_only': True},
+            'picture': {'read_only': True}
+        }
 
 
 class ManageUserSerializer(UserSerializer):
@@ -137,3 +145,36 @@ class AuthSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class EventReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventReport
+        fields = [
+            "title",
+            "desc",
+            "report_type",
+            "event"
+        ]
+
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = [
+            'title',
+            'desc',
+            'notification_type',
+            'has_been_seen'
+        ]
+
+
+class UserNotificationSetAsSeenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = []
+
+    def update(self, instance, validated_data):
+        instance.has_been_seen = True
+        instance.save()
+        return instance

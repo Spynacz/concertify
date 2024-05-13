@@ -126,7 +126,6 @@ class TestCommentViewSet(APITestCase):
             'title': 'New',
             'desc': 'test comment',
             'post': self.comment.post.id,
-            'user': self.user.id
         }
         self.serializer = serializers.CommentSerializer(instance=self.comment)
 
@@ -200,13 +199,13 @@ class TestPostVoteViewSet(APITestCase):
 
     def test_delete(self):
         """User that created a post vote can delete it"""
-        post_vote = models.PostVote.objects.create(
+        models.PostVote.objects.create(
             user=self.user,
             post=self.post
         )
-        url = reverse('posts_comments:post-vote-detail',
-                      kwargs={'pk': post_vote.id})
-        response = self.client.delete(url)
+        data = {'post': self.post.id}
+        url = reverse('posts_comments:post-vote-list')
+        response = self.client.delete(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -235,12 +234,12 @@ class TestCommentVoteViewSet(APITestCase):
 
     def test_delete(self):
         """User that created a comment vote can delete it"""
-        comment_vote = models.CommentVote.objects.create(
+        models.CommentVote.objects.create(
             user=self.user,
             comment=self.comment
         )
-        url = reverse('posts_comments:comment-vote-detail',
-                      kwargs={'pk': comment_vote.id})
-        response = self.client.delete(url)
+        data = {'comment': self.comment.id}
+        url = reverse('posts_comments:comment-vote-list')
+        response = self.client.delete(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
