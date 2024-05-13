@@ -53,3 +53,16 @@ class DestroyRolePermission(BasePermission):
         if request.user == obj.user:
             return True
         return False
+
+
+class CreateNotificiationPermision(BasePermission):
+    def has_permission(self, request, view):
+        pk = view.kwargs.get('pk')
+        try:
+            role = Role.objects.get(event_id=pk, user=request.user)
+        except Role.DoesNotExist:
+            return False
+
+        if int(role.name) >= Role.NameChoice.MODERATOR:
+            return True
+        return False
