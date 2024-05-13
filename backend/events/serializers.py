@@ -21,9 +21,11 @@ class LocationSerializer(serializers.ModelSerializer):
         return location
 
 
+# TODO add location
 class EventFeedSerializer(ValidateUserInContextMixin,
                           serializers.ModelSerializer,
                           CreateNotificationMixin):
+
     class Meta:
         model = models.Event
         fields = '__all__'
@@ -51,6 +53,7 @@ class EventDetailsSerializer(EventFeedSerializer):
     event_contacts = serializers.SerializerMethodField()
     social_media = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
+    ticket = serializers.SerializerMethodField()
 
     def get_event_contacts(self, event):
         response = []
@@ -80,6 +83,18 @@ class EventDetailsSerializer(EventFeedSerializer):
             'postal_code': event.location.postal_code,
             'country': event.location.country
         }
+
+    def get_ticket(self, event):
+        response = []
+        for ticket in event.ticket.all():
+            response.append({
+                'id': ticket.id,
+                'title': ticket.title,
+                'desc': ticket.desc,
+                'quantity': ticket.quantity,
+                'amount': ticket.amount
+            })
+        return response
 
 
 class RoleSerializer(ValidateUserInContextMixin,
