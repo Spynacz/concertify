@@ -79,7 +79,7 @@ class TestEventFeedSerializer(TestCase):
         """create method should make an owner role
            for the user that creates it and also should schedule the proces of creating notifications."""
 
-        request = self.factory.get(reverse('events:event-list'))
+        request = self.factory.post(reverse('events:event-list'))
         request.user = self.user
 
         serializer = self.serializer_class(
