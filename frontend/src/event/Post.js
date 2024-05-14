@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, Col, Modal, Row } from "react-bootstrap";
+import { useCookies } from "react-cookie";
+import { getAuthorization } from "../Utils";
+import CommentInput from "./CommentInput";
+import CommentVote from "./CommentVote";
 import "./Post.css";
 import PostVote from "./PostVote";
-import CommentVote from "./CommentVote";
-import { getAuthorization } from "../Utils";
-import { useCookies } from "react-cookie";
 
 export default function Post({ id, title, desc, votes, image, hasVoted }) {
   const [comments, setComments] = useState([]);
@@ -15,8 +16,8 @@ export default function Post({ id, title, desc, votes, image, hasVoted }) {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const user = cookies["user"]
-  const getComments = async () => {
+  const user = cookies["user"];
+  const getComments = useCallback(async () => {
     await fetch(`http://localhost:8000/comment?post=${id}`, {
       method: "GET",
       headers: { Authorization: getAuthorization(user) },
@@ -31,11 +32,11 @@ export default function Post({ id, title, desc, votes, image, hasVoted }) {
       .catch((err) => {
         console.log(err.message);
       });
-  };
+  }, []);
 
   useEffect(() => {
     getComments();
-  }, []);
+  }, [getComments]);
 
   return (
     <>
@@ -50,7 +51,7 @@ export default function Post({ id, title, desc, votes, image, hasVoted }) {
               <Card.Title>{title}</Card.Title>
               <div className="d-flex justify-content-between">
                 <Card.Text>{desc}</Card.Text>
-                <PostVote postId={id} numVotes={votes} hasVoted={voted}/>
+                <PostVote postId={id} numVotes={votes} hasVoted={voted} />
               </div>
             </Card.Body>
           </Card>
@@ -87,11 +88,15 @@ export default function Post({ id, title, desc, votes, image, hasVoted }) {
                 <h5>{comment.user.username}</h5>
                 <div className="d-flex justify-content-between">
                   <p>{comment.desc}</p>
-                  <CommentVote commentId={comment.id} numVotes={comment.vote_count} />
+                  <CommentVote
+                    commentId={comment.id}
+                    numVotes={comment.vote_count}
+                  />
                 </div>
               </div>
             </div>
           ))}
+          {user ? <CommentInput user={user} postId={id} callback={getComments}/> : ""}
         </Modal.Body>
       </Modal>
     </>
