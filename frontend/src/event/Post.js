@@ -3,18 +3,23 @@ import { Card, Col, Modal, Row } from "react-bootstrap";
 import "./Post.css";
 import PostVote from "./PostVote";
 import CommentVote from "./CommentVote";
+import { getAuthorization } from "../Utils";
+import { useCookies } from "react-cookie";
 
 export default function Post({ id, title, desc, votes, image, hasVoted }) {
   const [comments, setComments] = useState([]);
   const [show, setShow] = useState(false);
   const [voted, setVoted] = useState(hasVoted);
+  const [cookies, setCookie, removeCookie] = useCookies();
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  const user = cookies["user"]
   const getComments = async () => {
     await fetch(`http://localhost:8000/comment?post=${id}`, {
       method: "GET",
+      headers: { Authorization: getAuthorization(user) },
     })
       .then((response) => {
         if (!response.ok) throw new Error(response.status);
