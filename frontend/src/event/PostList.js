@@ -11,9 +11,7 @@ export default function PostList({ eventId }) {
   const get = async () => {
     await fetch(`http://localhost:8000/post?event=${eventId}`, {
       method: "GET",
-      headers: {
-        Authorization: getAuthorization(user),
-      },
+      headers: { Authorization: getAuthorization(user) },
     })
       .then((response) => {
         if (!response.ok) throw new Error(response.status);
