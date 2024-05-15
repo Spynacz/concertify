@@ -3,7 +3,7 @@ import "./UserForm.css";
 import React, { useState } from "react";
 
 export function ErrorField({ text }) {
-  if (text !== [] && text !== undefined && text !== "")
+  if (text !== undefined && text !== "" && text.length !== 0)
     return text.map((msg) => <Form.Text>{msg}</Form.Text>);
 }
 
