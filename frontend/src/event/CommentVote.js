@@ -1,10 +1,15 @@
-import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { getAuthorization } from "../Utils";
+import { useEffect } from "react";
 
-export default function CommentVote({ commentId, numVotes, hasVoted }) {
-  const [votes, setVotes] = useState(numVotes);
-  const [voted, setVoted] = useState(hasVoted);
+export default function CommentVote({
+  commentId,
+  voted,
+  setVoted,
+  votes,
+  setVotes,
+  callback,
+}) {
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
 
   const user = cookies["user"];
@@ -12,6 +17,8 @@ export default function CommentVote({ commentId, numVotes, hasVoted }) {
   const handle = () => {
     voted ? handleDownvote() : handleUpvote();
   };
+
+  useEffect(() => callback(commentId, votes, voted), [votes]);
 
   const handleUpvote = async () => {
     await fetch("http://localhost:8000/comment-vote", {

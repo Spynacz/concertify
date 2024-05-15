@@ -1,11 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { getAuthorization } from "../Utils";
 
-export default function PostVote({ postId, numVotes, hasVoted }) {
-  const [votes, setVotes] = useState(numVotes);
+export default function PostVote({ postId, voted, setVoted, votes, setVotes }) {
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
-  const [voted, setVoted] = useState(hasVoted);
 
   const user = cookies["user"];
 

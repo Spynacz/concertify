@@ -37,7 +37,7 @@ export default function PostList({ eventId }) {
             id={post.id}
             title={post.title}
             desc={post.desc}
-            votes={post.vote_count}
+            numVotes={post.vote_count}
             image={post.picture}
             hasVoted={post.has_voted}
             key={post.id}

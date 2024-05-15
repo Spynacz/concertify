@@ -6,11 +6,13 @@ import CommentInput from "./CommentInput";
 import CommentVote from "./CommentVote";
 import "./Post.css";
 import PostVote from "./PostVote";
+import Comment from "./Comment";
 
-export default function Post({ id, title, desc, votes, image, hasVoted }) {
+export default function Post({ id, title, desc, numVotes, image, hasVoted }) {
   const [comments, setComments] = useState([]);
   const [show, setShow] = useState(false);
   const [voted, setVoted] = useState(hasVoted);
+  const [votes, setVotes] = useState(numVotes);
   const [cookies, setCookie, removeCookie] = useCookies();
 
   const handleClose = () => setShow(false);
@@ -38,6 +40,14 @@ export default function Post({ id, title, desc, votes, image, hasVoted }) {
     getComments();
   }, [getComments]);
 
+  const updateCommentVotes = (id, votes, voted) => {
+    const newComments = comments.slice();
+    const updatedComment = newComments.find((c) => c.id === id);
+    updatedComment.vote_count = votes;
+    updatedComment.has_voted = voted;
+    setComments(newComments);
+  };
+
   return (
     <>
       <Row className="justify-content-center my-3">
@@ -51,7 +61,14 @@ export default function Post({ id, title, desc, votes, image, hasVoted }) {
               <Card.Title>{title}</Card.Title>
               <div className="d-flex justify-content-between">
                 <Card.Text>{desc}</Card.Text>
-                <PostVote postId={id} numVotes={votes} hasVoted={voted} />
+                <PostVote
+                  postId={id}
+                  numVotes={votes}
+                  voted={voted}
+                  setVoted={setVoted}
+                  votes={votes}
+                  setVotes={setVotes}
+                />
               </div>
             </Card.Body>
           </Card>
@@ -70,33 +87,37 @@ export default function Post({ id, title, desc, votes, image, hasVoted }) {
         </Modal.Header>
         <Modal.Body>
           <div className="d-flex flex-column">
-            {desc}
+            <p className="mb-2">{desc}</p>
             <img
-              className="img-fluid"
+              className="img-fluid rounded-2"
               src="https://media.timeout.com/images/103926031/image.jpg"
             />
           </div>
+          <PostVote
+            postId={id}
+            numVotes={votes}
+            voted={voted}
+            setVoted={setVoted}
+            votes={votes}
+            setVotes={setVotes}
+          />
 
           {comments.map((comment) => (
-            <div className="d-flex my-5" key={comment.id}>
-              <img
-                className="rounded-circle me-3"
-                style={{ width: "50px", height: "50px" }}
-                src="https://png.pngtree.com/png-vector/20190710/ourlarge/pngtree-business-user-profile-vector-png-image_1541960.jpg"
-              />
-              <div className="w-100">
-                <h5>{comment.user.username}</h5>
-                <div className="d-flex justify-content-between">
-                  <p>{comment.desc}</p>
-                  <CommentVote
-                    commentId={comment.id}
-                    numVotes={comment.vote_count}
-                  />
-                </div>
-              </div>
-            </div>
+            <Comment
+              id={comment.id}
+              user={comment.user.username}
+              desc={comment.desc}
+              numVotes={comment.vote_count}
+              hasVoted={comment.has_voted}
+              callback={updateCommentVotes}
+              key={comment.id}
+            />
           ))}
-          {user ? <CommentInput user={user} postId={id} callback={getComments}/> : ""}
+          {user ? (
+            <CommentInput user={user} postId={id} callback={getComments} />
+          ) : (
+            ""
+          )}
         </Modal.Body>
       </Modal>
     </>
