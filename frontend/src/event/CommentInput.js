@@ -27,7 +27,7 @@ export default function CommentInput({ user, postId, callback }) {
   };
 
   return (
-    <div className="d-flex my-5">
+    <div className="d-flex flex-row my-5">
       <img
         className="rounded-circle me-3"
         style={{ width: "30px", height: "30px" }}
@@ -35,9 +35,9 @@ export default function CommentInput({ user, postId, callback }) {
       />
       <Form className="w-100" onSubmit={handleSubmit}>
         <Form.Group className="mb-3" controlId="newComment">
-          <Form.Control type="text" placeholder="Your comment" />
+          <Form.Control as="textarea" placeholder="Your comment" rows={3}/>
         </Form.Group>
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" className="mt-2 float-end">
           Comment
         </Button>
       </Form>

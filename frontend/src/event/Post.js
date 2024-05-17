@@ -2,11 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { Card, Col, Modal, Row } from "react-bootstrap";
 import { useCookies } from "react-cookie";
 import { getAuthorization } from "../Utils";
+import Comment from "./Comment";
 import CommentInput from "./CommentInput";
-import CommentVote from "./CommentVote";
 import "./Post.css";
 import PostVote from "./PostVote";
-import Comment from "./Comment";
 
 export default function Post({ id, title, desc, numVotes, image, hasVoted }) {
   const [comments, setComments] = useState([]);
@@ -93,26 +92,30 @@ export default function Post({ id, title, desc, numVotes, image, hasVoted }) {
               src="https://media.timeout.com/images/103926031/image.jpg"
             />
           </div>
-          <PostVote
-            postId={id}
-            numVotes={votes}
-            voted={voted}
-            setVoted={setVoted}
-            votes={votes}
-            setVotes={setVotes}
-          />
-
-          {comments.map((comment) => (
-            <Comment
-              id={comment.id}
-              user={comment.user.username}
-              desc={comment.desc}
-              numVotes={comment.vote_count}
-              hasVoted={comment.has_voted}
-              callback={updateCommentVotes}
-              key={comment.id}
+          <div className="d-flex justify-content-end mt-3">
+            <PostVote
+              postId={id}
+              numVotes={votes}
+              voted={voted}
+              setVoted={setVoted}
+              votes={votes}
+              setVotes={setVotes}
             />
-          ))}
+          </div>
+
+          {comments
+            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+            .map((comment) => (
+              <Comment
+                id={comment.id}
+                user={comment.user.username}
+                desc={comment.desc}
+                numVotes={comment.vote_count}
+                hasVoted={comment.has_voted}
+                callback={updateCommentVotes}
+                key={comment.id}
+              />
+            ))}
           {user ? (
             <CommentInput user={user} postId={id} callback={getComments} />
           ) : (
