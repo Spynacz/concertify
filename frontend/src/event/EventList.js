@@ -64,7 +64,7 @@ export default function EventList() {
                 <EventPreview
                   title={event.title}
                   image="https://weknowyourdreams.com/images/party/party-12.jpg"
-                  location={event.location}
+                  location={event.location.address_line}
                   date={event.start}
                 />
               </Nav.Link>
