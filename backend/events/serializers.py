@@ -211,12 +211,25 @@ class CartItemSerializer(serializers.Serializer):
     ticket_type = serializers.ChoiceField(choices=TICKET_CHOICES)
     quantity = serializers.IntegerField()
     amount = serializers.DecimalField(max_digits=9, decimal_places=2)
-    event = serializers.IntegerField()
     ticket = serializers.IntegerField()
     total_amount = serializers.SerializerMethodField()
 
     class Meta:
         fields = "__all__"
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        id = instance.get('ticket')
+        ticket = models.Ticket.objects.get(id=id)
+        rep['ticket'] = {
+            'id': ticket.id,
+            'title': ticket.title,
+            'desc': ticket.desc,
+            'quantity': ticket.quantity,
+            'amount': ticket.amount,
+            'event': ticket.event.id
+        }
+        return rep
 
     def get_total_amount(self, cart_item):
         return (decimal.Decimal(cart_item.get("amount"))
