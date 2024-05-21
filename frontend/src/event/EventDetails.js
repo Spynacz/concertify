@@ -1,32 +1,6 @@
 import { Button } from "react-bootstrap";
 import "./EventPage.css";
 
-export function getEventDetails(eventId) {
-  const options = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
-  return fetch(`http://localhost:8000/event/${eventId}`, {
-    method: "GET",
-  })
-    .then((response) => {
-      if (!response.ok) throw new Error(response.status);
-      return response.json();
-    })
-    .then((data) => {
-      return {
-        ...data,
-        start: new Date(data.start).toLocaleDateString(undefined, options),
-        end: new Date(data.end).toLocaleDateString(undefined, options),
-      };
-    })
-    .catch((err) => {
-      console.log(err.message);
-    });
-}
-
 export default function EventDetails({ eventData }) {
   return (
     <div className="event-details">

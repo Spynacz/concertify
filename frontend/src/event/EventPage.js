@@ -2,7 +2,7 @@ import { Container } from "react-bootstrap";
 import { useCookies } from "react-cookie";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getEventDetails } from "./EventDetails";
+import { eventGet } from "../REST";
 import EventDetails from "./EventDetails";
 import "./EventPage.css";
 import JoinButton from "./JoinButton";
@@ -30,16 +30,14 @@ export default function EventPage() {
   const { id } = useParams();
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const [eventData, setEventData] = useState(initialState);
-  getEventDetails(id).then((data) => setEventData(data));
+  useEffect(() => {
+    eventGet(id).then((data) => setEventData(data));
+  }, []);
 
   return (
     <Container fluid style={{ display: "block", padding: "0" }}>
       <EventDetails eventData={eventData} />
-      {"user" in cookies ? (
-        <JoinButton tickets={eventData.ticket} eventId={id} />
-      ) : (
-        ""
-      )}
+      <JoinButton tickets={eventData.ticket} eventId={id} />
       <PostList eventId={id} />
     </Container>
   );
