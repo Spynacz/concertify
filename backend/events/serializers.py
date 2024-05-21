@@ -211,6 +211,8 @@ class CartItemSerializer(serializers.Serializer):
     ticket_type = serializers.ChoiceField(choices=TICKET_CHOICES)
     quantity = serializers.IntegerField()
     amount = serializers.DecimalField(max_digits=9, decimal_places=2)
+    event = serializers.IntegerField()
+    ticket = serializers.IntegerField()
     total_amount = serializers.SerializerMethodField()
 
     class Meta:
