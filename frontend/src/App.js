@@ -16,8 +16,9 @@ import {
 } from "./Profile";
 import ErrorPage from "./ErrorPage";
 import Cart from "./Cart";
-import { EventList } from "./Event";
 import { Login, Register } from "./Login";
+import EventList from "./event/EventList";
+import EventPage from "./event/EventPage";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
       {
         path: "/cart",
         element: <Cart />,
+      },
+      {
+        path: "/event/:id",
+        element: <EventPage />,
       },
       {
         path: "/profile",
