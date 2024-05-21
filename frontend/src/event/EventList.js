@@ -1,6 +1,6 @@
 import { Card, Container, Nav } from "react-bootstrap";
-import "./Event.css";
 import { LinkContainer } from "react-router-bootstrap";
+import "./EventList.css";
 import { useEffect, useState } from "react";
 
 export function EventPreview({ title, location, date, image }) {
@@ -18,7 +18,7 @@ export function EventPreview({ title, location, date, image }) {
   );
 }
 
-export function EventList() {
+export default function EventList() {
   const get = async () => {
     if (fetched) return;
     const options = {
