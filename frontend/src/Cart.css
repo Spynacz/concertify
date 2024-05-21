@@ -1,10 +1,17 @@
 .cart-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ticket-list {
   padding: 2em;
   margin: 1em 2em;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  height: fit-content;
 }
 
 .ticket {
@@ -39,4 +46,21 @@
   flex-direction: column;
   justify-content: space-between;
   display: flex;
+}
+
+.cart-bar {
+  background-color: var(--accent-color);
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  align-self: flex-end;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5em 2em;
+  align-items: center;
+  font-size: large;
+}
+
+.cart-bar button {
+  margin-left: 2em;
 }
