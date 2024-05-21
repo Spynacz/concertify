@@ -1,8 +1,9 @@
 import { Button, Row } from "react-bootstrap";
-import { getCartCookie, addTicket } from "../Cart";
+import { useCookies } from "react-cookie";
+import { addTicket } from "../Cart";
 
 export default function JoinButton({ tickets, eventId }) {
-  const [cookies, setCookie, removeCookie] = getCartCookie();
+  const [cookies, setCookie, removeCookie] = useCookies(["cart", "user"]);
   return (
     <Row className="justify-content-center mx-5">
       <Button
