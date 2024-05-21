@@ -1,7 +1,7 @@
 import "./Cart.css";
 import { useState, useEffect } from "react";
 import { useCookies } from "react-cookie";
-import { Form } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import { EventPreview } from "./event/EventList.js";
 import { eventGet } from "./REST";
 import { cartPost, cartGet } from "./REST";
@@ -68,6 +68,22 @@ function Ticket({ ticket }) {
   );
 }
 
+function Bar() {
+  const [cookies, setCookie, removeCookie] = useCookies(["cart", "user"]);
+  const user = cookies["user"];
+  const cart = cookies["cart"];
+  const total = cart.reduce((x, y) => x + y.amount * y.quantity, 0);
+  if (total == 0) return;
+  return (
+    <div className="cart-bar">
+      Total: {total} zł
+      <Button className="light-button" type="submit">
+        Go to checkout
+      </Button>
+    </div>
+  );
+}
+
 export function addTicket(cookies, setCookie, ticket, event) {
   const cart = cookies["cart"];
   const user = cookies["user"];
@@ -102,9 +118,12 @@ export default function Cart() {
   if (cart === undefined) return;
   return (
     <div className="cart-container">
-      {cart.map((val, index) => (
-        <Ticket ticket={val} key={val.id} />
-      ))}
+      <div className="ticket-list">
+        {cart.map((val, index) => (
+          <Ticket ticket={val} key={val.id} />
+        ))}
+      </div>
+      <Bar />
     </div>
   );
 }
