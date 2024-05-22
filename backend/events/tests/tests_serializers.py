@@ -484,3 +484,52 @@ class TestNotificationSerializer(TestCase):
 
         self.assertEqual(Notification.objects.count(), 1)
         self.assertDictEqual(serializer.validated_data, self.data)
+
+
+class TestScheduleItem(TestCase):
+    def setUp(self):
+        self.serializer_class = serializers.ScheduleItemSerializer
+        self.user = ConcertifyUser.objects.create(
+            username="test",
+            email='test@email.com',
+            password='test'
+        )
+        location = Location.objects.create(
+            name='test',
+            address_line='test',
+            city='test',
+            postal_code='test',
+            country='TST'
+        )
+        self.event = Event.objects.create(
+            title='test1',
+            desc='Test test1',
+            location=location
+        )
+        Role.objects.create(
+            user=self.user,
+            event=self.event,
+            name=Role.NameChoice.OWNER
+        )
+        self.data = {
+            'title': 'test',
+            'desc': 'test',
+            'place': 'test',
+            'event': self.event.id
+        }
+
+    def test_schedule_time_valid(self):
+        """Adding schedule with future date will pass"""
+        self.data.update(when=timezone.now() + timezone.timedelta(days=1))
+        serializer = self.serializer_class(data=self.data)
+        serializer.is_valid(raise_exception=True)
+
+    def test_schedule_time_invalid(self):
+        """Adding schedule with past date will raise an error"""
+        self.data.update(when=timezone.now() - timezone.timedelta(days=1))
+        serializer = self.serializer_class(data=self.data)
+        with self.assertRaisesMessage(
+                ValidationError,
+                "You can't create a schedule with items in the past"):
+            serializer.is_valid(raise_exception=True)
+
