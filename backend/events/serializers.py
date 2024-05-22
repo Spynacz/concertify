@@ -21,7 +21,6 @@ class LocationSerializer(serializers.ModelSerializer):
         return location
 
 
-# TODO add location
 class EventFeedSerializer(ValidateUserInContextMixin,
                           serializers.ModelSerializer,
                           CreateNotificationMixin):
