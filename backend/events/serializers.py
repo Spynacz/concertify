@@ -190,14 +190,14 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def validate_quantity(self, quantity):
-        if quantity < 0:
-            raise ValidationError("Ticket quantity cannot be lower than 0")
+        if quantity <= 0:
+            raise ValidationError("Ticket quantity cannot be lower or equal 0")
 
         return quantity
 
     def validate_amount(self, amount):
-        if amount < 0:
-            raise ValidationError("Amount cannot be lower than 0")
+        if amount <= 0:
+            raise ValidationError("Amount cannot be lower or equal 0")
 
         return amount
 
