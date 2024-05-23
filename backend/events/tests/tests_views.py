@@ -112,7 +112,12 @@ class TestEventViewSet(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=self.token)
         serializer = EventFeedSerializer(instance=self.event1)
         data = serializer.data
-        data.update({'title': 'PUT', 'picture': ""})
+        id = data['location'].get('id')
+        data.update({
+            'title': 'PUT',
+            'picture': "",
+            'location': id
+        })
 
         response = self.client.put(self.url_details, data=data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -121,9 +126,12 @@ class TestEventViewSet(APITestCase):
                             name=Role.NameChoice.MODERATOR)
         response = self.client.put(self.url_details, data=data)
         data.update({'picture': None})
+        response_data = response.data
+        id = response_data['location'].get('id')
+        response_data.update({'location': id})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertDictEqual(data, response.data)
+        self.assertDictEqual(data, response_data)
 
     def test_partial_update_action(self):
         """Only users with at least moderator permission

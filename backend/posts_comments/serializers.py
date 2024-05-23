@@ -2,13 +2,12 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from events.mixins import ValidateUserInContextMixin
+from events.models import Role
+from events.serializers import NotificationSerializer
 from posts_comments import models
 from posts_comments.mixins import VoteMixin
-
-from events.serializers import NotificationSerializer
-from events.models import Role
-
 from users import models as users_models
+from users.serializers import ReadOnlyUserSerializer
 
 
 class PostSerializer(VoteMixin,
@@ -61,13 +60,13 @@ class PostSerializer(VoteMixin,
 class CommentSerializer(VoteMixin,
                         ValidateUserInContextMixin,
                         serializers.ModelSerializer):
+    user = ReadOnlyUserSerializer(read_only=True)
     vote_count = serializers.SerializerMethodField()
     has_voted = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Comment
         fields = '__all__'
-        extra_kwargs = {'user': {'read_only': True}}
 
     def validate(self, attrs):
         attrs = super().validate(attrs)

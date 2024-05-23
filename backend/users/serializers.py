@@ -60,6 +60,19 @@ class UserSerializer(ValidatePasswordMixin,
         return super().update(instance, validated_data)
 
 
+class ReadOnlyUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConcertifyUser
+        fields = [
+            'username',
+            'picture'
+        ]
+        extra_kwargs = {
+            'username': {'read_only': True},
+            'picture': {'read_only': True}
+        }
+
+
 class ManageUserSerializer(UserSerializer):
     class Meta:
         model = ConcertifyUser
@@ -152,7 +165,7 @@ class UserNotificationSerializer(serializers.ModelSerializer):
             'title',
             'desc',
             'notification_type',
-            'has_been_seen'
+            'is_read'
         ]
 
 
@@ -162,6 +175,6 @@ class UserNotificationSetAsSeenSerializer(serializers.ModelSerializer):
         fields = []
 
     def update(self, instance, validated_data):
-        instance.has_been_seen = True
+        instance.is_read = True
         instance.save()
         return instance
