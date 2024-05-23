@@ -238,7 +238,7 @@ class TestUserNotificationSetAsSeen(TestCase):
         self.request = self.factory.put(
             reverse("users:notifications",
                     kwargs={'pk': self.notification.id}))
-    
+
     def test_update_valid(self):
         """When there is a notification in DB, it can be set as seen"""
         data = {

@@ -77,7 +77,8 @@ class TestEventFeedSerializer(TestCase):
     @patch('events.serializers.EventFeedSerializer.send_reminders.apply_async')
     def test_create(self, mock_apply_async):
         """create method should make an owner role
-           for the user that creates it and also should schedule the proces of creating notifications."""
+           for the user that creates it and also should schedule the proces of
+           creating notifications."""
 
         request = self.factory.get(reverse('events:event-list'))
         request.user = self.user
@@ -105,7 +106,8 @@ class TestEventFeedSerializer(TestCase):
         )
 
     def test_send_reminders(self):
-        """Before the event start there should be notifications created for each intrested user"""
+        """Before the event start there should be notifications created for
+           each intrested user"""
         event = Event.objects.create(
             title='test1',
             desc='Test test1',
@@ -142,9 +144,11 @@ class TestEventFeedSerializer(TestCase):
 
     # TODO split test
     @patch('events.serializers.EventFeedSerializer.revoke_task')
-    @patch('events.serializers.EventFeedSerializer.send_reminders.apply_async')
+    @patch("events.serializers.EventFeedSerializer."
+           "send_reminders.apply_async")
     def test_update(self, mock_apply_async, mock_revoke_task):
-        """When event updated scheduled task should deleted and new task should be scheduled"""
+        """When event updated scheduled task should deleted and new task
+            should be scheduled"""
 
         request = self.factory.put(reverse('events:event-list'))
         request.user = self.user
