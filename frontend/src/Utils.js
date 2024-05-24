@@ -3,3 +3,7 @@ export function nullToX(object, x) {
     Object.entries(object).map(([key, val]) => [key, val ? val : x]),
   );
 }
+
+export function getAuthorization(user) {
+  return typeof user !== "undefined" ? "Token " + user.token : "";
+}

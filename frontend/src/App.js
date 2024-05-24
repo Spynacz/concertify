@@ -1,12 +1,14 @@
 import React from "react";
 import { CookiesProvider, useCookies } from "react-cookie";
 import {
+  Navigate,
   Outlet,
   RouterProvider,
   createBrowserRouter,
-  Navigate,
 } from "react-router-dom";
 import "./App.css";
+import ErrorPage from "./ErrorPage";
+import { Login, Register } from "./Login";
 import NavBar from "./NavBar";
 import {
   Profile,
@@ -14,9 +16,8 @@ import {
   ProfilePayment,
   ProfileSecurity,
 } from "./Profile";
-import ErrorPage from "./ErrorPage";
-import { EventList } from "./Event";
-import { Login, Register } from "./Login";
+import EventList from "./event/EventList";
+import EventPage from "./event/EventPage";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
             element: <ProfileSecurity />,
           },
         ],
+      },
+      {
+        path: "/event/:id",
+        element: <EventPage />,
       },
     ],
   },
