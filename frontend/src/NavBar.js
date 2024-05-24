@@ -1,8 +1,9 @@
-import { Button, Container, Form, Nav, Navbar } from "react-bootstrap";
+import { Button, Card, Container, Form, Nav, Navbar } from "react-bootstrap";
 import "./NavBar.css";
 import { LinkContainer } from "react-router-bootstrap";
 import { useCookies, Cookies } from "react-cookie";
 import { Logout } from "./Login.js";
+import { useEffect, useState } from "react";
 
 function UserNavBar() {
   const [cookies] = useCookies([]);
@@ -44,6 +45,38 @@ function GuestNavBar() {
 
 export default function NavBar() {
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+
+  const fetchSearch = async () => {
+    await fetch("http://localhost:8000/event", {
+      method: "GET",
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(response.status);
+        return response.json();
+      })
+      .then((data) => {
+        setResults(
+          data.results.filter((item) => {
+            return item.title.toLowerCase().includes(query.toLowerCase());
+          }),
+        );
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  };
+
+  useEffect(() => {
+    if (query !== "") {
+      fetchSearch();
+      console.log(results);
+    } else {
+      setResults([]);
+    }
+  }, [query]);
+
   return (
     <Navbar expand="sm" className="sticky-top">
       <Container fluid>
@@ -54,11 +87,22 @@ export default function NavBar() {
         </LinkContainer>
         <Navbar.Toggle />
         <Navbar.Collapse id="navbar-nav" className="justify-content-end">
-          <Form className="d-flex">
-            <Form.Control type="text" placeholder="Search" className="me-2" />
+          <Form className="d-flex position-relative">
+            <Form.Control
+              type="text"
+              placeholder="Search"
+              className="me-2"
+              onChange={(e) => setQuery(e.target.value)}
+              value={query}
+            />
             <Button type="submit" className="search-button accent-button">
               Search
             </Button>
+            <div className="search-results">
+              {results.map((item) => (
+                <a key={item.id}>{item.title}</a>
+              ))}
+            </div>
           </Form>
           <Nav>
             <LinkContainer to="/cart">
