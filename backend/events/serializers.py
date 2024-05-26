@@ -203,6 +203,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.Serializer):
+    # TODO add mock saving, and bought ticket history?
     TICKET_CHOICES = [
         (.5, 'REDUCED'),
         (1, 'REGULAR')
