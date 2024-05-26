@@ -122,7 +122,7 @@ class TestEventFeedSerializer(TestCase):
                 month=4,
                 day=30,
                 hour=12
-            )
+            ).astimezone()
         )
         Role.objects.create(
             user=self.user,
@@ -166,7 +166,7 @@ class TestEventFeedSerializer(TestCase):
                 month=4,
                 day=30,
                 hour=12
-            )
+            ).astimezone()
         )
 
         serializer = self.serializer_class(
