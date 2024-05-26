@@ -250,4 +250,4 @@ class TestUserNotificationSetAsSeen(TestCase):
         )
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
-        self.assertEqual(instance.has_been_seen, True)
+        self.assertEqual(instance.is_read, True)
