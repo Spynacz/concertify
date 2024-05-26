@@ -674,3 +674,64 @@ class TestCartItemSerializer(TestCase):
         })
 
         self.assertDictContainsSubset(self.data, serializer.data)
+
+
+class TestCartSerializer(TestCase):
+    def setUp(self):
+        self.serializer_class = serializers.CartSerializer
+        self.user = ConcertifyUser.objects.create(
+            username="test",
+            email='test@email.com',
+            password='test'
+        )
+        location = Location.objects.create(
+            name='test',
+            address_line='test',
+            city='test',
+            postal_code='test',
+            country='TST'
+        )
+        self.event = Event.objects.create(
+            title='test1',
+            desc='Test test1',
+            location=location
+        )
+        self.ticket = Ticket.objects.create(
+            title='test',
+            desc='test',
+            quantity=1000,
+            amount=12.01,
+            event=self.event
+        )
+        self.data = {
+            'items': [
+                {
+                    'ticket_type': 0.5,
+                    'quantity': 2,
+                    'amount': '2.00',
+                    'ticket': self.ticket.id
+                },
+                {
+                    'ticket_type': 1,
+                    'quantity': 1,
+                    'amount': '2.00',
+                    'ticket': self.ticket.id
+                }
+            ]
+        }
+
+    def test_get_total(self):
+        """get_total should return sum of all ticket items costs"""
+        serializer = self.serializer_class(data=self.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.assertEqual(
+            serializer.data.get('total'),
+            sum([
+                (
+                    decimal.Decimal(item.get("amount"))
+                    * decimal.Decimal(item.get("quantity"))
+                    * decimal.Decimal(item.get("ticket_type"))
+                )for item in serializer.data.get('items')
+            ])
+        )
