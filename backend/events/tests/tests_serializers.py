@@ -515,11 +515,6 @@ class TestScheduleItem(TestCase):
             desc='Test test1',
             location=location
         )
-        Role.objects.create(
-            user=self.user,
-            event=self.event,
-            name=Role.NameChoice.OWNER
-        )
         self.data = {
             'title': 'test',
             'desc': 'test',
@@ -562,11 +557,6 @@ class TestTicketSerializer(TestCase):
             title='test1',
             desc='Test test1',
             location=location
-        )
-        Role.objects.create(
-            user=self.user,
-            event=self.event,
-            name=Role.NameChoice.OWNER
         )
         self.data = {
             'title': 'test',
