@@ -141,7 +141,7 @@ class TestUserNotificationView(APITestCase):
         )
 
     def test_set_as_seen(self):
-        """Put request should set has_been_seen flag as true"""
+        """Put request should set is_read flag as true"""
         url = reverse("users:notifications",
                       kwargs={'pk': self.notification1.id})
         response = self.client.put(url)

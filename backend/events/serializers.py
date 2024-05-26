@@ -28,6 +28,11 @@ class EventFeedSerializer(ValidateUserInContextMixin,
         model = models.Event
         fields = '__all__'
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['location'] = self.get_location(instance)
+        return rep
+
     def create(self, validated_data):
         event = models.Event.objects.create(**validated_data)
         models.Role.objects.create(
@@ -46,11 +51,17 @@ class EventFeedSerializer(ValidateUserInContextMixin,
         self._schedule_reminder(instance)
         return instance
 
+    def get_location(self, event):
+        return {
+            'id': event.location.id,
+            'address_line': event.location.address_line,
+        }
+
 
 class EventDetailsSerializer(EventFeedSerializer):
     event_contacts = serializers.SerializerMethodField()
     social_media = serializers.SerializerMethodField()
-    location = serializers.SerializerMethodField()
+    ticket = serializers.SerializerMethodField()
 
     def get_event_contacts(self, event):
         response = []
@@ -80,6 +91,18 @@ class EventDetailsSerializer(EventFeedSerializer):
             'postal_code': event.location.postal_code,
             'country': event.location.country
         }
+
+    def get_ticket(self, event):
+        response = []
+        for ticket in event.ticket.all():
+            response.append({
+                'id': ticket.id,
+                'title': ticket.title,
+                'desc': ticket.desc,
+                'quantity': ticket.quantity,
+                'amount': ticket.amount
+            })
+        return response
 
 
 class RoleSerializer(ValidateUserInContextMixin,
@@ -167,19 +190,20 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def validate_quantity(self, quantity):
-        if quantity < 0:
-            raise ValidationError("Ticket quantity cannot be lower than 0")
+        if quantity <= 0:
+            raise ValidationError("Ticket quantity cannot be lower or equal 0")
 
         return quantity
 
     def validate_amount(self, amount):
-        if amount < 0:
-            raise ValidationError("Amount cannot be lower than 0")
+        if amount <= 0:
+            raise ValidationError("Amount cannot be lower or equal 0")
 
         return amount
 
 
 class CartItemSerializer(serializers.Serializer):
+    # TODO add mock saving, and bought ticket history?
     TICKET_CHOICES = [
         (.5, 'REDUCED'),
         (1, 'REGULAR')
@@ -187,10 +211,25 @@ class CartItemSerializer(serializers.Serializer):
     ticket_type = serializers.ChoiceField(choices=TICKET_CHOICES)
     quantity = serializers.IntegerField()
     amount = serializers.DecimalField(max_digits=9, decimal_places=2)
+    ticket = serializers.IntegerField()
     total_amount = serializers.SerializerMethodField()
 
     class Meta:
         fields = "__all__"
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        id = instance.get('ticket')
+        ticket = models.Ticket.objects.get(id=id)
+        rep['ticket'] = {
+            'id': ticket.id,
+            'title': ticket.title,
+            'desc': ticket.desc,
+            'quantity': ticket.quantity,
+            'amount': ticket.amount,
+            'event': ticket.event.id
+        }
+        return rep
 
     def get_total_amount(self, cart_item):
         return (decimal.Decimal(cart_item.get("amount"))
