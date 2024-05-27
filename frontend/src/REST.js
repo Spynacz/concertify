@@ -61,6 +61,28 @@ export function eventGet(id) {
     });
 }
 
+export function eventList() {
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  return fetch("http://localhost:8000/event", {
+    method: "GET",
+  })
+    .then((response) => {
+      if (!response.ok) throw response;
+      return response.json();
+    })
+    .then((data) => {
+      return data.results.map((event) => ({
+        ...event,
+        start: new Date(event.start).toLocaleDateString(undefined, options),
+      }));
+    });
+}
+
 export function logoutPost(token) {
   return fetch("http://localhost:8000/logout", {
     method: "POST",

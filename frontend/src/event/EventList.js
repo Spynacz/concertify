@@ -1,6 +1,7 @@
 import { Card, Container, Nav } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import "./EventList.css";
+import { eventList } from "../REST";
 import { useEffect, useState } from "react";
 
 export function EventPreview({ title, location, date, image }) {
@@ -19,35 +20,17 @@ export function EventPreview({ title, location, date, image }) {
 }
 
 export default function EventList() {
-  const get = async () => {
+  function get() {
     if (fetched) return;
-    const options = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-
-    await fetch("http://localhost:8000/event", {
-      method: "GET",
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error(response.status);
-        return response.json();
-      })
+    eventList()
       .then((data) => {
-        const newEvents = data.results.map((event) => ({
-          ...event,
-          start: new Date(event.start).toLocaleDateString(undefined, options),
-        }));
-        setEvents([...events, ...newEvents]);
+        setEvents([...events, ...data]);
         setFetched(true);
       })
       .catch((err) => {
-        console.log(err.message);
+        console.log(err);
       });
-  };
-
+  }
   const [events, setEvents] = useState([]);
   const [fetched, setFetched] = useState(false);
   useEffect(() => {
@@ -64,7 +47,7 @@ export default function EventList() {
                 <EventPreview
                   title={event.title}
                   image="https://weknowyourdreams.com/images/party/party-12.jpg"
-                  location={event.location}
+                  location={event.location.address_line}
                   date={event.start}
                 />
               </Nav.Link>

@@ -25,7 +25,7 @@ export default function EventPage() {
     picture: null,
     start: "",
     end: "",
-    ticket: [],
+    ticket: {},
   };
   const { id } = useParams();
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
