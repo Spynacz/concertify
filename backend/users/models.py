@@ -47,7 +47,7 @@ class Notification(models.Model):
         _('notification type'),
         choices=TypeChoice.choices
     )
-    has_been_seen = models.BooleanField(default=False)
+    is_read = models.BooleanField(default=False)
     user = models.ForeignKey(ConcertifyUser, related_name='notification',
                              on_delete=models.CASCADE)
 

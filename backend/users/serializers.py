@@ -165,7 +165,7 @@ class UserNotificationSerializer(serializers.ModelSerializer):
             'title',
             'desc',
             'notification_type',
-            'has_been_seen'
+            'is_read'
         ]
 
 
@@ -175,6 +175,6 @@ class UserNotificationSetAsSeenSerializer(serializers.ModelSerializer):
         fields = []
 
     def update(self, instance, validated_data):
-        instance.has_been_seen = True
+        instance.is_read = True
         instance.save()
         return instance

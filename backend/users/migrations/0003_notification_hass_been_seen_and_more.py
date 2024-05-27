@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='notification',
-            name='has_been_seen',
+            name='is_read',
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(

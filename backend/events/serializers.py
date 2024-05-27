@@ -25,10 +25,14 @@ class LocationSerializer(serializers.ModelSerializer):
 class EventFeedSerializer(ValidateUserInContextMixin,
                           serializers.ModelSerializer,
                           CreateNotificationMixin):
-
     class Meta:
         model = models.Event
         fields = '__all__'
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['location'] = self.get_location(instance)
+        return rep
 
     def create(self, validated_data):
         event = models.Event.objects.create(**validated_data)
@@ -48,11 +52,16 @@ class EventFeedSerializer(ValidateUserInContextMixin,
         self._schedule_reminder(instance)
         return instance
 
+    def get_location(self, event):
+        return {
+            'id': event.location.id,
+            'address_line': event.location.address_line,
+        }
+
 
 class EventDetailsSerializer(EventFeedSerializer):
     event_contacts = serializers.SerializerMethodField()
     social_media = serializers.SerializerMethodField()
-    location = serializers.SerializerMethodField()
     ticket = serializers.SerializerMethodField()
 
     def get_event_contacts(self, event):
