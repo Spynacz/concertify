@@ -43,7 +43,8 @@ function GuestNavBar() {
 }
 
 export default function NavBar() {
-  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["user", "cart"]);
+  const cart = cookies["cart"];
   return (
     <Navbar expand="sm" className="sticky-top">
       <Container fluid>
@@ -64,6 +65,9 @@ export default function NavBar() {
             <LinkContainer to="/cart">
               <Nav.Link as="div" role="button">
                 Cart
+                {cart === undefined || cart.length === 0
+                  ? ""
+                  : " (" + cart.length + ")"}
               </Nav.Link>
             </LinkContainer>
             {"user" in cookies ? <UserNavBar /> : <GuestNavBar />}
