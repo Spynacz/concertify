@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'events.apps.EventsConfig',
     'posts_comments.apps.PostsCommentsConfig',
+    'payments.apps.PaymentsConfig',
 
     'rest_framework',
     'knox',
