@@ -4,7 +4,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from payments import serializers
+from payments.serializers import OrderSerializer
 
 
 class ShoppingCartView(APIView):
@@ -22,18 +22,18 @@ class ShoppingCartView(APIView):
         if isinstance(data, Response):
             return data
 
-        serializer = serializers.CartSerializer(data=data)
+        serializer = OrderSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        serializer = serializers.CartSerializer(data=request.data)
+        serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         cache.set(request.user.id, serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
-        serializer = serializers.CartSerializer(data=request.data)
+        serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         old_data = cache.get(request.user.id)

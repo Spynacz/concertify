@@ -2,50 +2,65 @@ import decimal
 
 from rest_framework import serializers
 
-from events import models
+from events.mixins import ValidateUserInContextMixin
 from payments.models import Order, OrderItem
 
 
-class CartItemSerializer(serializers.Serializer):
-    # TODO add mock saving, and bought ticket history?
+class OrderItemSerializer(serializers.ModelSerializer):
     total_amount = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = "__all__"
+        fields = '__all__'
+        # TODO find better way to pass tests, this is not safe
+        extra_kwargs = {'order': {'required': False}}
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        id = instance.get('ticket')
-        ticket = models.Ticket.objects.get(id=id)
         rep['ticket'] = {
-            'id': ticket.id,
-            'title': ticket.title,
-            'desc': ticket.desc,
-            'quantity': ticket.quantity,
-            'amount': ticket.amount,
-            'event': ticket.event.id
+            'id': instance.ticket.id,
+            'title': instance.ticket.title,
+            'desc': instance.ticket.desc,
+            'quantity': instance.ticket.quantity,
+            'amount': instance.ticket.amount,
+            'event': instance.ticket.event.id
         }
         return rep
 
-    def get_total_amount(self, cart_item):
-        return (decimal.Decimal(cart_item.get("amount"))
-                * decimal.Decimal(cart_item.get("quantity"))
-                * decimal.Decimal(cart_item.get("ticket_type")))
+    def get_total_amount(self, item):
+        return (decimal.Decimal(item.ticket.amount)
+                * decimal.Decimal(item.quantity)
+                * decimal.Decimal(item.ticket_type))
 
 
-class CartSerializer(serializers.Serializer):
+class OrderSerializer(ValidateUserInContextMixin,
+                      serializers.ModelSerializer):
+    order_items = OrderItemSerializer(many=True)
     total = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = "__all__"
+        extra_kwargs = {'user': {'read_only': True}}
 
-    def get_total(self, cart):
+    def get_total(self, order):
         total = 0
-        for item in cart.get("items"):
-            total += (decimal.Decimal(item.get("amount"))
-                      * decimal.Decimal(item.get("quantity"))
-                      * decimal.Decimal(item.get("ticket_type")))
+        for item in order.order_items.all():
+            total += (decimal.Decimal(item.ticket.amount)
+                      * decimal.Decimal(item.quantity)
+                      * decimal.Decimal(item.ticket_type))
 
         return total
+
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        items = validated_data.pop("order_items")
+
+        order = Order.objects.create(user=user, **validated_data)
+        if items:
+            [item.update(order=order) for item in items]
+            OrderItem.objects.bulk_create(
+                [OrderItem(**item) for item in items]
+            )
+
+        return order
