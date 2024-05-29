@@ -1,15 +1,19 @@
 import decimal
 
 from django.test import TestCase
+from django.urls import reverse
+
+from rest_framework.test import APIRequestFactory
 
 from events.models import Event, Location, Ticket
 from payments import serializers
+from payments.models import Order
 from users.models import ConcertifyUser
 
 
 class TestCartItemSerializer(TestCase):
     def setUp(self):
-        self.serializer_class = serializers.CartItemSerializer
+        self.serializer_class = serializers.OrderItemSerializer
         self.user = ConcertifyUser.objects.create(
             username="test",
             email='test@email.com',
@@ -34,30 +38,36 @@ class TestCartItemSerializer(TestCase):
             amount=12.01,
             event=self.event
         )
+        self.order = Order.objects.create(user=self.user)
         self.data = {
-            'ticket_type': 0.5,
+            'ticket_type': '0.5',
             'quantity': 2,
-            'amount': '2.00',
-            'ticket': self.ticket.id
+            'ticket': self.ticket.id,
+            'order': self.order.id
         }
 
     def test_get_total_amount(self):
         """Serializer should return total ticket item cost"""
         serializer = self.serializer_class(data=self.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
         data = serializer.data
 
         self.assertEqual(
             data.get('total_amount'),
-            decimal.Decimal(data.get("amount"))
-            * decimal.Decimal(data.get("quantity"))
-            * decimal.Decimal(data.get("ticket_type"))
+            round(
+                decimal.Decimal(self.ticket.amount)
+                * decimal.Decimal(data.get("quantity"))
+                * decimal.Decimal(data.get("ticket_type")),
+                2
+            )
         )
 
     def test_read_representation(self):
         """Serializer will return more ticket related data when reading"""
         serializer = self.serializer_class(data=self.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
         self.data.update(ticket={
             'id': self.ticket.id,
             'title': self.ticket.title,
@@ -66,13 +76,14 @@ class TestCartItemSerializer(TestCase):
             'amount': decimal.Decimal(str(self.ticket.amount)),
             'event': self.ticket.event.id
         })
-
+        print(self.data, serializer.data)
         self.assertDictContainsSubset(self.data, serializer.data)
 
 
 class TestCartSerializer(TestCase):
     def setUp(self):
-        self.serializer_class = serializers.CartSerializer
+        self.factory = APIRequestFactory()
+        self.serializer_class = serializers.OrderSerializer
         self.user = ConcertifyUser.objects.create(
             username="test",
             email='test@email.com',
@@ -98,7 +109,7 @@ class TestCartSerializer(TestCase):
             event=self.event
         )
         self.data = {
-            'items': [
+            'order_items': [
                 {
                     'ticket_type': 0.5,
                     'quantity': 2,
@@ -116,16 +127,22 @@ class TestCartSerializer(TestCase):
 
     def test_get_total(self):
         """get_total should return sum of all ticket items costs"""
-        serializer = self.serializer_class(data=self.data)
+        request = self.factory.post(reverse('payments:cart'))
+        request.user = self.user
+        serializer = self.serializer_class(
+            data=self.data,
+            context={'request': request})
         serializer.is_valid(raise_exception=True)
-
+        serializer.save()
+        print(self.data, serializer.data, serializer.validated_data)
         self.assertEqual(
             serializer.data.get('total'),
             sum([
-                (
-                    decimal.Decimal(item.get("amount"))
+                round(
+                    decimal.Decimal(self.ticket.amount)
                     * decimal.Decimal(item.get("quantity"))
-                    * decimal.Decimal(item.get("ticket_type"))
-                )for item in serializer.data.get('items')
+                    * decimal.Decimal(item.get("ticket_type")),
+                    2
+                )for item in serializer.data.get('order_items')
             ])
         )
