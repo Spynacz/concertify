@@ -12,6 +12,10 @@ def get_cart(id):
     if not data:
         return Response({'error': 'No data assigned to the given key.'},
                         status=status.HTTP_400_BAD_REQUEST)
+    items = data.get('order_items')
+    for item in items:
+        ticket = item.get('ticket')
+        item.update(ticket=ticket.get('id'))
     return data
 
 
@@ -59,5 +63,6 @@ class CheckoutView(APIView):
 
         serializer = OrderSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(user=request.user)
+        cache.delete(request.user.id)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
