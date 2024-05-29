@@ -7,18 +7,19 @@ from rest_framework.views import APIView
 from payments.serializers import OrderSerializer
 
 
+def get_cart(id):
+    data = cache.get(id)
+    if not data:
+        return Response({'error': 'No data assigned to the given key.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    return data
+
+
 class ShoppingCartView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_cart(self, id):
-        data = cache.get(id)
-        if not data:
-            return Response({'error': 'No data assigned to the given key.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        return data
-
     def get(self, request, *args, **kwargs):
-        data = self.get_cart(request.user.id)
+        data = get_cart(request.user.id)
         if isinstance(data, Response):
             return data
 
@@ -46,3 +47,17 @@ class ShoppingCartView(APIView):
     def delete(self, request, *args, **kwargs):
         cache.delete(request.user.id)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CheckoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = get_cart(request.user.id)
+        if isinstance(data, Response):
+            return data
+
+        serializer = OrderSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
