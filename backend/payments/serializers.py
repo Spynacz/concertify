@@ -2,7 +2,6 @@ import decimal
 
 from rest_framework import serializers
 
-from events.mixins import ValidateUserInContextMixin
 from payments.models import Order, OrderItem
 
 
@@ -17,24 +16,37 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
+        # When in cart, instance is an OrderedDict
+        try:
+            ticket = instance['ticket']
+        # When saved in checkout, instance is a model
+        except (TypeError):
+            ticket = instance.ticket
+
         rep['ticket'] = {
-            'id': instance.ticket.id,
-            'title': instance.ticket.title,
-            'desc': instance.ticket.desc,
-            'quantity': instance.ticket.quantity,
-            'amount': instance.ticket.amount,
-            'event': instance.ticket.event.id
+            'id': ticket.id,
+            'title': ticket.title,
+            'desc': ticket.desc,
+            'quantity': ticket.quantity,
+            'amount': ticket.amount,
+            'event': ticket.event.id
         }
         return rep
 
     def get_total_amount(self, item):
-        return (decimal.Decimal(item.ticket.amount)
-                * decimal.Decimal(item.quantity)
-                * decimal.Decimal(item.ticket_type))
+        # When in cart, item is an OrderedDict
+        try:
+            return (decimal.Decimal(item['ticket'].amount)
+                    * decimal.Decimal(item['quantity'])
+                    * decimal.Decimal(item['ticket_type']))
+        # When saved in checkout, item is a model
+        except (TypeError):
+            return (decimal.Decimal(item.ticket.amount)
+                    * decimal.Decimal(item.quantity)
+                    * decimal.Decimal(item.ticket_type))
 
 
-class OrderSerializer(ValidateUserInContextMixin,
-                      serializers.ModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
     order_items = OrderItemSerializer(many=True)
     total = serializers.SerializerMethodField()
 
@@ -45,18 +57,25 @@ class OrderSerializer(ValidateUserInContextMixin,
 
     def get_total(self, order):
         total = 0
-        for item in order.order_items.all():
-            total += (decimal.Decimal(item.ticket.amount)
-                      * decimal.Decimal(item.quantity)
-                      * decimal.Decimal(item.ticket_type))
+        # When in cart, order is an OrderedDict
+        try:
+            for item in order['order_items']:
+                total += (decimal.Decimal(item['ticket'].amount)
+                          * decimal.Decimal(item['quantity'])
+                          * decimal.Decimal(item['ticket_type']))
+        # When saved in checkout, order is a model
+        except (TypeError):
+            for item in order.order_items.all():
+                total += (decimal.Decimal(item.ticket.amount)
+                          * decimal.Decimal(item.quantity)
+                          * decimal.Decimal(item.ticket_type))
 
         return total
 
     def create(self, validated_data):
-        user = self.context.get('request').user
         items = validated_data.pop("order_items")
 
-        order = Order.objects.create(user=user, **validated_data)
+        order = Order.objects.create(**validated_data)
         if items:
             [item.update(order=order) for item in items]
             OrderItem.objects.bulk_create(
