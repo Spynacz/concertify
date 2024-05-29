@@ -1,9 +1,10 @@
-import { Button, Card, Container, Form, Nav, Navbar } from "react-bootstrap";
-import "./NavBar.css";
-import { LinkContainer } from "react-router-bootstrap";
-import { useCookies, Cookies } from "react-cookie";
-import { Logout } from "./Login.js";
 import { useEffect, useState } from "react";
+import { Container, Form, Nav, Navbar } from "react-bootstrap";
+import { useCookies } from "react-cookie";
+import { LinkContainer } from "react-router-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
+import { Logout } from "./Login.js";
+import "./NavBar.css";
 
 function UserNavBar() {
   const [cookies] = useCookies([]);
@@ -47,9 +48,11 @@ export default function NavBar() {
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
+  const [selected, setSelected] = useState(-1);
+  const navigate = useNavigate();
 
   const fetchSearch = async () => {
-    await fetch("http://localhost:8000/event", {
+    await fetch(`http://localhost:8000/event?search=${query}`, {
       method: "GET",
     })
       .then((response) => {
@@ -57,21 +60,26 @@ export default function NavBar() {
         return response.json();
       })
       .then((data) => {
-        setResults(
-          data.results.filter((item) => {
-            return item.title.toLowerCase().includes(query.toLowerCase());
-          }),
-        );
+        setResults(data.results);
       })
       .catch((err) => {
         console.log(err.message);
       });
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      setSelected((prev) => (prev + 1).mod(results.length));
+    } else if (e.key === "ArrowUp") {
+      setSelected((prev) => (prev - 1).mod(results.length));
+    } else if (e.key === "Enter") {
+      navigate("/event/" + results[selected].id);
+    }
+  };
+
   useEffect(() => {
     if (query !== "") {
       fetchSearch();
-      console.log(results);
     } else {
       setResults([]);
     }
@@ -87,23 +95,35 @@ export default function NavBar() {
         </LinkContainer>
         <Navbar.Toggle />
         <Navbar.Collapse id="navbar-nav" className="justify-content-end">
-          <Form className="d-flex position-relative">
-            <Form.Control
-              type="text"
-              placeholder="Search"
-              className="me-2"
-              onChange={(e) => setQuery(e.target.value)}
-              value={query}
-            />
-            <Button type="submit" className="search-button accent-button">
-              Search
-            </Button>
+          <div className="search-container">
+            <Form className="d-flex position-relative">
+              <Form.Control
+                type="text"
+                placeholder="Search"
+                className="me-2"
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                value={query}
+              />
+            </Form>
             <div className="search-results">
-              {results.map((item) => (
-                <a key={item.id}>{item.title}</a>
+              {results.map((item, index) => (
+                <Link
+                  reloadDocument
+                  to={"/event/" + item.id}
+                  onClick={() => setResults([])}
+                  key={index}
+                  className={selected === index ? "result selected" : "result"}
+                >
+                  <img
+                    className="rounded"
+                    src="https://weknowyourdreams.com/images/party/party-12.jpg"
+                  />
+                  <p>{item.title}</p>
+                </Link>
               ))}
             </div>
-          </Form>
+          </div>
           <Nav>
             <LinkContainer to="/cart">
               <Nav.Link as="div" role="button">

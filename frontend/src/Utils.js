@@ -7,3 +7,7 @@ export function nullToX(object, x) {
 export function getAuthorization(user) {
   return typeof user !== "undefined" ? "Token " + user.token : "";
 }
+
+Number.prototype.mod = function (n) {
+  return ((this % n) + n) % n;
+};
