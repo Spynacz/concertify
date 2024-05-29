@@ -76,7 +76,7 @@ class TestCartItemSerializer(TestCase):
             'amount': decimal.Decimal(str(self.ticket.amount)),
             'event': self.ticket.event.id
         })
-        print(self.data, serializer.data)
+
         self.assertDictContainsSubset(self.data, serializer.data)
 
 
@@ -133,8 +133,8 @@ class TestCartSerializer(TestCase):
             data=self.data,
             context={'request': request})
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        print(self.data, serializer.data, serializer.validated_data)
+        serializer.save(user=self.user)
+
         self.assertEqual(
             serializer.data.get('total'),
             sum([
