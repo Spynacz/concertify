@@ -22,4 +22,5 @@ urlpatterns = [
     path('', include('posts_comments.urls')),
     path('', include('events.urls')),
     path('', include('users.urls')),
+    path('', include('payments.urls')),
 ]
