@@ -83,7 +83,7 @@ class TestEventFeedSerializer(TestCase):
             for the user that creates it and also should
             schedule the proces of creating notifications.
         """
-        request = self.factory.post(reverse('events:event-list'))
+        request = self.factory.get(reverse('events:event-list'))
         request.user = self.user
 
         serializer = self.serializer_class(
@@ -149,7 +149,8 @@ class TestEventFeedSerializer(TestCase):
 
     # TODO split test
     @patch('events.serializers.EventFeedSerializer.revoke_task')
-    @patch('events.serializers.EventFeedSerializer.send_reminders.apply_async')
+    @patch("events.serializers.EventFeedSerializer."
+           "send_reminders.apply_async")
     def test_update(self, mock_apply_async, mock_revoke_task):
         """
             When event updated scheduled task should deleted
