@@ -14,7 +14,7 @@ export default function EventDetails({ eventData }) {
       </div>
       <div className="text-center mt-4">
         {eventData.social_media.map((item) => (
-          <Button key={item.id} className="mx-2" /* href={item.link} */>
+          <Button key={item.id} className="mx-2">
             <i className={"fab" + " fa-" + item.platform.toLowerCase()}></i>
           </Button>
         ))}

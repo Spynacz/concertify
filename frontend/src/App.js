@@ -17,6 +17,7 @@ import {
 import ErrorPage from "./ErrorPage";
 import Cart from "./Cart";
 import { Login, Register } from "./Login";
+import NewEvent from "./event/NewEvent";
 import EventList from "./event/EventList";
 import EventPage from "./event/EventPage";
 
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
       {
         path: "/event/:id",
         element: <EventPage />,
+      },
+      {
+        path: "/new-event",
+        element: <NewEvent />,
       },
       {
         path: "/profile",
