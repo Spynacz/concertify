@@ -22,6 +22,10 @@ a {
   color: unset;
 }
 
+large {
+  font-size: large;
+}
+
 head {
   display: none;
   visibility: hidden;
@@ -76,6 +80,10 @@ head {
   border: dashed 0.15em var(--dark-color);
   height: fit-content;
   width: fit-content;
+}
+
+.light-button {
+  background-color: var(--light-color);
 }
 
 .red-button {

@@ -1,18 +1,25 @@
-from rest_framework import exceptions, permissions
+from django.http import Http404
+
+from rest_framework import permissions
 from rest_framework import mixins, viewsets
 
 from events.permissions import IsEventModerator
 
-from events.models import Role
-
 from posts_comments import models, serializers
+from posts_comments.mixins import IsEventModeratorPerformCreateMixin
 from posts_comments.permissions import IsOwner
 
 
-class PostViewSet(viewsets.ModelViewSet):
+# TODO add test for the mixin  based on this view
+class PostViewSet(IsEventModeratorPerformCreateMixin,
+                  viewsets.ModelViewSet):
     serializer_class = serializers.PostSerializer
 
     def get_queryset(self):
+        event = self.request.query_params.get("event")
+        if event:
+            return models.Post.objects.filter(event=event)\
+                .order_by("-created_at")
         return models.Post.objects.all()
 
     def get_permissions(self):
@@ -23,29 +30,17 @@ class PostViewSet(viewsets.ModelViewSet):
                 permissions.IsAuthenticated,
                 IsEventModerator
             ]
-        print(permission_classes)
         return [permission() for permission in permission_classes]
-
-    def perform_create(self, serializer):
-        event = serializer.validated_data.get('event')
-
-        try:
-            role = Role.objects.get(event=event, user=self.request.user)
-        except Role.DoesNotExist:
-            msg = "You do not have permission to perform this action."
-            raise exceptions.PermissionDenied(msg)
-
-        if int(role.name) >= Role.NameChoice.MODERATOR:
-            msg = "You do not have permission to perform this action."
-            raise exceptions.PermissionDenied(msg)
-
-        return super().perform_create(serializer)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CommentSerializer
 
     def get_queryset(self):
+        post = self.request.query_params.get("post")
+        if post:
+            return models.Comment.objects.filter(post=post)\
+                .order_by("-created_at")
         return models.Comment.objects.all()
 
     def get_permissions(self):
@@ -62,6 +57,16 @@ class PostVoteViewSet(mixins.CreateModelMixin,
     serializer_class = serializers.PostVoteSerializer
     permission_classes = [IsOwner]
 
+    def get_object(self):
+        post = self.request.data.get('post')
+        try:
+            return models.PostVote.objects.get(
+                post=post,
+                user=self.request.user
+            )
+        except models.PostVote.DoesNotExist:
+            raise Http404
+
     def get_queryset(self):
         return models.PostVote.objects.all()
 
@@ -71,6 +76,16 @@ class CommentVoteViewSet(mixins.CreateModelMixin,
                          viewsets.GenericViewSet):
     serializer_class = serializers.CommentVoteSerializer
     permission_classes = [IsOwner]
+
+    def get_object(self):
+        comment = self.request.data.get('comment')
+        try:
+            return models.CommentVote.objects.get(
+                comment=comment,
+                user=self.request.user
+            )
+        except models.CommentVote.DoesNotExist:
+            raise Http404
 
     def get_queryset(self):
         return models.CommentVote.objects.all()
