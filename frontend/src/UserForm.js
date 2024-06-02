@@ -59,15 +59,24 @@ function PasswordInvalidText({ password }) {
   );
 }
 
+function EmailInvalidText({ email }) {
+  if (EmailInvalid(email)) return <Form.Text>Email Invalid</Form.Text>;
+}
+
 function SideBySide({ children }) {
   return <div className="side-by-side">{children}</div>;
 }
 
-function UserFormControl({ type, name, value, label }) {
+function UserFormControl({ type, name, value, label, onChange }) {
   return (
     <div className="labeled">
       <Form.Label>{label ? label : name.replace("_", " ")}</Form.Label>
-      <Form.Control type={type} name={name} defaultValue={value} />
+      <Form.Control
+        type={type}
+        name={name}
+        defaultValue={value}
+        onChange={onChange}
+      />
     </div>
   );
 }
@@ -87,12 +96,24 @@ export function UsernameField({ err, value, label }) {
 }
 
 export function EmailField({ err, value, label }) {
+  const [email, setEmail] = useState("");
   return (
     <>
-      <UserFormControl type="email" name="email" value={value} label={label} />
+      <UserFormControl
+        type="email"
+        name="email"
+        value={value}
+        label={label}
+        onChange={() => setEmail(event.target.value)}
+      />
+      <EmailInvalidText email={email} />
       <ErrorField text={err} />
     </>
   );
+}
+
+export function EmailInvalid(email) {
+  return email !== "" && !/.+@.+\..+/.test(email);
 }
 
 export function PasswordConfirmationInvalid(password1, password2) {
@@ -100,14 +121,6 @@ export function PasswordConfirmationInvalid(password1, password2) {
 }
 
 export function PasswordConfirmationField({ err, labels }) {
-  function changePassword(event) {
-    setPassword(event.target.value);
-  }
-
-  function changePassword2(event) {
-    setPassword2(event.target.value);
-  }
-
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
 
@@ -117,7 +130,7 @@ export function PasswordConfirmationField({ err, labels }) {
         <UserFormControl
           type="password"
           name="password1"
-          onChange={changePassword}
+          onChange={() => setPassword(event.target.value)}
           label={labels[0]}
         />
         <PasswordInvalidText password={password} />
@@ -125,7 +138,7 @@ export function PasswordConfirmationField({ err, labels }) {
         <UserFormControl
           type="password"
           name="password2"
-          onChange={changePassword2}
+          onChange={() => setPassword2(event.target.value)}
           label={labels[1]}
         />
         <PasswordMismatchText passwords={[password, password2]} />
@@ -137,14 +150,14 @@ export function PasswordConfirmationField({ err, labels }) {
         <UserFormControl
           type="password"
           name="password1"
-          onChange={changePassword}
+          onChange={() => setPassword(event.target.value)}
         />
         <PasswordInvalidText password={password} />
         <ErrorField text={err} />
         <UserFormControl
           type="password"
           name="password2"
-          onChange={changePassword2}
+          onChange={() => setPassword2(event.target.value)}
         />
         <PasswordMismatchText passwords={[password, password2]} />
       </>
