@@ -27,13 +27,16 @@ export default function EventPage() {
     end: "",
     ticket: {},
   };
-  const { id } = useParams();
-  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
-  const [eventData, setEventData] = useState(initialState);
-  useEffect(() => {
-    eventGet(id).then((data) => setEventData(data));
-  }, []);
 
+  const { id } = useParams();
+  const [cookies, setCookie, removeCookie] = useCookies("[user]");
+  const [eventData, setEventData] = useState(initialState);
+
+  useEffect(() => {
+    eventGet(id).then((data) => {
+      setEventData(data);
+    });
+  }, []);
   return (
     <Container fluid style={{ display: "block", padding: "0" }}>
       <EventDetails eventData={eventData} />
