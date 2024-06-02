@@ -3,8 +3,7 @@ import { useState, useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { Form, Button } from "react-bootstrap";
 import { EventPreview } from "./event/EventList.js";
-import { eventGet } from "./REST";
-import { cartPost, cartGet } from "./REST";
+import { eventGet, cartPost, cartGet } from "./REST";
 
 function Ticket({ ticket }) {
   const init = { location: "" };
@@ -85,22 +84,31 @@ function Bar() {
 }
 
 export function addTicket(cookies, setCookie, ticket, event) {
-  const cart = cookies["cart"];
+  function update(cart) {
+    if (cart === undefined) return;
+    const el = cart.findIndex((el) => el.id === ticket.id);
+    const newCart =
+      el === -1
+        ? [...cart, { ...ticket, event: event, quantity: 1, ticket_type: 1 }]
+        : [
+            ...cart.slice(0, el),
+            {
+              ...cart[el],
+              event: event,
+              quantity: +cart[el].quantity + 1,
+              ticket_type: 1,
+            },
+            ...cart.slice(el + 1),
+          ];
+    setCookie("cart", newCart);
+    if (user !== undefined) cartPost(user.token, newCart);
+  }
   const user = cookies["user"];
-  if (user !== undefined)
-    cartGet(cookies["user"].token).then((data) => setCookie("cart", data));
-  if (cart === undefined) return;
-  const el = cart.findIndex((el) => el.id === ticket.id);
-  const newCart =
-    el === -1
-      ? [...cart, { ...ticket, event: event, quantity: 1, ticket_type: 1 }]
-      : [
-          ...cart.slice(0, el),
-          { ...cart[el], quantity: +cart[el].quantity + 1, ticket_type: 1 },
-          ...cart.slice(el + 1),
-        ];
-  setCookie("cart", newCart);
-  if (user !== undefined) cartPost(user.token, newCart);
+  if (user !== undefined) {
+    cartGet(user.token).then((data) => update(data));
+  } else {
+    update(cookies["cart"]);
+  }
 }
 
 export default function Cart() {
