@@ -1,5 +1,6 @@
 from django.urls import path
 
+from rest_framework.routers import DefaultRouter
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from knox import views as knox_views
@@ -17,7 +18,27 @@ urlpatterns = [
     path('login', views.LoginView.as_view(), name='knox-login'),
     path('logout', knox_views.LogoutView.as_view(), name='knox-logout'),
     path('logoutall', knox_views.LogoutAllView.as_view(),
-         name='knox-logoutall')
+         name='knox-logoutall'),
+    path(
+        'notifications/<int:pk>/',
+        views.UserNotificationView.as_view(),
+        name='notifications'
+    ),
+    path(
+        'notifications',
+        views.UserNotificationView.as_view(),
+        name='notifications'
+    )
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
+
+router = DefaultRouter(trailing_slash=False)
+
+router.register(
+    'event-report',
+    views.EventReportViewSet,
+    basename='event-report'
+)
+
+urlpatterns += router.urls

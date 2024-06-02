@@ -23,10 +23,9 @@ class TestIsOwner(APITestCase):
             email='testtest1@email.com',
             password='testtest1'
         )
-        post = Post.objects.first()
-        post_vote = PostVote.objects.create(user=self.user1, post=post)
-        self.url = reverse('posts_comments:post-vote-detail',
-                           kwargs={'pk': post_vote.id})
+        self.post = Post.objects.first()
+        PostVote.objects.create(user=self.user1, post=self.post)
+        self.url = reverse('posts_comments:post-vote-list')
 
     def test_not_authenticated(self):
         """Unauthenticated user shouldn't be able to acces the view"""
@@ -38,7 +37,8 @@ class TestIsOwner(APITestCase):
         """User that is bound to the object can edit it"""
         token = f"Token {AuthToken.objects.create(user=self.user1)[-1]}"
         self.client.credentials(HTTP_AUTHORIZATION=token)
-        response = self.client.delete(self.url)
+        data = {'post': self.post.id}
+        response = self.client.delete(self.url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -46,6 +46,7 @@ class TestIsOwner(APITestCase):
         """User that is not bound to the object cannot edit it"""
         token = f"Token {AuthToken.objects.create(user=self.user)[-1]}"
         self.client.credentials(HTTP_AUTHORIZATION=token)
-        response = self.client.delete(self.url)
+        data = {'post': self.post.id}
+        response = self.client.delete(self.url, data=data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

@@ -36,12 +36,18 @@ class PaymentInfo(models.Model):
 
 
 class Notification(models.Model):
+    class TypeChoice(models.IntegerChoices):
+        IMPORTANT = (2, _('important'))
+        REMINDER = (1, _('reminder'))
+        CASUAL = (0, _('casual'))
+
     title = models.CharField(_('title'), max_length=150)
     desc = models.CharField(_('description'), max_length=300)
     notification_type = models.CharField(
         _('notification type'),
-        max_length=100
+        choices=TypeChoice.choices
     )
+    is_read = models.BooleanField(default=False)
     user = models.ForeignKey(ConcertifyUser, related_name='notification',
                              on_delete=models.CASCADE)
 

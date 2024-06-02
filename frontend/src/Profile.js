@@ -6,6 +6,13 @@ import { nullToX } from "./Utils";
 import React, { useState, useEffect } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import {
+  profileGet,
+  profilePatch,
+  profilePatchPayment,
+  profileDelete,
+  profilePut,
+} from "./REST";
+import {
   UsernameField,
   EmailField,
   NamesField,
@@ -17,78 +24,55 @@ import {
   PaymentField,
 } from "./UserForm";
 
-export function getProfileData(cookies, setCookie, removeCookie) {
+export function updateProfileData(cookies, setCookie, removeCookie) {
   const user = cookies["user"];
-  fetch("http://localhost:8000/profile", {
-    method: "GET",
-    headers: {
-      Authorization: "Token " + user.token,
-    },
-  })
-    .then((response) => {
-      if (!response.ok) throw response;
-      return response.json();
-    })
-    .then((data) => {
-      const payment = nullToX(data.payment_info, "");
-      setCookie("user", {
-        ...user,
-        username: data.username,
-        email: data.email,
-        names: {
-          first: data.first_name,
-          last: data.last_name,
-        },
-        payment: {
-          line1: payment.line1,
-          line2: payment.line2,
-          city: payment.city,
-          postal_code: payment.postal_code,
-          country: payment.country,
-          telephone: payment.telephone,
-          mobile: payment.mobile,
-        },
-      });
+  profileGet(user.token).then((data) => {
+    const payment = nullToX(data.payment_info, "");
+    setCookie("user", {
+      ...user,
+      username: data.username,
+      email: data.email,
+      names: {
+        first: data.first_name,
+        last: data.last_name,
+      },
+      payment: {
+        line1: payment.line1,
+        line2: payment.line2,
+        city: payment.city,
+        postal_code: payment.postal_code,
+        country: payment.country,
+        telephone: payment.telephone,
+        mobile: payment.mobile,
+      },
     });
+  });
 }
 
 export function ProfileDetails() {
   function handleSubmit(event) {
-    const patch = async () => {
-      await fetch("http://localhost:8000/profile", {
-        method: "PATCH",
-        body: JSON.stringify({
-          username: t.username.value,
-          email: t.email.value,
-          first_name: t.first_name.value,
-          last_name: t.last_name.value,
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-          Authorization: "Token " + cookies["user"].token,
-        },
-      })
-        .then((response) => {
-          if (!response.ok) throw response;
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Details updated");
-          getProfileData(cookies, setCookie, removeCookie);
-        })
-        .catch((err) => {
-          console.log(err);
-          err.json().then((data) => {
-            setErr({
-              username: data.username,
-              email: data.email,
-            });
-          });
-        });
-    };
     event.preventDefault();
     const t = event.target;
-    patch();
+    profilePatch(
+      user.token,
+      t.username.value,
+      t.email.value,
+      t.first_name.value,
+      t.last_name.value,
+    )
+      .then((data) => {
+        console.log("Details updated");
+        updateProfileData(cookies, setCookie, removeCookie);
+      })
+      .catch((err) => {
+        console.log(err);
+        err.json().then((data) => {
+          setErr({
+            username: data.username,
+            email: data.email,
+          });
+        });
+      });
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const user = cookies["user"];
@@ -109,50 +93,35 @@ export function ProfileDetails() {
 
 export function ProfilePayment() {
   function handleSubmit(event) {
-    const patch = async () => {
-      await fetch("http://localhost:8000/profile", {
-        method: "PATCH",
-        body: JSON.stringify({
-          payment_info: {
-            line1: t.line1.value,
-            line2: t.line2.value,
-            city: t.city.value,
-            postal_code: t.postal_code.value,
-            country: t.country.value,
-            telephone: t.telephone.value,
-            mobile: t.mobile.value,
-          },
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-          Authorization: "Token " + cookies["user"].token,
-        },
-      })
-        .then((response) => {
-          if (!response.ok) throw response;
-          return response.json();
-        })
-        .then((data) => {
-          getProfileData(cookies, setCookie, removeCookie);
-          console.log("Payment info updated");
-        })
-        .catch((err) => {
-          err.json().then((data) => {
-            setErr({
-              line1: data.line1,
-              line2: data.line2,
-              city: data.city,
-              postal_code: data.postal_code,
-              country: data.country,
-              telephone: data.telephone,
-              mobile: data.mobile,
-            });
-          });
-        });
-    };
     event.preventDefault();
     const t = event.target;
-    patch();
+    profilePatchPayment(
+      user.token,
+      t.line1.value,
+      t.line2.value,
+      t.city.value,
+      t.postal_code.value,
+      t.country.value,
+      t.telephone.value,
+      t.mobile.value,
+    )
+      .then((data) => {
+        updateProfileData(cookies, setCookie, removeCookie);
+        console.log("Payment info updated");
+      })
+      .catch((err) => {
+        err.json().then((data) => {
+          setErr({
+            line1: data.line1,
+            line2: data.line2,
+            city: data.city,
+            postal_code: data.postal_code,
+            country: data.country,
+            telephone: data.telephone,
+            mobile: data.mobile,
+          });
+        });
+      });
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const user = cookies["user"];
@@ -176,64 +145,42 @@ export function ProfilePayment() {
 
 export function ProfileSecurity() {
   function handleDelete(event) {
-    const del = async () => {
-      await fetch("http://localhost:8000/profile", {
-        method: "DELETE",
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-          Authorization: "Token " + cookies["user"].token,
-        },
-      })
-        .then((response) => {
-          if (!response.ok) throw response;
-          removeCookie("user");
-          navigate("/");
-          console.log("Account Deleted");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
     event.preventDefault();
-    del();
+    profileDelete(cookies["user"].token)
+      .then((response) => {
+        if (!response.ok) throw response;
+        removeCookie("user");
+        navigate("/");
+        console.log("Account Deleted");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
   function handleSubmit(event) {
-    const put = async () => {
-      await fetch("http://localhost:8000/profile/password", {
-        method: "PUT",
-        body: JSON.stringify({
-          old_password: t.old_password.value,
-          password1: t.password1.value,
-          password2: t.password2.value,
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-          Authorization: "Token " + cookies["user"].token,
-        },
-      })
-        .then((response) => {
-          if (!response.ok) throw response;
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Password updated");
-        })
-        .catch((err) => {
-          err.json().then((data) => {
-            setErr({
-              old_password: data.old_password,
-              password1: data.password1,
-              password2: data.password2,
-            });
-          });
-        });
-    };
     event.preventDefault();
     const t = event.target;
     if (PasswordConfirmationInvalid(t.password1.value, t.password2.value)) {
       return false;
     }
-    put();
+    profilePut(
+      cookies["user"].token,
+      t.old_password.value,
+      t.password1.value,
+      t.password2.value,
+    )
+      .then((data) => {
+        console.log("Password updated");
+      })
+      .catch((err) => {
+        err.json().then((data) => {
+          setErr({
+            old_password: data.old_password,
+            password1: data.password1,
+            password2: data.password2,
+          });
+        });
+      });
   }
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const navigate = useNavigate();
@@ -269,7 +216,7 @@ export function Profile() {
       navigate("/");
     }
     if (fetched) return;
-    getProfileData(cookies, setCookie, removeCookie);
+    updateProfileData(cookies, setCookie, removeCookie);
     setFetched(true);
   }
   const navigate = useNavigate();
