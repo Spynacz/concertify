@@ -12,6 +12,7 @@ import {
   PasswordConfirmationInvalid,
   UsernameField,
   EmailField,
+  EmailInvalid,
   NamesField,
   ErrorField,
   SubmitButton,
@@ -88,7 +89,10 @@ export function Register() {
   function handleSubmit(event) {
     event.preventDefault();
     const t = event.target;
-    if (PasswordConfirmationInvalid(t.password1.value, t.password2.value)) {
+    if (
+      PasswordConfirmationInvalid(t.password1.value, t.password2.value) ||
+      EmailInvalid(t.email.value)
+    ) {
       return false;
     }
     registerPost(
