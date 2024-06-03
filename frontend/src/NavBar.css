@@ -30,7 +30,7 @@
   flex-direction: column;
   top: 95%;
   background-color: white;
-  width: calc(100% - 0.5em); /* TODO fix */
+  width: calc(100% - 0.5em);
   border-width: 2px;
   border-color: #000000;
   border-style: solid;
@@ -40,14 +40,6 @@
 
 .search-results:empty {
   border: none;
-}
-
-.search-results li {
-  padding-left: 0.5em;
-}
-
-.search-results li:hover {
-  background-color: #ebebeb;
 }
 
 .result {
@@ -67,7 +59,11 @@
 }
 
 .result.selected {
- background-color: #ebebeb;
+  background-color: #ebebeb;
+}
+
+.result:hover {
+  background-color: #ebebeb;
 }
 
 @media screen and (min-width: 1081px) {
