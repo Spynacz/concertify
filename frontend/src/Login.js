@@ -24,6 +24,10 @@ function ErrorMsg({ text }) {
 }
 
 export function Logout() {
+  const [cookies, setCookie, removeCookie] = useCookies(["user", "cart"]);
+  const navigate = useNavigate();
+  const user = cookies["user"];
+
   function logout() {
     logoutPost(user.token)
       .then((response) => {
@@ -38,13 +42,17 @@ export function Logout() {
         navigate("/");
       });
   }
-  const [cookies, setCookie, removeCookie] = useCookies(["user", "cart"]);
-  const navigate = useNavigate();
-  const user = cookies["user"];
+
   return <div onClick={logout}>Logout</div>;
 }
 
 export function Login() {
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
+  const [usernameMsg, setUsernameMsg] = useState([]);
+  const [passMsg, setPassMsg] = useState([]);
+  const [globalMsg, setGlobalMsg] = useState([]);
+  const navigate = useNavigate();
+
   function handleSubmit(event) {
     event.preventDefault();
     const t = event.target;
@@ -55,24 +63,24 @@ export function Login() {
           username: data.user.username,
           token: data.token,
         };
-        setCookie("user", newUser);
+        console.log(data);
+        const expiry = new Date(data.expiry);
+        setCookie("user", newUser, { expires: expiry, sameSite: "strict" });
         removeCookie("cart");
         navigate("/");
       })
       .catch((err) => {
-        err.json().then((data) => {
-          const newdata = nullToX(data, []);
-          setUsernameMsg(newdata.username);
-          setPassMsg(newdata.password);
-          setGlobalMsg(newdata.non_field_errors);
-        });
+        if (err.json) {
+          err.json().then((data) => {
+            const newdata = nullToX(data, []);
+            setUsernameMsg(newdata.username);
+            setPassMsg(newdata.password);
+            setGlobalMsg(newdata.non_field_errors);
+          });
+        }
       });
   }
-  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
-  const [usernameMsg, setUsernameMsg] = useState([]);
-  const [passMsg, setPassMsg] = useState([]);
-  const [globalMsg, setGlobalMsg] = useState([]);
-  const navigate = useNavigate();
+
   return (
     <div className="login-form-container">
       <UserForm className="login-form" onSubmit={handleSubmit}>
@@ -87,6 +95,12 @@ export function Login() {
 }
 
 export function Register() {
+  const [usernameMsg, setUsernameMsg] = useState([]);
+  const [emailMsg, setEmailMsg] = useState([]);
+  const [passMsg, setPassMsg] = useState([]);
+  const [globalMsg, setGlobalMsg] = useState([]);
+  const navigate = useNavigate();
+
   function handleSubmit(event) {
     event.preventDefault();
     const t = event.target;
@@ -117,11 +131,7 @@ export function Register() {
         });
       });
   }
-  const [usernameMsg, setUsernameMsg] = useState([]);
-  const [emailMsg, setEmailMsg] = useState([]);
-  const [passMsg, setPassMsg] = useState([]);
-  const [globalMsg, setGlobalMsg] = useState([]);
-  const navigate = useNavigate();
+
   return (
     <div className="login-form-container">
       <UserForm className="login-form" onSubmit={handleSubmit}>
