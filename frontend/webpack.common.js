@@ -24,7 +24,7 @@ module.exports = {
   resolve: { extensions: ["*", ".js", ".jsx"] },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "template.html",
+      template: "public/template.html",
     }),
   ],
 };
