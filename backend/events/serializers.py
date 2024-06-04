@@ -60,6 +60,7 @@ class EventDetailsSerializer(EventFeedSerializer):
     event_contacts = serializers.SerializerMethodField()
     social_media = serializers.SerializerMethodField()
     ticket = serializers.SerializerMethodField()
+    permission_level = serializers.SerializerMethodField()
 
     def get_event_contacts(self, event):
         response = []
@@ -101,6 +102,17 @@ class EventDetailsSerializer(EventFeedSerializer):
                 'amount': ticket.amount
             })
         return response
+
+    def get_permission_level(self, event):
+        user = self.context.get("request").user
+        if not user.is_authenticated:
+            return None
+
+        try:
+            role = models.Role.objects.get(event=event, user=user).user
+        except models.Role.DoesNotExist:
+            role = None
+        return role
 
 
 class RoleSerializer(ValidateUserInContextMixin,
