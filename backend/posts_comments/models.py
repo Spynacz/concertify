@@ -20,7 +20,7 @@ class BasePostCommentModel(models.Model):
 
 
 class Post(BasePostCommentModel):
-    picture = models.ImageField(_('picture'), blank=True, null=True)
+    picture = models.URLField(_('picture'), blank=True, null=True)
     event = models.ForeignKey('events.Event', related_name='posts',
                               on_delete=models.CASCADE)
 
