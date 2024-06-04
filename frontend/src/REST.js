@@ -255,3 +255,22 @@ export function uploadImageToS3(file) {
 
   return uploadFile();
 }
+
+export function postPost(title, desc, picture, event) {
+  return fetch("http://localhost:8000/post", {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+      Authorization: getAuthorization(user),
+    },
+    body: JSON.stringify({
+      title: title,
+      desc: desc,
+      picture: picture,
+      event: event,
+    }),
+  }).then((response) => {
+    if (!response.ok) throw response;
+    return response.json();
+  });
+}

@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { getAuthorization } from "../Utils";
+import { uploadImageToS3 } from "../REST";
 import "./NewPost.css";
 
 const MIN_BODYTEXT_HEIGHT = 10;
@@ -21,24 +21,15 @@ export default function NewPost({ eventId, user }) {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    fetch("http://localhost:8000/post", {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json",
-        Authorization: getAuthorization(user),
-      },
-      body: JSON.stringify({
-        title: postTitle.value,
-        desc: postBody.value,
-        event: eventId,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error(response.status);
+    let imageUrl;
+    uploadImageToS3(postImages.files[0])
+      .then((location) => {
+        imageUrl = location;
+        console.log(imageUrl);
       })
-      .catch((err) => console.error(err.message));
-
-    event.target.reset();
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   useLayoutEffect(() => {
@@ -92,7 +83,7 @@ export default function NewPost({ eventId, user }) {
               </Form.Group>
 
               <Form.Group controlId="postImages">
-                <Form.Control type="file" placeholder="Attach" />
+                <Form.Control type="file" />
               </Form.Group>
               <Button type="submit" className="mt-2 float-end">
                 Publish
