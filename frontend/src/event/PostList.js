@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Col, Nav, Row } from "react-bootstrap";
-import { Link } from "react-router-dom";
 import Post from "./Post";
 
 export default function PostList({ eventId }) {
