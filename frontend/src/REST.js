@@ -1,3 +1,5 @@
+import AWS from "aws-sdk";
+
 export function cartPost(token, cart) {
   const newCart = cart.map(({ quantity, amount, ticket_type, ...rest }) => {
     return { quantity, amount, ticket_type };
@@ -214,4 +216,42 @@ export function profilePut(token, old_pass, pass1, pass2) {
     if (!response.ok) throw response;
     return response.json();
   });
+}
+
+export function uploadImageToS3(file) {
+  const S3_BUCKET = process.env.S3_BUCKET;
+  const REGION = process.env.S3_REGION;
+
+  AWS.config.update({
+    accessKeyId: process.env.S3_ACCESS_KEY,
+    secretAccessKey: process.env.S3_SECRET_KEY,
+    region: REGION,
+  });
+
+  const myBucket = new AWS.S3({
+    params: { Bucket: S3_BUCKET },
+    region: REGION,
+  });
+
+  const uploadFile = () => {
+    const params = {
+      Body: file,
+      Bucket: S3_BUCKET,
+      Key: file.name,
+      ContentType: file.type,
+    };
+
+    return myBucket
+      .putObject(params)
+      .promise()
+      .then(() => {
+        const location = `https://${S3_BUCKET}.s3.${REGION}.amazonaws.com/${file.name}`;
+        return location;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  };
+
+  return uploadFile();
 }
