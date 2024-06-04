@@ -192,9 +192,16 @@ class TestEventDetailsSerializer(TestCase):
     fixtures = ['fixtures/test_fixture.json']
 
     def setUp(self):
+        self.factory = APIRequestFactory()
         self.event = Event.objects.get(id=1)
+        request = self.factory.get(
+            reverse('events:event-detail', kwargs={'pk': self.event.id})
+        )
+        request.user = ConcertifyUser.objects.first()
         self.serializer = serializers.EventDetailsSerializer(
-            instance=self.event)
+            instance=self.event,
+            context={"request": request}
+        )
 
     def test_get_event_contacts(self):
         """Method should return list of EventContact object data"""
