@@ -190,3 +190,4 @@ CACHES = {
 # Celery Configuration Options
 CELERY_BROKER_URL = f"redis://{os.environ.get('REDIS_CELERY')}:6380/0"
 CELERY_RESULT_BACKEND = f"redis://{os.environ.get('REDIS_CELERY')}:6380/0"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
