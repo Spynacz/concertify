@@ -130,7 +130,6 @@ class TestEventViewSet(APITestCase):
         Role.objects.create(user=self.user, event=self.event1,
                             name=Role.NameChoice.MODERATOR)
         response = self.client.put(self.url_details, data=data)
-        data.update({'picture': None})
         response_data = response.data
         id = response_data['location'].get('id')
         response_data.update({'location': id})
