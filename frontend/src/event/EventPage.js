@@ -20,9 +20,10 @@ export default function EventPage() {
       postal_code: "",
       country: "",
     },
+    permission_level: null,
     title: "",
     desc: "",
-    picture: null,
+    picture: "",
     start: "",
     end: "",
     ticket: {},
@@ -44,7 +45,7 @@ export default function EventPage() {
       <EventDetails eventData={eventData} />
       <JoinButton tickets={eventData.ticket} eventId={id} />
       <PostList eventId={id} />
-      <NewPost eventId={id} user={user} />
+      {eventData.permission_level ? <NewPost eventId={id} user={user} /> : ""}
     </Container>
   );
 }

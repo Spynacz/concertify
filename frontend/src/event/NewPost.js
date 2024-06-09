@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { uploadImageToS3 } from "../REST";
+import { postPost, uploadImageToS3 } from "../REST";
 import "./NewPost.css";
 
 const MIN_BODYTEXT_HEIGHT = 10;
@@ -21,15 +21,22 @@ export default function NewPost({ eventId, user }) {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    let imageUrl;
-    uploadImageToS3(postImages.files[0])
-      .then((location) => {
-        imageUrl = location;
-        console.log(imageUrl);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    if (postImages.files[0]) {
+      let imageUrl;
+      uploadImageToS3(postImages.files[0])
+        .then((location) => {
+          imageUrl = location;
+          console.log(imageUrl);
+          postPost(user.token, postTitle.value, body, imageUrl, eventId).catch(
+            (err) => console.log(err),
+          );
+        })
+        .catch((err) => console.error(err));
+    } else {
+      postPost(user.token, postTitle.value, body, "", eventId).catch(
+        (err) => console.log(err),
+      );
+    }
   };
 
   useLayoutEffect(() => {
@@ -83,7 +90,7 @@ export default function NewPost({ eventId, user }) {
               </Form.Group>
 
               <Form.Group controlId="postImages">
-                <Form.Control type="file" />
+                <Form.Control type="file" multiple />
               </Form.Group>
               <Button type="submit" className="mt-2 float-end">
                 Publish
