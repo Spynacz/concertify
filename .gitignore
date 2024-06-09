@@ -45,6 +45,10 @@ media/profile_pics
 # fixtures
 backend/fixtures/*.json
 
+#postgres
+postgresql/data
+postgres-data
+
 #react
 frontend/node_modules
 frontend/package-lock.json

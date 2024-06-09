@@ -1,0 +1,71 @@
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+.profile-container {
+  margin: 2em;
+  padding: 2em;
+  max-width: 60em;
+  border-radius: var(--radius);
+  width: 100%;
+  background-color: var(--light-color);
+}
+
+.nav-container {
+  display: flex;
+}
+
+.nav-container .nav {
+  width: 10em;
+}
+
+.nav-container .nav-item {
+  display: flex;
+  align-items: center;
+  height: 3em;
+  margin-top: 1em;
+}
+
+.nav-container .nav-item:first-child {
+  margin-top: 0;
+}
+
+.nav-container .nav-item a {
+  height: 100%;
+  width: 100%;
+  font-size: large;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 5em;
+  margin-bottom: 2em;
+}
+
+.profile-header .profile-username {
+  width: fit-content;
+  height: fit-content;
+  margin-left: 2em;
+  font-size: x-large;
+}
+
+.profile-header img {
+  height: 5em;
+  width: 5em;
+  border-radius: var(--radius);
+}
+
+.form-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 5em;
+}
+
+.form-container .userform {
+  margin: 0;
+  padding: 0;
+}

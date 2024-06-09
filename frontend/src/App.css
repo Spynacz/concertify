@@ -3,7 +3,13 @@
   --dark-color: #333;
   --light-color: #eee;
   --background-color: #fff;
+  --red-color: #f36e6e;
   --radius: 1em;
+}
+
+#root {
+  height: 100vh;
+  display: block;
 }
 
 * {
@@ -14,6 +20,10 @@
 a {
   text-decoration: unset;
   color: unset;
+}
+
+large {
+  font-size: large;
 }
 
 head {
@@ -45,17 +55,53 @@ head {
   --bs-btn-hover-bg: var(--dark-color);
 }
 
+.nav-pills .nav-link.active {
+  background-color: var(--accent-color);
+  color: var(--dark-color);
+  border: dashed 0.15em var(--dark-color);
+}
+
+.nav-pills .nav-link {
+  color: var(--dark-color);
+  border: dashed 0.15em transparent;
+}
+
 .form-control:focus {
   border-color: var(--dark-color);
   box-shadow: none;
 }
 
-.accent-button, .btn-primary {
+.accent-button,
+.btn-primary {
   background-color: var(--accent-color);
   border-radius: var(--radius);
   padding: 0.5em;
   color: var(--dark-color);
   border: dashed 0.15em var(--dark-color);
+  height: fit-content;
+  width: fit-content;
+}
+
+.light-button {
+  background-color: var(--light-color);
+}
+
+.red-button {
+  background-color: var(--red-color);
+  border-radius: var(--radius);
+  padding: 0.5em;
+  color: var(--dark-color);
+  border: dashed 0.15em var(--dark-color);
+}
+
+.app-container {
+  height: 92%;
+  max-width: unset;
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  margin: 0;
+  padding: 0;
 }
 
 @media screen and (min-width: 1081px) {
@@ -66,5 +112,8 @@ head {
   .mobile {
     visibility: collapse;
     display: none;
+  }
+  .app-container {
+    height: 92%;
   }
 }

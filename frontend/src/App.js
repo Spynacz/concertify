@@ -1,18 +1,34 @@
 import React from "react";
+import { CookiesProvider, useCookies } from "react-cookie";
+import {
+  Navigate,
+  Outlet,
+  RouterProvider,
+  createBrowserRouter,
+} from "react-router-dom";
 import "./App.css";
-import NavBar from "./NavBar";
-import { EventList } from "./Event";
-import { RouterProvider, createBrowserRouter, Outlet } from "react-router-dom";
-import { useState } from "react";
-import { useCookies, CookiesProvider } from "react-cookie";
+import ErrorPage from "./ErrorPage";
 import { Login, Register } from "./Login";
+import NavBar from "./NavBar";
+import {
+  Profile,
+  ProfileDetails,
+  ProfilePayment,
+  ProfileSecurity,
+} from "./Profile";
+import Cart from "./Cart";
+import NewEvent from "./event/NewEvent";
+import EventList from "./event/EventList";
+import EventPage from "./event/EventPage";
 
 const router = createBrowserRouter([
   {
+    path: "/",
     element: <Layout />,
+    errorElement: <ErrorPage />,
     children: [
       {
-        path: "/",
+        path: "",
         element: <Home />,
       },
       {
@@ -23,6 +39,40 @@ const router = createBrowserRouter([
         path: "/register",
         element: <Register />,
       },
+      {
+        path: "/cart",
+        element: <Cart />,
+      },
+      {
+        path: "/event/:id",
+        element: <EventPage />,
+      },
+      {
+        path: "/new-event",
+        element: <NewEvent />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="details" replace />,
+          },
+          {
+            path: "details",
+            element: <ProfileDetails />,
+          },
+          {
+            path: "payment",
+            element: <ProfilePayment />,
+          },
+          {
+            path: "security",
+            element: <ProfileSecurity />,
+          },
+        ],
+      },
     ],
   },
 ]);
@@ -31,7 +81,9 @@ function Layout() {
   return (
     <>
       <NavBar />
-      <Outlet />
+      <div className="app-container">
+        <Outlet />
+      </div>
     </>
   );
 }
@@ -40,7 +92,9 @@ export default function App() {
   const [cookies, setCookie, removeCookie] = useCookies([]);
   return (
     <CookiesProvider defaultSetOptions={{ path: "/" }}>
-      <RouterProvider router={router} />
+      <div>
+        <RouterProvider router={router} />
+      </div>
     </CookiesProvider>
   );
 }

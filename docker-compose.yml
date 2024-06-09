@@ -37,7 +37,7 @@ services:
     volumes:
       - redis_celery:/data
     command: redis-server --port 6380
-    
+
   backend:
     container_name: Django
     build: ./backend
@@ -63,6 +63,8 @@ services:
      - "3000:3000"
     environment:
       - NODE_ENV=development
+    env_file:
+      - .env
     volumes:
       - ./frontend:/frontend
       - /frontend/node_modules

@@ -10,7 +10,7 @@ COPY webpack.common.js /frontend/webpack.common.js
 COPY webpack.dev.js /frontend/webpack.dev.js
 COPY webpack.prod.js /frontend/webpack.prod.js
 COPY babel.config.json /frontend/babel.config.json
-COPY template.html /frontend/template.html
+COPY public /frontend/public
 COPY src /frontend/src
 
 CMD ["npm", "start"]
