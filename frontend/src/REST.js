@@ -256,12 +256,12 @@ export function uploadImageToS3(file) {
   return uploadFile();
 }
 
-export function postPost(title, desc, picture, event) {
+export function postPost(token, title, desc, picture, event) {
   return fetch("http://localhost:8000/post", {
     method: "POST",
     headers: {
       "Content-type": "application/json",
-      Authorization: getAuthorization(user),
+      Authorization: "Token " + token,
     },
     body: JSON.stringify({
       title: title,
