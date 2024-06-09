@@ -1,12 +1,12 @@
+import { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { useCookies } from "react-cookie";
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { eventGet } from "../REST";
 import EventDetails from "./EventDetails";
-import "./EventPage.css";
 import JoinButton from "./JoinButton";
 import PostList from "./PostList";
+import NewPost from "./NewPost";
 
 export default function EventPage() {
   const initialState = {
@@ -20,28 +20,32 @@ export default function EventPage() {
       postal_code: "",
       country: "",
     },
+    permission_level: null,
     title: "",
     desc: "",
-    picture: null,
+    picture: "",
     start: "",
     end: "",
     ticket: {},
   };
 
   const { id } = useParams();
-  const [cookies, setCookie, removeCookie] = useCookies("[user]");
   const [eventData, setEventData] = useState(initialState);
+  const [cookies, setCookie, removeCookie] = useCookies();
+  const user = cookies.user;
 
   useEffect(() => {
     eventGet(id).then((data) => {
       setEventData(data);
     });
   }, []);
+
   return (
     <Container fluid style={{ display: "block", padding: "0" }}>
       <EventDetails eventData={eventData} />
       <JoinButton tickets={eventData.ticket} eventId={id} />
       <PostList eventId={id} />
+      {eventData.permission_level ? <NewPost eventId={id} user={user} /> : ""}
     </Container>
   );
 }
