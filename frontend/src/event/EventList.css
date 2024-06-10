@@ -1,8 +1,15 @@
+.container-fluid,
+.app-container,
+#root,
+body {
+  height: fit-content;
+}
+
 .event-list {
   display: flex;
   width: 100%;
   flex-flow: row wrap;
-  height: 100%;
+  height: fit-content;
   align-items: center;
   justify-content: center;
 }

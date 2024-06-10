@@ -21,21 +21,32 @@ export function EventPreview({ title, location, date, image }) {
 
 export default function EventList() {
   function get() {
-    if (fetched) return;
-    eventList()
+    eventList(next)
       .then((data) => {
-        setEvents([...events, ...data]);
-        setFetched(true);
+        setEvents([...events, ...data.results]);
+        setNext(data.next);
       })
       .catch((err) => {
         console.log(err);
       });
   }
   const [events, setEvents] = useState([]);
-  const [fetched, setFetched] = useState(false);
+  const [next, setNext] = useState("");
   useEffect(() => {
-    get();
-  }, []);
+    if (document.body.offsetHeight <= 300) {
+      get();
+    }
+    const onScroll = function () {
+      if (
+        next !== null &&
+        window.innerHeight + window.scrollY >= document.body.offsetHeight
+      ) {
+        get();
+      }
+    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [next]);
 
   return (
     <Container fluid>
