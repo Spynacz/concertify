@@ -33,9 +33,7 @@ export default function EventList() {
   const [events, setEvents] = useState([]);
   const [next, setNext] = useState("");
   useEffect(() => {
-    if (document.body.offsetHeight <= 300) {
-      get();
-    }
+    if (events == []) get();
     const onScroll = function () {
       if (
         next !== null &&
@@ -46,7 +44,7 @@ export default function EventList() {
     };
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
-  }, [next]);
+  }, [next, events]);
 
   return (
     <Container fluid>

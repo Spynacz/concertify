@@ -1,10 +1,7 @@
 import AWS from "aws-sdk";
 
 export function cartPost(token, cart) {
-  const newCart = cart.map(({ quantity, amount, ticket_type, ...rest }) => {
-    return { quantity, amount, ticket_type };
-  });
-  const json = JSON.stringify({ items: newCart });
+  const json = JSON.stringify({ order_items: cart });
   fetch("http://localhost:8000/cart", {
     method: "POST",
     body: json,
@@ -29,7 +26,14 @@ export function cartGet(token) {
       return response.json();
     })
     .then((data) => {
-      return data.items;
+      return data.order_items.map((x) => {
+        return {
+          ...x.ticket,
+          ticket: x.ticket.id,
+          ticket_type: 1,
+          quantity: x.quantity,
+        };
+      });
     })
     .catch((err) => {
       if (err.status === 400) {
@@ -94,9 +98,7 @@ export function eventPost(
       if (!response.ok) throw response;
       return response.json();
     })
-    .then((data) => {
-      console.log(data);
-    });
+    .then((data) => {});
 }
 
 export function eventList(link) {
@@ -113,7 +115,6 @@ export function eventList(link) {
   })
     .then((response) => {
       if (!response.ok) throw response;
-      console.log(response);
       return response.json();
     })
     .then((data) => {

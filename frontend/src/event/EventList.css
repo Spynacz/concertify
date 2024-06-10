@@ -1,7 +1,7 @@
-.container-fluid,
 .app-container,
 #root,
 body {
+  min-height: 100vh;
   height: fit-content;
 }
 

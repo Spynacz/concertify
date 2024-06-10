@@ -19,14 +19,14 @@ function Ticket({ ticket }) {
     const cart = cookies["cart"];
     if (cart === undefined) return;
     const value = event.target.value;
-    const el = cart.findIndex((el) => el.id === ticket.id);
+    const el = cart.findIndex((el) => el.ticket === ticket.id);
     if (el !== -1) {
       const newCart =
         +value < 1
           ? [...cart.splice(0, el), ...cart.splice(el + 1)]
           : [
               ...cart.splice(0, el),
-              { ...cart[el], quantity: value },
+              { ...cart[el], quantity: value, ticket: ticket.id },
               ...cart.splice(el + 1),
             ];
       setCookie("cart", newCart);
@@ -86,17 +86,26 @@ function Bar() {
 export function addTicket(cookies, setCookie, ticket, event) {
   function update(cart) {
     if (cart === undefined) return;
-    const el = cart.findIndex((el) => el.id === ticket.id);
+    const el = cart.findIndex((el) => el.ticket === ticket.id);
     const newCart =
       el === -1
-        ? [...cart, { ...ticket, event: event, quantity: 1, ticket_type: 1 }]
+        ? [
+            ...cart,
+            {
+              ...ticket,
+              event: event,
+              quantity: 1,
+              ticket_type: 1,
+              ticket: ticket.id,
+            },
+          ]
         : [
             ...cart.slice(0, el),
             {
               ...cart[el],
-              event: event,
               quantity: +cart[el].quantity + 1,
               ticket_type: 1,
+              ticket: ticket.id,
             },
             ...cart.slice(el + 1),
           ];
