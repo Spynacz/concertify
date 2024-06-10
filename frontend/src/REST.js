@@ -63,6 +63,32 @@ export function eventGet(id) {
     });
 }
 
+export function eventPost(token, title, picture, location, date, social, desc) {
+  const json = JSON.stringify({
+    title: title,
+    picture: picture,
+    location: location,
+    start_date: date,
+    social: social,
+    desc: desc,
+  });
+  return fetch("http://localhost:8000/event", {
+    method: "POST",
+    headers: {
+      Authorization: "Token " + token,
+      "Content-type": "application/json; charset=UTF-8",
+    },
+    body: json,
+  })
+    .then((response) => {
+      if (!response.ok) throw response;
+      return response.json();
+    })
+    .then((data) => {
+      console.log(data);
+    });
+}
+
 export function eventList() {
   const options = {
     weekday: "long",
