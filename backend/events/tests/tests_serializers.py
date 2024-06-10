@@ -1,5 +1,3 @@
-import decimal
-
 from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone
@@ -10,7 +8,7 @@ from rest_framework.test import APIRequestFactory
 from unittest.mock import patch
 
 from events import serializers
-from events.models import Event, Location, Role, SocialMedia, Ticket
+from events.models import Event, Location, Role, SocialMedia
 
 from users.models import ConcertifyUser, Notification
 
@@ -83,7 +81,7 @@ class TestEventFeedSerializer(TestCase):
             for the user that creates it and also should
             schedule the proces of creating notifications.
         """
-        request = self.factory.post(reverse('events:event-list'))
+        request = self.factory.get(reverse('events:event-list'))
         request.user = self.user
 
         serializer = self.serializer_class(
@@ -149,7 +147,8 @@ class TestEventFeedSerializer(TestCase):
 
     # TODO split test
     @patch('events.serializers.EventFeedSerializer.revoke_task')
-    @patch('events.serializers.EventFeedSerializer.send_reminders.apply_async')
+    @patch("events.serializers.EventFeedSerializer."
+           "send_reminders.apply_async")
     def test_update(self, mock_apply_async, mock_revoke_task):
         """
             When event updated scheduled task should deleted
@@ -193,9 +192,16 @@ class TestEventDetailsSerializer(TestCase):
     fixtures = ['fixtures/test_fixture.json']
 
     def setUp(self):
+        self.factory = APIRequestFactory()
         self.event = Event.objects.get(id=1)
+        request = self.factory.get(
+            reverse('events:event-detail', kwargs={'pk': self.event.id})
+        )
+        request.user = ConcertifyUser.objects.first()
         self.serializer = serializers.EventDetailsSerializer(
-            instance=self.event)
+            instance=self.event,
+            context={"request": request}
+        )
 
     def test_get_event_contacts(self):
         """Method should return list of EventContact object data"""
@@ -611,127 +617,3 @@ class TestTicketSerializer(TestCase):
         """Setting amount lower than will raise an error"""
         serializer = self.serializer_class(data=self.data)
         serializer.is_valid(raise_exception=True)
-
-
-class TestCartItemSerializer(TestCase):
-    def setUp(self):
-        self.serializer_class = serializers.CartItemSerializer
-        self.user = ConcertifyUser.objects.create(
-            username="test",
-            email='test@email.com',
-            password='test'
-        )
-        location = Location.objects.create(
-            name='test',
-            address_line='test',
-            city='test',
-            postal_code='test',
-            country='TST'
-        )
-        self.event = Event.objects.create(
-            title='test1',
-            desc='Test test1',
-            location=location
-        )
-        self.ticket = Ticket.objects.create(
-            title='test',
-            desc='test',
-            quantity=1000,
-            amount=12.01,
-            event=self.event
-        )
-        self.data = {
-            'ticket_type': 0.5,
-            'quantity': 2,
-            'amount': '2.00',
-            'ticket': self.ticket.id
-        }
-
-    def test_get_total_amount(self):
-        """Serializer should return total ticket item cost"""
-        serializer = self.serializer_class(data=self.data)
-        serializer.is_valid(raise_exception=True)
-        data = serializer.data
-
-        self.assertEqual(
-            data.get('total_amount'),
-            decimal.Decimal(data.get("amount"))
-            * decimal.Decimal(data.get("quantity"))
-            * decimal.Decimal(data.get("ticket_type"))
-        )
-
-    def test_read_representation(self):
-        """Serializer will return more ticket related data when reading"""
-        serializer = self.serializer_class(data=self.data)
-        serializer.is_valid(raise_exception=True)
-        self.data.update(ticket={
-            'id': self.ticket.id,
-            'title': self.ticket.title,
-            'desc': self.ticket.desc,
-            'quantity': self.ticket.quantity,
-            'amount': decimal.Decimal(str(self.ticket.amount)),
-            'event': self.ticket.event.id
-        })
-
-        self.assertDictContainsSubset(self.data, serializer.data)
-
-
-class TestCartSerializer(TestCase):
-    def setUp(self):
-        self.serializer_class = serializers.CartSerializer
-        self.user = ConcertifyUser.objects.create(
-            username="test",
-            email='test@email.com',
-            password='test'
-        )
-        location = Location.objects.create(
-            name='test',
-            address_line='test',
-            city='test',
-            postal_code='test',
-            country='TST'
-        )
-        self.event = Event.objects.create(
-            title='test1',
-            desc='Test test1',
-            location=location
-        )
-        self.ticket = Ticket.objects.create(
-            title='test',
-            desc='test',
-            quantity=1000,
-            amount=12.01,
-            event=self.event
-        )
-        self.data = {
-            'items': [
-                {
-                    'ticket_type': 0.5,
-                    'quantity': 2,
-                    'amount': '2.00',
-                    'ticket': self.ticket.id
-                },
-                {
-                    'ticket_type': 1,
-                    'quantity': 1,
-                    'amount': '2.00',
-                    'ticket': self.ticket.id
-                }
-            ]
-        }
-
-    def test_get_total(self):
-        """get_total should return sum of all ticket items costs"""
-        serializer = self.serializer_class(data=self.data)
-        serializer.is_valid(raise_exception=True)
-
-        self.assertEqual(
-            serializer.data.get('total'),
-            sum([
-                (
-                    decimal.Decimal(item.get("amount"))
-                    * decimal.Decimal(item.get("quantity"))
-                    * decimal.Decimal(item.get("ticket_type"))
-                )for item in serializer.data.get('items')
-            ])
-        )

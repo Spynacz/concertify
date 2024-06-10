@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from events.mixins import ValidateUserInContextMixin
+from payments.serializers import OrderSerializer
 from users.models import (
     ConcertifyUser,
     EventReport,
@@ -36,7 +37,8 @@ class UserSerializer(ValidatePasswordMixin,
             'payment_info'
         ]
         extra_kwargs = {
-            'password': {'write_only': True, 'min_length': 9}}
+            'password': {'write_only': True, 'min_length': 9}
+        }
 
     def create(self, validated_data):
         payment_info = validated_data.pop('payment_info', None)
@@ -74,6 +76,8 @@ class ReadOnlyUserSerializer(serializers.ModelSerializer):
 
 
 class ManageUserSerializer(UserSerializer):
+    orders = OrderSerializer(many=True, read_only=True)
+
     class Meta:
         model = ConcertifyUser
         fields = [
@@ -81,7 +85,8 @@ class ManageUserSerializer(UserSerializer):
             'last_name',
             'username',
             'email',
-            'payment_info'
+            'payment_info',
+            'orders'
         ]
 
 

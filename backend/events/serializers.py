@@ -1,5 +1,3 @@
-import decimal
-
 from django.utils import timezone
 
 from rest_framework import serializers
@@ -62,6 +60,7 @@ class EventDetailsSerializer(EventFeedSerializer):
     event_contacts = serializers.SerializerMethodField()
     social_media = serializers.SerializerMethodField()
     ticket = serializers.SerializerMethodField()
+    permission_level = serializers.SerializerMethodField()
 
     def get_event_contacts(self, event):
         response = []
@@ -103,6 +102,17 @@ class EventDetailsSerializer(EventFeedSerializer):
                 'amount': ticket.amount
             })
         return response
+
+    def get_permission_level(self, event):
+        user = self.context.get("request").user
+        if not user.is_authenticated:
+            return None
+
+        try:
+            role = models.Role.objects.get(event=event, user=user).user
+        except models.Role.DoesNotExist:
+            role = None
+        return role
 
 
 class RoleSerializer(ValidateUserInContextMixin,
@@ -200,58 +210,6 @@ class TicketSerializer(serializers.ModelSerializer):
             raise ValidationError("Amount cannot be lower or equal 0")
 
         return amount
-
-
-class CartItemSerializer(serializers.Serializer):
-    # TODO add mock saving, and bought ticket history?
-    TICKET_CHOICES = [
-        (.5, 'REDUCED'),
-        (1, 'REGULAR')
-    ]
-    ticket_type = serializers.ChoiceField(choices=TICKET_CHOICES)
-    quantity = serializers.IntegerField()
-    amount = serializers.DecimalField(max_digits=9, decimal_places=2)
-    ticket = serializers.IntegerField()
-    total_amount = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = "__all__"
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        id = instance.get('ticket')
-        ticket = models.Ticket.objects.get(id=id)
-        rep['ticket'] = {
-            'id': ticket.id,
-            'title': ticket.title,
-            'desc': ticket.desc,
-            'quantity': ticket.quantity,
-            'amount': ticket.amount,
-            'event': ticket.event.id
-        }
-        return rep
-
-    def get_total_amount(self, cart_item):
-        return (decimal.Decimal(cart_item.get("amount"))
-                * decimal.Decimal(cart_item.get("quantity"))
-                * decimal.Decimal(cart_item.get("ticket_type")))
-
-
-class CartSerializer(serializers.Serializer):
-    items = CartItemSerializer(many=True)
-    total = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = "__all__"
-
-    def get_total(self, cart):
-        total = 0
-        for item in cart.get("items"):
-            total += (decimal.Decimal(item.get("amount"))
-                      * decimal.Decimal(item.get("quantity"))
-                      * decimal.Decimal(item.get("ticket_type")))
-
-        return total
 
 
 class NotificationSerializer(serializers.ModelSerializer,

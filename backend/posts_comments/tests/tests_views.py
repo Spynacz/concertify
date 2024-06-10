@@ -55,8 +55,6 @@ class TestPostViewSet(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=self.token)
         response = self.client.post(self.url_list, data=self.data)
 
-        self.data.update({'picture': None})
-
         self.assertDictContainsSubset(self.data, response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -81,8 +79,6 @@ class TestPostViewSet(APITestCase):
         )
         self.client.credentials(HTTP_AUTHORIZATION=self.token)
         response = self.client.put(self.url_detail, data=self.data)
-
-        self.data.update({'picture': None})
 
         self.assertDictContainsSubset(self.data, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

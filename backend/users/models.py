@@ -7,7 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 class ConcertifyUser(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
-    picture = models.ImageField(blank=True, null=True)
+    picture = models.URLField(blank=True, null=True)
 
     def get_name(self):
         if self.first_name and self.last_name:
