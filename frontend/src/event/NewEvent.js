@@ -13,7 +13,8 @@ export default function NewEvent() {
       t.title.value,
       "",
       t.location.value,
-      t.date.value,
+      t.start_date.value,
+      t.end_date.value,
       social,
       t.desc.value,
     ).then((data) => {
@@ -45,7 +46,16 @@ export default function NewEvent() {
             <Form.Label> Location </Form.Label>
             <Form.Control className="location" type="text" name="location" />
             <Form.Label> Date </Form.Label>
-            <Form.Control className="date" type="date" name="date" />
+            <Form.Control
+              className="date"
+              type="datetime-local"
+              name="start_date"
+            />
+            <Form.Control
+              className="date"
+              type="datetime-local"
+              name="end_date"
+            />
             <Form.Label> Social </Form.Label>
             {[...Array(social.length).keys()].map((x) => (
               <Form.Control

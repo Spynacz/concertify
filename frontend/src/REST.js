@@ -63,12 +63,22 @@ export function eventGet(id) {
     });
 }
 
-export function eventPost(token, title, picture, location, date, social, desc) {
+export function eventPost(
+  token,
+  title,
+  picture,
+  location,
+  start_date,
+  end_date,
+  social,
+  desc,
+) {
   const json = JSON.stringify({
     title: title,
     picture: picture,
     location: location,
-    start_date: date,
+    start: start_date,
+    end: end_date,
     social: social,
     desc: desc,
   });
