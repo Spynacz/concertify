@@ -54,8 +54,7 @@ jobs:
       run: python manage.py migrate --no-input
       working-directory: ./backend
     - name: Create test_fixture.json
-      run: ./fixtures/generate_fixtures.py --test
-      working-directory: ./backend
+      run: ./backend/fixtures/generate_fixtures.py --test
     - name: Run Django tests
       run: python manage.py test -v2
       working-directory: ./backend
