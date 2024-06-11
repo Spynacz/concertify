@@ -20,6 +20,9 @@ export function EventPreview({ title, location, date, image }) {
 }
 
 export default function EventList() {
+  const [events, setEvents] = useState([]);
+  const [next, setNext] = useState("");
+
   function get() {
     eventList(next)
       .then((data) => {
@@ -30,14 +33,14 @@ export default function EventList() {
         console.log(err);
       });
   }
-  const [events, setEvents] = useState([]);
-  const [next, setNext] = useState("");
+
   useEffect(() => {
-    if (events == []) get();
+    if (events !== undefined && events.length == 0) get();
     const onScroll = function () {
       if (
         next !== null &&
-        window.innerHeight + window.scrollY >= document.body.offsetHeight
+        window.innerHeight + document.documentElement.scrollTop !==
+          document.documentElement.offsetHeight
       ) {
         get();
       }
