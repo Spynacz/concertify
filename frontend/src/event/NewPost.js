@@ -28,15 +28,15 @@ export default function NewPost({ eventId, user }) {
         .then((location) => {
           imageUrl = location;
           console.log(imageUrl);
-          postPost(user.token, postTitle.value, body, imageUrl, eventId).catch(
-            (err) => console.log(err),
-          );
+          postPost(user.token, postTitle.value, body, imageUrl, eventId)
+            .catch((err) => console.log(err))
+            .finally(setShow(false));
         })
         .catch((err) => console.error(err));
     } else {
-      postPost(user.token, postTitle.value, body, "", eventId).catch((err) =>
-        console.log(err),
-      );
+      postPost(user.token, postTitle.value, body, "", eventId)
+        .catch((err) => console.log(err))
+        .finally(setShow(false));
     }
   };
 
@@ -104,11 +104,7 @@ export default function NewPost({ eventId, user }) {
                   }}
                 />
               </Form.Group>
-              <Button
-                type="submit"
-                onClick={() => setShow(false)}
-                className="mt-2 float-end"
-              >
+              <Button type="submit" className="mt-2 float-end">
                 Publish
               </Button>
             </Form>

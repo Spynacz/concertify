@@ -7,7 +7,11 @@ import { useEffect, useState } from "react";
 export function EventPreview({ title, location, date, image }) {
   return (
     <Card className="event-preview">
+    {image ?
       <Card.Img src={image} className="event-preview-image-container" />
+      :
+      <Card.Img src="https://weknowyourdreams.com/images/party/party-12.jpg" className="event-preview-image-container" />
+    }
       <Card.Body className="event-preview-data">
         <Card.Title className="event-preview-title">{title}</Card.Title>
         <div className="event-preview-info">
