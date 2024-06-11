@@ -63,7 +63,6 @@ export function Login() {
           username: data.user.username,
           token: data.token,
         };
-        console.log(data);
         const expiry = new Date(data.expiry);
         setCookie("user", newUser, { expires: expiry, sameSite: "strict" });
         removeCookie("cart");

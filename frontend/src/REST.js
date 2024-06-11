@@ -1,10 +1,7 @@
 import AWS from "aws-sdk";
 
 export function cartPost(token, cart) {
-  const newCart = cart.map(({ quantity, amount, ticket_type, ...rest }) => {
-    return { quantity, amount, ticket_type };
-  });
-  const json = JSON.stringify({ items: newCart });
+  const json = JSON.stringify({ order_items: cart });
   fetch("http://localhost:8000/cart", {
     method: "POST",
     body: json,
@@ -29,7 +26,14 @@ export function cartGet(token) {
       return response.json();
     })
     .then((data) => {
-      return data.items;
+      return data.order_items.map((x) => {
+        return {
+          ...x.ticket,
+          ticket: x.ticket.id,
+          ticket_type: 1,
+          quantity: x.quantity,
+        };
+      });
     })
     .catch((err) => {
       if (err.status === 400) {
@@ -63,14 +67,50 @@ export function eventGet(id) {
     });
 }
 
-export function eventList() {
+export function eventPost(
+  token,
+  title,
+  picture,
+  location,
+  start_date,
+  end_date,
+  social,
+  desc,
+) {
+  const json = JSON.stringify({
+    title: title,
+    picture: picture,
+    location: location,
+    start: start_date,
+    end: end_date,
+    social: social,
+    desc: desc,
+  });
+  return fetch("http://localhost:8000/event", {
+    method: "POST",
+    headers: {
+      Authorization: "Token " + token,
+      "Content-type": "application/json; charset=UTF-8",
+    },
+    body: json,
+  })
+    .then((response) => {
+      if (!response.ok) throw response;
+      return response.json();
+    })
+    .then((data) => {});
+}
+
+export function eventList(link) {
   const options = {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   };
-  return fetch("http://localhost:8000/event", {
+  const url =
+    link === undefined || link === "" ? "http://localhost:8000/event" : link;
+  return fetch(url, {
     method: "GET",
   })
     .then((response) => {
@@ -78,10 +118,13 @@ export function eventList() {
       return response.json();
     })
     .then((data) => {
-      return data.results.map((event) => ({
-        ...event,
-        start: new Date(event.start).toLocaleDateString(undefined, options),
-      }));
+      return {
+        ...data,
+        results: data.results.map((event) => ({
+          ...event,
+          start: new Date(event.start).toLocaleDateString(undefined, options),
+        })),
+      };
     });
 }
 

@@ -128,7 +128,7 @@ class TestUserNotificationView(APITestCase):
         )
         token = f"Token {AuthToken.objects.create(user=self.user2)[-1]}"
         self.client.credentials(HTTP_AUTHORIZATION=token)
-    
+
     def test_get_notification(self):
         """Get should return all notification related with user"""
         url = reverse("users:notifications")
@@ -146,5 +146,3 @@ class TestUserNotificationView(APITestCase):
                       kwargs={'pk': self.notification1.id})
         response = self.client.put(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-

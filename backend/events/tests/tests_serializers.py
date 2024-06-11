@@ -76,10 +76,12 @@ class TestEventFeedSerializer(TestCase):
     # TODO split test
     @patch('events.serializers.EventFeedSerializer.send_reminders.apply_async')
     def test_create(self, mock_apply_async):
-        """create method should make an owner role
-           for the user that creates it and also should schedule the proces of creating notifications."""
-
-        request = self.factory.post(reverse('events:event-list'))
+        """
+            create method should make an owner role
+            for the user that creates it and also should
+            schedule the proces of creating notifications.
+        """
+        request = self.factory.get(reverse('events:event-list'))
         request.user = self.user
 
         serializer = self.serializer_class(
@@ -105,7 +107,10 @@ class TestEventFeedSerializer(TestCase):
         )
 
     def test_send_reminders(self):
-        """Before the event start there should be notifications created for each intrested user"""
+        """
+            Before the event start there should be notifications
+            created for each intrested user
+        """
         event = Event.objects.create(
             title='test1',
             desc='Test test1',
@@ -115,7 +120,7 @@ class TestEventFeedSerializer(TestCase):
                 month=4,
                 day=30,
                 hour=12
-            )
+            ).astimezone()
         )
         Role.objects.create(
             user=self.user,
@@ -142,10 +147,13 @@ class TestEventFeedSerializer(TestCase):
 
     # TODO split test
     @patch('events.serializers.EventFeedSerializer.revoke_task')
-    @patch('events.serializers.EventFeedSerializer.send_reminders.apply_async')
+    @patch("events.serializers.EventFeedSerializer."
+           "send_reminders.apply_async")
     def test_update(self, mock_apply_async, mock_revoke_task):
-        """When event updated scheduled task should deleted and new task should be scheduled"""
-
+        """
+            When event updated scheduled task should deleted
+            and new task should be scheduled
+        """
         request = self.factory.put(reverse('events:event-list'))
         request.user = self.user
         event = Event.objects.create(
@@ -157,7 +165,7 @@ class TestEventFeedSerializer(TestCase):
                 month=4,
                 day=30,
                 hour=12
-            )
+            ).astimezone()
         )
 
         serializer = self.serializer_class(
@@ -184,9 +192,16 @@ class TestEventDetailsSerializer(TestCase):
     fixtures = ['fixtures/test_fixture.json']
 
     def setUp(self):
+        self.factory = APIRequestFactory()
         self.event = Event.objects.get(id=1)
+        request = self.factory.get(
+            reverse('events:event-detail', kwargs={'pk': self.event.id})
+        )
+        request.user = ConcertifyUser.objects.first()
         self.serializer = serializers.EventDetailsSerializer(
-            instance=self.event)
+            instance=self.event,
+            context={"request": request}
+        )
 
     def test_get_event_contacts(self):
         """Method should return list of EventContact object data"""
@@ -484,3 +499,121 @@ class TestNotificationSerializer(TestCase):
 
         self.assertEqual(Notification.objects.count(), 1)
         self.assertDictEqual(serializer.validated_data, self.data)
+
+
+class TestScheduleItem(TestCase):
+    def setUp(self):
+        self.serializer_class = serializers.ScheduleItemSerializer
+        self.user = ConcertifyUser.objects.create(
+            username="test",
+            email='test@email.com',
+            password='test'
+        )
+        location = Location.objects.create(
+            name='test',
+            address_line='test',
+            city='test',
+            postal_code='test',
+            country='TST'
+        )
+        self.event = Event.objects.create(
+            title='test1',
+            desc='Test test1',
+            location=location
+        )
+        self.data = {
+            'title': 'test',
+            'desc': 'test',
+            'place': 'test',
+            'event': self.event.id
+        }
+
+    def test_schedule_time_valid(self):
+        """Adding schedule with future date will pass"""
+        self.data.update(when=timezone.now() + timezone.timedelta(days=1))
+        serializer = self.serializer_class(data=self.data)
+        serializer.is_valid(raise_exception=True)
+
+    def test_schedule_time_invalid(self):
+        """Adding schedule with past date will raise an error"""
+        self.data.update(when=timezone.now() - timezone.timedelta(days=1))
+        serializer = self.serializer_class(data=self.data)
+        with self.assertRaisesMessage(
+                ValidationError,
+                "You can't create a schedule with items in the past"):
+            serializer.is_valid(raise_exception=True)
+
+
+class TestTicketSerializer(TestCase):
+    def setUp(self):
+        self.serializer_class = serializers.TicketSerializer
+        self.user = ConcertifyUser.objects.create(
+            username="test",
+            email='test@email.com',
+            password='test'
+        )
+        location = Location.objects.create(
+            name='test',
+            address_line='test',
+            city='test',
+            postal_code='test',
+            country='TST'
+        )
+        self.event = Event.objects.create(
+            title='test1',
+            desc='Test test1',
+            location=location
+        )
+        self.data = {
+            'title': 'test',
+            'desc': 'test',
+            'quantity': 1,
+            'amount': 1.11,
+            'event': self.event.id
+        }
+
+    def test_quantity_less_than_zero(self):
+        """Setting quantity lower than will raise an error"""
+        self.data.update(quantity=-1)
+        serializer = self.serializer_class(data=self.data)
+        with self.assertRaisesMessage(
+                ValidationError,
+                "Ticket quantity cannot be lower or equal 0"):
+            serializer.is_valid(raise_exception=True)
+
+    def test_quantity_equal_zero(self):
+        """Setting quantity lower than will raise an error"""
+        self.data.update(quantity=0)
+        serializer = self.serializer_class(data=self.data)
+        with self.assertRaisesMessage(
+                ValidationError,
+                "Ticket quantity cannot be lower or equal 0"):
+            serializer.is_valid(raise_exception=True)
+
+    def test_quantity_valid(self):
+        """Setting quantity lower than will raise an error"""
+        serializer = self.serializer_class(data=self.data)
+        serializer.is_valid(raise_exception=True)
+
+    def test_amount_equal_zero(self):
+        """Setting amount lower than will raise an error"""
+        self.data.update(amount=0)
+        serializer = self.serializer_class(data=self.data)
+        with self.assertRaisesMessage(
+                ValidationError,
+                "Amount cannot be lower or equal 0"):
+            serializer.is_valid(raise_exception=True)
+
+    def test_amount_less_than_zero(self):
+        """Setting amount lower than will raise an error"""
+        self.data.update(amount=-1)
+        serializer = self.serializer_class(data=self.data)
+        with self.assertRaisesMessage(
+                ValidationError,
+                "Amount cannot be lower or equal 0"):
+            serializer.is_valid(raise_exception=True)
+
+    def test_amount_valid(self):
+        """Setting amount lower than will raise an error"""
+        serializer = self.serializer_class(data=self.data)
+        serializer.is_valid(raise_exception=True)

@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.utils.timezone import now, timedelta
 
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIRequestFactory
 
 from knox.models import AuthToken
 
@@ -20,6 +20,7 @@ from users.models import ConcertifyUser, Notification
 
 class TestEventViewSet(APITestCase):
     def setUp(self):
+        self.factory = APIRequestFactory()
         self.location = Location.objects.create(
             name="test",
             address_line="test",
@@ -67,8 +68,12 @@ class TestEventViewSet(APITestCase):
     def test_serializer_class_retrieve(self):
         """When using retrieve action data should be serialized
            using EventDetailsSerializer"""
+        request = self.factory.get(self.url_details)
+        request.user = self.user
         response = self.client.get(self.url_details)
-        serializer = EventDetailsSerializer(instance=self.event1)
+        serializer = EventDetailsSerializer(
+            instance=self.event1,
+            context={"request": request})
 
         self.assertDictEqual(serializer.data, response.data)
 
@@ -125,7 +130,6 @@ class TestEventViewSet(APITestCase):
         Role.objects.create(user=self.user, event=self.event1,
                             name=Role.NameChoice.MODERATOR)
         response = self.client.put(self.url_details, data=data)
-        data.update({'picture': None})
         response_data = response.data
         id = response_data['location'].get('id')
         response_data.update({'location': id})

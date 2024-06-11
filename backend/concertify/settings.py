@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'events.apps.EventsConfig',
     'posts_comments.apps.PostsCommentsConfig',
+    'payments.apps.PaymentsConfig',
 
     'rest_framework',
     'knox',
@@ -179,7 +180,7 @@ CACHE_TTL = 60 * 20  # 20 min
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis_cache:6379/0",
+        "LOCATION": f"redis://{os.environ.get('REDIS_CACHE')}:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
@@ -187,5 +188,6 @@ CACHES = {
 }
 
 # Celery Configuration Options
-CELERY_BROKER_URL = 'redis://redis_celery:6380/0'
-CELERY_RESULT_BACKEND = 'redis://redis_celery:6380/0'
+CELERY_BROKER_URL = f"redis://{os.environ.get('REDIS_CELERY')}:6380/0"
+CELERY_RESULT_BACKEND = f"redis://{os.environ.get('REDIS_CELERY')}:6380/0"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True

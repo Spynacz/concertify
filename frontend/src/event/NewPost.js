@@ -33,8 +33,8 @@ export default function NewPost({ eventId, user }) {
         })
         .catch((err) => console.error(err));
     } else {
-      postPost(user.token, postTitle.value, body, "", eventId).catch(
-        (err) => console.log(err),
+      postPost(user.token, postTitle.value, body, "", eventId).catch((err) =>
+        console.log(err),
       );
     }
   };

@@ -15,7 +15,7 @@ class Location(models.Model):
 class Event(models.Model):
     title = models.CharField(_('title'), max_length=150)
     desc = models.CharField(_('description'), max_length=300)
-    picture = models.ImageField(_('picture'), blank=True, null=True)
+    picture = models.URLField(_('picture'), blank=True, null=True)
     start = models.DateTimeField(_('start date'), blank=True, null=True)
     end = models.DateTimeField(_('end date'), blank=True, null=True)
     location = models.ForeignKey(Location, related_name='event',
