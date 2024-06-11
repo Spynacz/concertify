@@ -58,7 +58,7 @@ export default function EventList() {
               <Nav.Link as="div" role="button">
                 <EventPreview
                   title={event.title}
-                  image="https://weknowyourdreams.com/images/party/party-12.jpg"
+                  image={event.picture}
                   location={event.location.address_line}
                   date={event.start}
                 />

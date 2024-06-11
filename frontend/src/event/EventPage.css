@@ -36,7 +36,7 @@
 }
 
 .parallax-image {
-  background-image: url("https://wallpaperaccess.com/full/6361597.jpg");
+  /* background-image: url("https://wallpaperaccess.com/full/6361597.jpg"); */
   mask-image: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 1) 80%,

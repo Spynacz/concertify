@@ -54,7 +54,7 @@ export default function Post({ id, title, desc, numVotes, image, hasVoted }) {
           <Card onClick={handleShow} className="post">
             <Card.Img
               variant="top"
-              src="https://media.timeout.com/images/103926031/image.jpg" /* src={image} */
+              src={image}
             />
             <Card.Body>
               <Card.Title>{title}</Card.Title>
@@ -89,7 +89,7 @@ export default function Post({ id, title, desc, numVotes, image, hasVoted }) {
             <p className="mb-2">{desc}</p>
             <img
               className="img-fluid rounded-2"
-              src="https://media.timeout.com/images/103926031/image.jpg"
+              src={image}
             />
           </div>
           <div className="d-flex justify-content-end mt-3">

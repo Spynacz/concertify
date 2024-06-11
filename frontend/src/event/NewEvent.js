@@ -1,27 +1,52 @@
-import { Form, Button, Image } from "react-bootstrap";
 import { useState } from "react";
-import "./NewEvent.css";
-import { eventPost } from "../REST";
+import { Button, Form, Image } from "react-bootstrap";
 import { useCookies } from "react-cookie";
+import { eventPost, uploadImageToS3 } from "../REST";
+import "./NewEvent.css";
 
 export default function NewEvent() {
-  function submit() {
+  const [social, setSocial] = useState([""]);
+  const [preview, setPreview] = useState(null);
+  const [cookies] = useCookies(["user"]);
+  const user = cookies["user"];
+
+  const submit = (event) => {
     event.preventDefault();
+
     const t = event.target;
-    eventPost(
-      user.token,
-      t.title.value,
-      "",
-      t.location.value,
-      t.start_date.value,
-      t.end_date.value,
-      social,
-      t.desc.value,
-    ).then((data) => {
-      console.log(data);
-    });
-  }
-  function change() {
+    if (eventImage.files[0]) {
+      let imageUrl;
+      uploadImageToS3(eventImage.files[0])
+        .then((location) => {
+          imageUrl = location;
+          console.log(imageUrl);
+          eventPost(
+            user.token,
+            t.title.value,
+            imageUrl,
+            t.location.value,
+            t.start_date.value,
+            t.end_date.value,
+            social,
+            t.desc.value,
+          ).catch((err) => console.log(err));
+        })
+        .catch((err) => console.log(err));
+    } else {
+      eventPost(
+        user.token,
+        t.title.value,
+        "",
+        t.location.value,
+        t.start_date.value,
+        t.end_date.value,
+        social,
+        t.desc.value,
+      ).catch((err) => console.log(err));
+    }
+  };
+
+  const change = (event) => {
     const t = event.target;
     const index = +t.name.split("-")[1];
     const changed = [
@@ -29,17 +54,28 @@ export default function NewEvent() {
       t.value,
       ...social.slice(index + 1),
     ].filter((x) => x !== "");
+
     const n = [...changed, ""];
     setSocial(n);
-  }
-  const [social, setSocial] = useState([""]);
-  const [cookies] = useCookies(["user"]);
-  const user = cookies["user"];
+  };
+
   return (
     <div className="new-event-container">
       <Form onSubmit={submit} className="new-event-form">
         <div className="new-event-image-data">
-          <Image src="https://wallpaperaccess.com/full/6361597.jpg" fluid />
+          <div className="new-event-image">
+            {preview && (
+              <Image src={URL.createObjectURL(preview)} rounded fluid />
+            )}
+            <Form.Group controlId="eventImage">
+              <Form.Control
+                type="file"
+                onChange={(event) => {
+                  setPreview(event.target.files[0]);
+                }}
+              />
+            </Form.Group>
+          </div>
           <div className="new-event-data">
             <Form.Label> Title </Form.Label>
             <Form.Control className="title" type="text" name="title" />
@@ -79,7 +115,7 @@ export default function NewEvent() {
           />
         </div>
         <Button type="submit" className="create-button">
-          Create post
+          Create event
         </Button>
       </Form>
     </div>

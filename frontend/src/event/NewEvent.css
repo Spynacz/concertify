@@ -65,3 +65,7 @@
 .new-event-form .social {
   margin-top: 0.5em;
 }
+
+.new-event-image {
+  flex-direction: column;
+}

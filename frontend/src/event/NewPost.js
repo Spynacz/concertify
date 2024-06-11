@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { Button, Form, Modal } from "react-bootstrap";
+import { Button, Form, Image, Modal } from "react-bootstrap";
 import { postPost, uploadImageToS3 } from "../REST";
 import "./NewPost.css";
 
@@ -9,6 +9,7 @@ export default function NewPost({ eventId, user }) {
   const [show, setShow] = useState(false);
   const bodyRef = useRef();
   const [body, setBody] = useState("");
+  const [preview, setPreview] = useState(null);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -74,6 +75,7 @@ export default function NewPost({ eventId, user }) {
                   type="text"
                   placeholder="Title your post"
                   style={{ fontSize: "1.2em" }}
+                  className="my-1"
                 />
               </Form.Group>
 
@@ -83,16 +85,30 @@ export default function NewPost({ eventId, user }) {
                   as="textarea"
                   placeholder="Share some thoughts"
                   style={{ wordBreak: "break-all", resize: "none" }}
+                  className="my-1"
                   value={body}
                   ref={bodyRef}
                   onChange={handleOnChange}
                 />
               </Form.Group>
 
+              {preview && (
+                <Image src={URL.createObjectURL(preview)} rounded fluid />
+              )}
               <Form.Group controlId="postImages">
-                <Form.Control type="file" multiple />
+                <Form.Control
+                  type="file"
+                  className="my-1"
+                  onChange={(event) => {
+                    setPreview(event.target.files[0]);
+                  }}
+                />
               </Form.Group>
-              <Button type="submit" className="mt-2 float-end">
+              <Button
+                type="submit"
+                onClick={() => setShow(false)}
+                className="mt-2 float-end"
+              >
                 Publish
               </Button>
             </Form>
