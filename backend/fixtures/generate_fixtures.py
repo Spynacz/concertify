@@ -420,8 +420,8 @@ def generate_orderitem(test):
 
 
 def run_generate(test: bool = False):
-    path = ('./fixtures/test_fixture.json' if test
-            else './fixtures/fixture.json')
+    path = ('./backend/fixtures/test_fixture.json' if test
+            else './backend/fixtures/fixture.json')
 
     generate_user(test)
     generate_paymentinfo(test)
