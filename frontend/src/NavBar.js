@@ -115,10 +115,14 @@ export default function NavBar() {
                   key={index}
                   className={selected === index ? "result selected" : "result"}
                 >
-                  <img
-                    className="rounded"
-                    src="https://weknowyourdreams.com/images/party/party-12.jpg"
-                  />
+                  {item.picture ? (
+                    <img className="rounded" src={item.picture} />
+                  ) : (
+                    <img
+                      className="rounded"
+                      src="https://weknowyourdreams.com/images/party/party-12.jpg"
+                    />
+                  )}
                   <p>{item.title}</p>
                 </Link>
               ))}
