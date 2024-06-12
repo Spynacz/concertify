@@ -44,15 +44,24 @@ export function cartGet(token) {
     });
 }
 
-export function eventGet(id) {
+export function eventGet(token, id) {
   const options = {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   };
+
+  let headers;
+  if (token) {
+    headers = {
+      Authorization: "Token " + token,
+    };
+  }
+
   return fetch(`http://localhost:8000/event/${id}`, {
     method: "GET",
+    headers: headers,
   })
     .then((response) => {
       if (!response.ok) throw response;

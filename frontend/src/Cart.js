@@ -33,13 +33,20 @@ function Ticket({ ticket }) {
       if (user !== undefined) cartPost(user.token, newCart);
     }
   }
-  if (eventDetails === init && ticket.event !== undefined)
-    eventGet(ticket.event).then((data) => setEventDetails(data));
+
+  if (eventDetails === init && ticket.event !== undefined) {
+    if (user) {
+      eventGet(user.token, ticket.event).then((data) => setEventDetails(data));
+    } else {
+      eventGet(undefined, ticket.event).then((data) => setEventDetails(data));
+    }
+  }
+
   return (
     <div className="ticket">
       <EventPreview
         title={eventDetails.title}
-        image="https://weknowyourdreams.com/images/party/party-12.jpg"
+        image={eventDetails.picture}
         location={eventDetails.location.address_line}
         date={eventDetails.date}
       />

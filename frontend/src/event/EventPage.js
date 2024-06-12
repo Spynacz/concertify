@@ -20,7 +20,7 @@ export default function EventPage() {
       postal_code: "",
       country: "",
     },
-    permission_level: null,
+    permission_level: "",
     title: "",
     desc: "",
     picture: "",
@@ -35,9 +35,15 @@ export default function EventPage() {
   const user = cookies.user;
 
   useEffect(() => {
-    eventGet(id).then((data) => {
-      setEventData(data);
-    });
+    if (user) {
+      eventGet(user.token, id).then((data) => {
+        setEventData(data);
+      });
+    } else {
+      eventGet(null, id).then((data) => {
+        setEventData(data);
+      });
+    }
   }, []);
 
   return (
@@ -45,7 +51,11 @@ export default function EventPage() {
       <EventDetails eventData={eventData} />
       <JoinButton tickets={eventData.ticket} eventId={id} />
       <PostList eventId={id} />
-      {eventData.permission_level ? <NewPost eventId={id} user={user} /> : ""}
+      {eventData.permission_level == 3 ? (
+        <NewPost eventId={id} user={user} />
+      ) : (
+        ""
+      )}
     </Container>
   );
 }

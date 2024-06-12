@@ -7,7 +7,11 @@ import { useEffect, useState } from "react";
 export function EventPreview({ title, location, date, image }) {
   return (
     <Card className="event-preview">
+    {image ?
       <Card.Img src={image} className="event-preview-image-container" />
+      :
+      <Card.Img src="https://weknowyourdreams.com/images/party/party-12.jpg" className="event-preview-image-container" />
+    }
       <Card.Body className="event-preview-data">
         <Card.Title className="event-preview-title">{title}</Card.Title>
         <div className="event-preview-info">
@@ -20,6 +24,9 @@ export function EventPreview({ title, location, date, image }) {
 }
 
 export default function EventList() {
+  const [events, setEvents] = useState([]);
+  const [next, setNext] = useState("");
+
   function get() {
     eventList(next)
       .then((data) => {
@@ -30,14 +37,14 @@ export default function EventList() {
         console.log(err);
       });
   }
-  const [events, setEvents] = useState([]);
-  const [next, setNext] = useState("");
+
   useEffect(() => {
-    if (events == []) get();
+    if (events !== undefined && events.length == 0) get();
     const onScroll = function () {
       if (
         next !== null &&
-        window.innerHeight + window.scrollY >= document.body.offsetHeight
+        window.innerHeight + document.documentElement.scrollTop !==
+          document.documentElement.offsetHeight
       ) {
         get();
       }
@@ -55,7 +62,7 @@ export default function EventList() {
               <Nav.Link as="div" role="button">
                 <EventPreview
                   title={event.title}
-                  image="https://weknowyourdreams.com/images/party/party-12.jpg"
+                  image={event.picture}
                   location={event.location.address_line}
                   date={event.start}
                 />

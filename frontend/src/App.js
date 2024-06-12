@@ -100,5 +100,5 @@ export default function App() {
 }
 
 export function Home() {
-  return <EventList count={25} />;
+  return <EventList />;
 }
