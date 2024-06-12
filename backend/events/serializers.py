@@ -109,10 +109,11 @@ class EventDetailsSerializer(EventFeedSerializer):
             return None
 
         try:
-            role = models.Role.objects.get(event=event, user=user).user
+            role = models.Role.objects.get(event=event, user=user)
         except models.Role.DoesNotExist:
-            role = None
-        return role
+            return None
+
+        return role.name
 
 
 class RoleSerializer(ValidateUserInContextMixin,

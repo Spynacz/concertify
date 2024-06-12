@@ -11,12 +11,12 @@ hasher = PBKDF2PasswordHasher()
 faker = faker.Faker()
 
 fixture = []
-user_count = 20
+user_count = 120
 event_count = 60
 post_count = 40
 comment_count = 80
-event_count = 20
 location_count = 40
+order_count = 40
 
 
 def generate_time(future_end=False):
@@ -103,11 +103,13 @@ def generate_notification(test):
                     'title': f'test{i}',
                     'desc': f'test{i}',
                     'notification_type': 'TEST',
+                    'is_read': random.choice([True, False]),
                     'user': i//2 + 1
                 } if test else {
                     'title': faker.word(),
                     'desc': faker.text(max_nb_chars=100),
                     'notification_type': faker.word().upper(),
+                    'is_read': random.choice([True, False]),
                     'user': i//2 + 1
                 }
             }
@@ -378,9 +380,48 @@ def generate_ticket(test):
         )
 
 
+# payment app
+def generate_order(test):
+    for i in range(1, order_count*2 + 1):
+        fixture.append(
+            {
+                'model': 'payments.Order',
+                'pk': i,
+                'fields': {
+                    'user': random.randint(1, user_count + 1),
+                    'created_at': generate_time(),
+                } if test else {
+                    'user': random.randint(1, user_count + 1),
+                    'created_at': generate_time(),
+                }
+            }
+        )
+
+
+def generate_orderitem(test):
+    for i in range(1, order_count*2 + 1):
+        fixture.append(
+            {
+                'model': 'payments.OrderItem',
+                'pk': i,
+                'fields': {
+                    'ticket_type': random.choice([0.5, 1]),
+                    'quantity': random.randint(1, 10),
+                    'order': random.randint(1, order_count + 1),
+                    'ticket': random.randint(1, event_count + 1)
+                } if test else {
+                    'ticket_type': random.choice([0.5, 1]),
+                    'quantity': random.randint(1, 10),
+                    'order': random.randint(1, order_count + 1),
+                    'ticket': random.randint(1, event_count + 1)
+                }
+            }
+        )
+
+
 def run_generate(test: bool = False):
-    path = ('./backend/fixtures/test_fixture.json' if test
-            else './backend/fixtures/fixture.json')
+    path = ('./fixtures/test_fixture.json' if test
+            else './fixtures/fixture.json')
 
     generate_user(test)
     generate_paymentinfo(test)
@@ -399,6 +440,9 @@ def run_generate(test: bool = False):
     generate_socialmedia(test)
     generate_scheduleitem(test)
     generate_ticket(test)
+
+    generate_order(test)
+    generate_orderitem(test)
 
     with open(path, 'w') as outfile:
         json.dump(fixture, outfile)
